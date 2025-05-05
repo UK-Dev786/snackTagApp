@@ -29,50 +29,50 @@ class ParentsHomeView extends GetView<ParentsHomeController> {
                     child: ParentsHeader(),
                   ),
                   // Total Wallet Balance Section
-                  const SizedBox(
-                    height:
-                        20, // Reduced spacing since we now have a fixed height header
-                  ),
-                  Text(
-                    "\$${parentController.parentAddWalletModel.value?.amount}",
-                    style: AppTextStyles.PoppinsMedium.copyWith(
-                      fontSize: 40,
-                      color: Colors.black,
-                    ),
-                  ),
-                  Text(
-                    "Total Wallet Balance",
-                    style: AppTextStyles.MetropolisMedium.copyWith(
-                      fontSize: 16,
-                    ),
-                  ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text(
-                        "Enable Monthly Reload",
-                        style: AppTextStyles.MetropolisMedium.copyWith(
-                          fontSize: 13,
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-                      AdvancedSwitch(
-                        activeColor: Colors.green,
-                        inactiveColor: Colors.grey,
-                        controller: parentController.switchController,
-                        width: 27,
-                        height: 12,
-                        onChanged: (val) {
-                          parentController.toggleMonthlyReload(val);
-                        },
-                        initialValue: parentController.parentAddWalletModel
-                                .value?.enableMonthlyReload ??
-                            false,
-                      )
-                    ],
-                  ),
+                  // const SizedBox(
+                  //   height:
+                  //       20, // Reduced spacing since we now have a fixed height header
+                  // ),
+                  // Text(
+                  //   "\$${parentController.parentAddWalletModel.value?.amount}",
+                  //   style: AppTextStyles.PoppinsMedium.copyWith(
+                  //     fontSize: 40,
+                  //     color: Colors.black,
+                  //   ),
+                  // ),
+                  // Text(
+                  //   "Total Wallet Balance",
+                  //   style: AppTextStyles.MetropolisMedium.copyWith(
+                  //     fontSize: 16,
+                  //   ),
+                  // ),
+                  // Row(
+                  //   mainAxisAlignment: MainAxisAlignment.center,
+                  //   children: [
+                  //     Text(
+                  //       "Enable Monthly Reload",
+                  //       style: AppTextStyles.MetropolisMedium.copyWith(
+                  //         fontSize: 13,
+                  //       ),
+                  //     ),
+                  //     const SizedBox(width: 8),
+                  //     AdvancedSwitch(
+                  //       activeColor: Colors.green,
+                  //       inactiveColor: Colors.grey,
+                  //       controller: parentController.switchController,
+                  //       width: 27,
+                  //       height: 12,
+                  //       onChanged: (val) {
+                  //         parentController.toggleMonthlyReload(val);
+                  //       },
+                  //       initialValue: parentController.parentAddWalletModel
+                  //               .value?.enableMonthlyReload ??
+                  //           false,
+                  //     )
+                  //   ],
+                  // ),
 
-                  const SizedBox(height: 24),
+                  const SizedBox(height: 20),
                   // Two Wallet Balance Cards
                   Expanded(
                       child: Padding(
