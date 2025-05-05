@@ -102,7 +102,7 @@ class PhoneVerificationView extends GetView<PhoneVerificationController> {
                   height: 95,
                 ),
 
-                const SizedBox(height: 50),
+                const SizedBox(height: 45),
 
                 // Heading text
                 Text(
@@ -113,7 +113,7 @@ class PhoneVerificationView extends GetView<PhoneVerificationController> {
                   ),
                 ),
 
-                const SizedBox(height: 20),
+                const SizedBox(height: 15),
 
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 50),
@@ -127,7 +127,7 @@ class PhoneVerificationView extends GetView<PhoneVerificationController> {
                   ),
                 ),
 
-                const SizedBox(height: 40), // Space between text and OTP field
+                const SizedBox(height: 55), // Space between text and OTP field
 
                 Pinput(
                   defaultPinTheme: defaultPinTheme,

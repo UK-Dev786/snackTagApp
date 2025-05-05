@@ -57,7 +57,7 @@ class SelectionView extends GetView<SelectionController> {
                 ),
               ),
 
-              const SizedBox(height: 30),
+              const SizedBox(height: 20),
 
               Obx(
                 () => Row(
@@ -72,7 +72,7 @@ class SelectionView extends GetView<SelectionController> {
                         Get.toNamed(Routes.PHONE_AUTHENTICATION);
                       },
                     ),
-                    const SizedBox(width: 20),
+                    const SizedBox(width: 10),
                     SelectionTile(
                       imgPath: AppImages.newCafe,
                       // text: 'Cafeteria',

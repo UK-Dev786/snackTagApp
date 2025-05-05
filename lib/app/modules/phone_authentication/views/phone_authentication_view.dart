@@ -31,7 +31,7 @@ class PhoneAuthenticationView extends GetView<PhoneAuthenticationController> {
                   height: 95,
                 ),
 
-                const SizedBox(height: 50),
+                const SizedBox(height: 45),
 
                 // Heading
                 Text(
@@ -41,7 +41,7 @@ class PhoneAuthenticationView extends GetView<PhoneAuthenticationController> {
                     color: const Color(0xFF434343),
                   ),
                 ),
-                const SizedBox(height: 20),
+                const SizedBox(height: 15),
 
                 // Description
                 Text(
@@ -52,7 +52,7 @@ class PhoneAuthenticationView extends GetView<PhoneAuthenticationController> {
                     color: const Color(0xFF858585),
                   ),
                 ),
-                const SizedBox(height: 20),
+                const SizedBox(height: 55),
 
                 // Phone number field
                 Container(

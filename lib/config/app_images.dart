@@ -12,4 +12,5 @@ class AppImages {
   static const headerBtn = 'assets/images/parentHeaderBtn.png';
   static const baseBg = 'assets/images/parentYelloBg.png';
   static const shopped = 'assets/images/shopped.png';
+  static const baseButton = 'assets/images/baseButton.png';
 }
