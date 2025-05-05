@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "227455413233",
+    "project_id": "snacktag-app",
+    "storage_bucket": "snacktag-app.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:227455413233:android:cfc28e4ba322bef2b03250",
+        "android_client_info": {
+          "package_name": "com.example.luncher"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCcafJCZfLho2xFuKP9A3-bN8Dn2d5ar70"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:227455413233:android:f4a33c649d06e2a8b03250",
+        "android_client_info": {
+          "package_name": "com.mindept.snacktag"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCcafJCZfLho2xFuKP9A3-bN8Dn2d5ar70"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
