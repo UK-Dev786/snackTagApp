@@ -5,8 +5,6 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="49eed9f5-08af-4abd-a956-072a62d2a218" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/app/modules/parents_home/controllers/parents_home_controller.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/app/modules/parents_home/controllers/parents_home_controller.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/lib/widgets/parent_header.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/widgets/parent_header.dart" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -472,7 +470,15 @@
       <option name="project" value="LOCAL" />
       <updated>1746476903246</updated>
     </task>
-    <option name="localTasksCounter" value="48" />
+    <task id="LOCAL-00048" summary="set the parent header and name base on firebase">
+      <option name="closed" value="true" />
+      <created>1746477372309</created>
+      <option name="number" value="00048" />
+      <option name="presentableId" value="LOCAL-00048" />
+      <option name="project" value="LOCAL" />
+      <updated>1746477372309</updated>
+    </task>
+    <option name="localTasksCounter" value="49" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -487,7 +493,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="set notification services" />
     <MESSAGE value="staff preparation via stripe" />
     <MESSAGE value="the stripe onboarding page error resolved" />
     <MESSAGE value="the stripe onboarding page navigations error resolved" />
@@ -512,6 +517,7 @@
     <MESSAGE value="set the parents header with some backend" />
     <MESSAGE value="set the titles, bg buttons etc" />
     <MESSAGE value="set the home parent view, remove the total balance and assign that to the new view." />
-    <option name="LAST_COMMIT_MESSAGE" value="set the home parent view, remove the total balance and assign that to the new view." />
+    <MESSAGE value="set the parent header and name base on firebase" />
+    <option name="LAST_COMMIT_MESSAGE" value="set the parent header and name base on firebase" />
   </component>
 </project>

@@ -225,60 +225,93 @@ class ParentsHeader extends StatelessWidget {
                 padding: const EdgeInsets.all(20.0),
                 child: SizedBox(
                   height: 80, // Reduced height
-                  child: ListView.builder(
-                    scrollDirection: Axis.horizontal,
-                    itemCount: 10,
-                    itemBuilder: (context, index) {
-                      return Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 12.0),
-                        child: SizedBox(
-                          width: 50, // Reduced width
-                          child: Column(
-                            mainAxisSize: MainAxisSize.min, // Use minimum space
-                            children: [
-                              Container(
-                                width: 55, // Reduced size
-                                height: 55, // Reduced size
-                                decoration: BoxDecoration(
-                                  shape: BoxShape.circle,
-                                  color: Colors.white,
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color: Colors.black.withOpacity(0.1),
-                                      blurRadius: 4,
-                                      offset: const Offset(0, 2),
-                                    ),
-                                  ],
-                                ),
-                                child: Padding(
-                                  padding:
-                                      const EdgeInsets.all(5.0), // 5px padding
-                                  child: ClipOval(
-                                    child: Image.asset(
-                                      AppImages.profile,
-                                      fit: BoxFit.cover,
-                                    ),
+                  child: Obx(
+                    () => parentController.childrenList.isEmpty
+                        ? Center(
+                            child: Text(
+                              'No children added yet',
+                              style: AppTextStyles.MetropolisRegular.copyWith(
+                                fontSize: 12,
+                                color: Colors.grey,
+                              ),
+                            ),
+                          )
+                        : ListView.builder(
+                            scrollDirection: Axis.horizontal,
+                            itemCount: parentController.childrenList.length,
+                            itemBuilder: (context, index) {
+                              final child =
+                                  parentController.childrenList[index];
+                              return Padding(
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 12.0),
+                                child: SizedBox(
+                                  width: 55, // Reduced width
+                                  child: Column(
+                                    mainAxisSize:
+                                        MainAxisSize.min, // Use minimum space
+                                    children: [
+                                      Container(
+                                        width: 55, // Reduced size
+                                        height: 55, // Reduced size
+                                        decoration: BoxDecoration(
+                                          shape: BoxShape.circle,
+                                          color: Colors.white,
+                                          boxShadow: [
+                                            BoxShadow(
+                                              color:
+                                                  Colors.black.withOpacity(0.1),
+                                              blurRadius: 4,
+                                              offset: const Offset(0, 2),
+                                            ),
+                                          ],
+                                        ),
+                                        child: Padding(
+                                          padding: const EdgeInsets.all(
+                                              3.0), // 5px padding
+                                          child: ClipOval(
+                                            child:
+                                                child.childImageUrl != null &&
+                                                        child.childImageUrl!
+                                                            .isNotEmpty
+                                                    ? Image.network(
+                                                        child.childImageUrl!,
+                                                        fit: BoxFit.cover,
+                                                        errorBuilder: (context,
+                                                            error, stackTrace) {
+                                                          return Image.asset(
+                                                            AppImages.profile,
+                                                            fit: BoxFit.cover,
+                                                          );
+                                                        },
+                                                      )
+                                                    : Image.asset(
+                                                        AppImages.profile,
+                                                        fit: BoxFit.cover,
+                                                      ),
+                                          ),
+                                        ),
+                                      ),
+                                      const SizedBox(height: 4),
+                                      // Text with constrained height and overflow handling
+                                      Text(
+                                        child.childName ?? 'Child',
+                                        style: AppTextStyles.MetropolisRegular
+                                            .copyWith(
+                                          fontWeight: FontWeight.w500,
+                                          fontSize: 8,
+                                          color: AppColors.blackColor,
+                                        ),
+                                        textAlign: TextAlign.center,
+                                        overflow: TextOverflow.ellipsis,
+                                        maxLines: 1,
+                                      ),
+                                    ],
                                   ),
                                 ),
-                              ),
-                              const SizedBox(height: 4),
-                              // Text with constrained height and overflow handling
-                              Text(
-                                'Child',
-                                style: AppTextStyles.MetropolisRegular.copyWith(
-                                  fontWeight: FontWeight.w500,
-                                  fontSize: 7,
-                                  color: AppColors.blackColor,
-                                ),
-                                textAlign: TextAlign.center,
-                                overflow: TextOverflow.ellipsis,
-                                maxLines: 1,
-                              ),
-                            ],
+                              );
+                            },
                           ),
-                        ),
-                      );
-                    },
                   ),
                 ),
               ),
