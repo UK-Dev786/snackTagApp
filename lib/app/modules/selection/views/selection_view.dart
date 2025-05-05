@@ -20,8 +20,8 @@ class SelectionView extends GetView<SelectionController> {
         decoration: const BoxDecoration(
           gradient: LinearGradient(
             colors: [
-              AppColors.gradientStartColor,
               AppColors.gradientEndColor,
+              AppColors.gradientStartColor,
             ],
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
@@ -31,7 +31,7 @@ class SelectionView extends GetView<SelectionController> {
           padding: const EdgeInsets.all(12.0),
           child: Column(
             children: [
-              const Spacer(flex: 8), // Keeps LUNCH R centered at the top
+              const Spacer(flex: 12), // Keeps LUNCH R centered at the top
               // Center(
               //   child: Text(
               //     'Snack Tag',
@@ -41,56 +41,52 @@ class SelectionView extends GetView<SelectionController> {
               //     ),
               //   ),
               // ),
-              Image.asset("assets/images/Snacktag_logo.png",height: 100,),
+              Image.asset(
+                "assets/images/Snacktag_logo.png",
+                height: 100,
+              ),
 
-              const Spacer(flex: 8), // Push "TYPE SELECTION" further down
+              const Spacer(flex: 10), // Push "TYPE SELECTION" further down
 
               Text(
-                'Type Selection',
-                style: AppTextStyles.MetropolisBold.copyWith(
+                'TYPE SELECTION',
+                style: AppTextStyles.MetropolisRegular.copyWith(
                   fontSize: 22,
+                  fontWeight: FontWeight.bold,
                   color: AppColors.whiteColor, // Keep text white
                 ),
               ),
 
-              const SizedBox(height: 60),
+              const SizedBox(height: 30),
 
               Obx(
                 () => Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     SelectionTile(
-                      imgPath: AppImages.parent,
-                      text: 'Parents',
+                      imgPath: AppImages.newUser,
+                      // text: 'Parents',
                       isSelected: controller.isParentSelected.value,
-                      onTap: () => controller.isParentSelected.value = true,
+                      onTap: () {
+                        controller.isParentSelected.value = true;
+                        Get.toNamed(Routes.PHONE_AUTHENTICATION);
+                      },
                     ),
                     const SizedBox(width: 20),
                     SelectionTile(
-                      imgPath: AppImages.cafe,
-                      text: 'Cafeteria',
+                      imgPath: AppImages.newCafe,
+                      // text: 'Cafeteria',
                       isSelected: !controller.isParentSelected.value,
-                      onTap: () => controller.isParentSelected.value = false,
+                      onTap: () {
+                        controller.isParentSelected.value = false;
+                        Get.toNamed(Routes.CAFETERIA_PHONE_AUTHENICATION);
+                      },
                     ),
                   ],
                 ),
               ),
-              const Spacer(flex: 3), // Balanced space after the tiles
-
-              CustomButton(
-                isBackColor: false,
-                text: 'CONTINUE',
-                fontSize: 16,
-                onPressed: () {
-                  if (controller.isParentSelected.value) {
-                    Get.toNamed(Routes.PHONE_AUTHENTICATION);
-                  } else {
-                    Get.toNamed(Routes.CAFETERIA_PHONE_AUTHENICATION);
-                  }
-                },
-                isLoading: false.obs,
-              ),
-              const Spacer(flex: 1), // Space below the button
+              const Spacer(
+                  flex: 4), // Increased space after removing the button
             ],
           ),
         ),
