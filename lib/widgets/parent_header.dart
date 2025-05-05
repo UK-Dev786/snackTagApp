@@ -191,19 +191,35 @@ class ParentsHeader extends StatelessWidget {
                 child: Padding(
                   padding: const EdgeInsets.all(5.0), // 5px padding
                   child: ClipOval(
-                    child: Image.asset(
-                      AppImages.profile,
-                      fit: BoxFit.cover,
+                    child: Obx(
+                      () => parentController.parentProfileImage.value != null &&
+                              parentController
+                                  .parentProfileImage.value!.isNotEmpty
+                          ? Image.network(
+                              parentController.parentProfileImage.value!,
+                              fit: BoxFit.cover,
+                              errorBuilder: (context, error, stackTrace) {
+                                return Image.asset(
+                                  AppImages.profile,
+                                  fit: BoxFit.cover,
+                                );
+                              },
+                            )
+                          : Image.asset(
+                              AppImages.profile,
+                              fit: BoxFit.cover,
+                            ),
                     ),
                   ),
                 ),
               ),
               const SizedBox(height: 8),
-              Text('Parent Name',
+              Obx(() => Text(
+                  parentController.parentName.value ?? 'Parent Name ✏️',
                   style: AppTextStyles.MetropolisRegular.copyWith(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
-                      color: AppColors.blackColor)),
+                      color: AppColors.blackColor))),
               // Child images horizontal list
               Padding(
                 padding: const EdgeInsets.all(20.0),

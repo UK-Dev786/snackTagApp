@@ -6,7 +6,8 @@
   <component name="ChangeListManager">
     <list default="true" id="49eed9f5-08af-4abd-a956-072a62d2a218" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/app/modules/parents_home/views/parents_home_view.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/app/modules/parents_home/views/parents_home_view.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/app/modules/parents_home/controllers/parents_home_controller.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/app/modules/parents_home/controllers/parents_home_controller.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/widgets/parent_header.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/widgets/parent_header.dart" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -463,7 +464,15 @@
       <option name="project" value="LOCAL" />
       <updated>1746476737301</updated>
     </task>
-    <option name="localTasksCounter" value="47" />
+    <task id="LOCAL-00047" summary="set the home parent view, remove the total balance and assign that to the new view.">
+      <option name="closed" value="true" />
+      <created>1746476903246</created>
+      <option name="number" value="00047" />
+      <option name="presentableId" value="LOCAL-00047" />
+      <option name="project" value="LOCAL" />
+      <updated>1746476903246</updated>
+    </task>
+    <option name="localTasksCounter" value="48" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -478,7 +487,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="add strip bank account details method" />
     <MESSAGE value="set notification services" />
     <MESSAGE value="staff preparation via stripe" />
     <MESSAGE value="the stripe onboarding page error resolved" />
@@ -503,6 +511,7 @@
     <MESSAGE value="fix the auth screens, designs functionality" />
     <MESSAGE value="set the parents header with some backend" />
     <MESSAGE value="set the titles, bg buttons etc" />
-    <option name="LAST_COMMIT_MESSAGE" value="set the titles, bg buttons etc" />
+    <MESSAGE value="set the home parent view, remove the total balance and assign that to the new view." />
+    <option name="LAST_COMMIT_MESSAGE" value="set the home parent view, remove the total balance and assign that to the new view." />
   </component>
 </project>
