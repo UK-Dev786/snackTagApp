@@ -31,7 +31,7 @@ class SelectionView extends GetView<SelectionController> {
           padding: const EdgeInsets.all(12.0),
           child: Column(
             children: [
-              const Spacer(flex: 12), // Keeps LUNCH R centered at the top
+              const Spacer(flex: 14), // Keeps LUNCH R centered at the top
               // Center(
               //   child: Text(
               //     'Snack Tag',
@@ -46,7 +46,7 @@ class SelectionView extends GetView<SelectionController> {
                 height: 100,
               ),
 
-              const Spacer(flex: 12), // Push "TYPE SELECTION" further down
+              const Spacer(flex: 10), // Push "TYPE SELECTION" further down
 
               Text(
                 'TYPE SELECTION',

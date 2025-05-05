@@ -4,8 +4,26 @@
     <option name="autoReloadType" value="NONE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="49eed9f5-08af-4abd-a956-072a62d2a218" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/lib/widgets/parent_header.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/widgets/parent_header.dart" afterDir="false" />
+    <list default="true" id="49eed9f5-08af-4abd-a956-072a62d2a218" name="Changes" comment="set the parent children data in header and name base on firebase">
+      <change afterPath="$PROJECT_DIR$/assets/images/callBtn.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/assets/images/homeIcon.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/assets/images/notificationsIcon.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/assets/images/settingsIcon.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/assets/images/upComing.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.flutter-plugins-dependencies" beforeDir="false" afterPath="$PROJECT_DIR$/.flutter-plugins-dependencies" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/android/app/.cxx/Debug/1a3a275i/arm64-v8a/configure_fingerprint.bin" beforeDir="false" afterPath="$PROJECT_DIR$/android/app/.cxx/Debug/1a3a275i/arm64-v8a/configure_fingerprint.bin" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/android/app/.cxx/Debug/1a3a275i/armeabi-v7a/configure_fingerprint.bin" beforeDir="false" afterPath="$PROJECT_DIR$/android/app/.cxx/Debug/1a3a275i/armeabi-v7a/configure_fingerprint.bin" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/android/app/.cxx/Debug/1a3a275i/x86/configure_fingerprint.bin" beforeDir="false" afterPath="$PROJECT_DIR$/android/app/.cxx/Debug/1a3a275i/x86/configure_fingerprint.bin" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/android/app/.cxx/Debug/1a3a275i/x86_64/configure_fingerprint.bin" beforeDir="false" afterPath="$PROJECT_DIR$/android/app/.cxx/Debug/1a3a275i/x86_64/configure_fingerprint.bin" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/app/modules/cafeteria_phone_authenication/views/cafeteria_phone_authenication_view.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/app/modules/cafeteria_phone_authenication/views/cafeteria_phone_authenication_view.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/app/modules/cafeteria_phone_verification/views/cafeteria_phone_verification_view.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/app/modules/cafeteria_phone_verification/views/cafeteria_phone_verification_view.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/app/modules/landing_page/controllers/landing_page_controller.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/app/modules/landing_page/controllers/landing_page_controller.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/app/modules/phone_authentication/views/phone_authentication_view.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/app/modules/phone_authentication/views/phone_authentication_view.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/app/modules/phone_verification/views/phone_verification_view.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/app/modules/phone_verification/views/phone_verification_view.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/app/modules/selection/views/selection_view.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/app/modules/selection/views/selection_view.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/app/modules/staff_phone_verification/views/staff_phone_verification_view.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/app/modules/staff_phone_verification/views/staff_phone_verification_view.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/config/app_images.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/config/app_images.dart" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -478,7 +496,15 @@
       <option name="project" value="LOCAL" />
       <updated>1746477372309</updated>
     </task>
-    <option name="localTasksCounter" value="49" />
+    <task id="LOCAL-00049" summary="set the parent children data in header and name base on firebase">
+      <option name="closed" value="true" />
+      <created>1746477576822</created>
+      <option name="number" value="00049" />
+      <option name="presentableId" value="LOCAL-00049" />
+      <option name="project" value="LOCAL" />
+      <updated>1746477576822</updated>
+    </task>
+    <option name="localTasksCounter" value="50" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -493,7 +519,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="staff preparation via stripe" />
     <MESSAGE value="the stripe onboarding page error resolved" />
     <MESSAGE value="the stripe onboarding page navigations error resolved" />
     <MESSAGE value="resolve the database id's etc problems" />
@@ -518,6 +543,7 @@
     <MESSAGE value="set the titles, bg buttons etc" />
     <MESSAGE value="set the home parent view, remove the total balance and assign that to the new view." />
     <MESSAGE value="set the parent header and name base on firebase" />
-    <option name="LAST_COMMIT_MESSAGE" value="set the parent header and name base on firebase" />
+    <MESSAGE value="set the parent children data in header and name base on firebase" />
+    <option name="LAST_COMMIT_MESSAGE" value="set the parent children data in header and name base on firebase" />
   </component>
 </project>

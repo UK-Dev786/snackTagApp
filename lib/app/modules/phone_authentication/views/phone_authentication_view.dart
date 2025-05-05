@@ -52,13 +52,15 @@ class PhoneAuthenticationView extends GetView<PhoneAuthenticationController> {
                     color: const Color(0xFF858585),
                   ),
                 ),
-                const SizedBox(height: 55),
+                const SizedBox(height: 60),
 
                 // Phone number field
                 Container(
                   height: 56,
                   width: double.infinity,
-                  padding: const EdgeInsets.only(left: 30, right: 10),
+                  padding: const EdgeInsets.only(
+                    left: 20,
+                  ),
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(100),
                     color: AppColors.whiteColor,
@@ -70,24 +72,38 @@ class PhoneAuthenticationView extends GetView<PhoneAuthenticationController> {
                       ),
                     ],
                   ),
-                  child: IntlPhoneField(
-                      decoration: InputDecoration(
-                        labelText: 'Mobile No',
-                        labelStyle: AppTextStyles.MetropolisRegular.copyWith(
-                          color: const Color(0xFFB6B7B7),
-                          fontSize: 12,
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: IntlPhoneField(
+                          decoration: InputDecoration(
+                            labelText: 'Mobile No',
+                            labelStyle:
+                                AppTextStyles.MetropolisRegular.copyWith(
+                              color: const Color(0xFFB6B7B7),
+                              fontSize: 12,
+                            ),
+                            floatingLabelBehavior: FloatingLabelBehavior.auto,
+                            border: InputBorder.none,
+                            counterText: '',
+                            enabledBorder: InputBorder.none,
+                            focusedBorder: InputBorder.none,
+                          ),
+                          initialCountryCode: 'PK',
+                          onChanged: (phone) {
+                            controller.phoneController.text =
+                                phone.completeNumber;
+                          },
+                          autovalidateMode: AutovalidateMode.disabled,
                         ),
-                        floatingLabelBehavior: FloatingLabelBehavior.auto,
-                        border: InputBorder.none,
-                        counterText: '',
-                        enabledBorder: InputBorder.none,
-                        focusedBorder: InputBorder.none,
                       ),
-                      initialCountryCode: 'PK',
-                      onChanged: (phone) {
-                        controller.phoneController.text = phone.completeNumber;
-                      },
-                      autovalidateMode: AutovalidateMode.disabled),
+                      Image.asset(
+                        AppImages.callButton,
+                        height: 70,
+                        width: 70,
+                      ),
+                    ],
+                  ),
                 ),
 
                 const SizedBox(height: 30),

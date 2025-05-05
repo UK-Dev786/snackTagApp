@@ -33,7 +33,7 @@ class CafeteriaPhoneAuthenicationView
                     height: 95,
                   ),
 
-                  const SizedBox(height: 50),
+                  const SizedBox(height: 45),
 
                   Text(
                     'PHONE AUTHENTICATION',
@@ -42,7 +42,7 @@ class CafeteriaPhoneAuthenicationView
                       color: const Color(0xFF434343),
                     ),
                   ),
-                  const SizedBox(height: 20),
+                  const SizedBox(height: 15),
                   Text(
                     'Please Enter Your Phone Number',
                     textAlign: TextAlign.center,
@@ -51,12 +51,14 @@ class CafeteriaPhoneAuthenicationView
                       color: const Color(0xFF858585),
                     ),
                   ),
-                  const SizedBox(height: 50),
+                  const SizedBox(height: 60),
                   // Phone number field
                   Container(
                     height: 56,
                     width: double.infinity,
-                    padding: const EdgeInsets.only(left: 30, right: 10),
+                    padding: const EdgeInsets.only(
+                      left: 20,
+                    ),
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(100),
                       color: AppColors.whiteColor,
@@ -68,25 +70,38 @@ class CafeteriaPhoneAuthenicationView
                         ),
                       ],
                     ),
-                    child: IntlPhoneField(
-                        decoration: InputDecoration(
-                          labelText: 'Mobile No',
-                          labelStyle: AppTextStyles.MetropolisRegular.copyWith(
-                            color: const Color(0xFFB6B7B7),
-                            fontSize: 12,
-                          ),
-                          floatingLabelBehavior: FloatingLabelBehavior.auto,
-                          border: InputBorder.none,
-                          counterText: '',
-                          enabledBorder: InputBorder.none,
-                          focusedBorder: InputBorder.none,
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: IntlPhoneField(
+                              decoration: InputDecoration(
+                                labelText: 'Mobile No',
+                                labelStyle:
+                                    AppTextStyles.MetropolisRegular.copyWith(
+                                  color: const Color(0xFFB6B7B7),
+                                  fontSize: 12,
+                                ),
+                                floatingLabelBehavior:
+                                    FloatingLabelBehavior.auto,
+                                border: InputBorder.none,
+                                counterText: '',
+                                enabledBorder: InputBorder.none,
+                                focusedBorder: InputBorder.none,
+                              ),
+                              initialCountryCode: 'PK',
+                              onChanged: (phone) {
+                                controller.phoneController.text =
+                                    phone.completeNumber;
+                              },
+                              autovalidateMode: AutovalidateMode.disabled),
                         ),
-                        initialCountryCode: 'PK',
-                        onChanged: (phone) {
-                          controller.phoneController.text =
-                              phone.completeNumber;
-                        },
-                        autovalidateMode: AutovalidateMode.disabled),
+                        Image.asset(
+                          AppImages.callButton,
+                          height: 70,
+                          width: 70,
+                        ),
+                      ],
+                    ),
                   ),
                   // SimpleTextFieldWidget(
                   //   hintText: 'Mobile No',

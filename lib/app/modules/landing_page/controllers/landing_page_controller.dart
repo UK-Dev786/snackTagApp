@@ -8,13 +8,14 @@ import 'package:snacktag/app/modules/parents_history/controllers/parents_history
 import 'package:snacktag/app/modules/parents_history/views/parents_history_view.dart';
 import 'package:snacktag/app/modules/parents_home/controllers/parents_home_controller.dart';
 import 'package:snacktag/app/modules/parents_home/views/parents_home_view.dart';
+import 'package:snacktag/config/app_images.dart';
 
 class LandingPageController extends GetxController {
   final List<String> images = [
-    'assets/icon/home.png',
-    'assets/icon/file.png',
-    'assets/icon/active.png',
-    'assets/icon/settings.png',
+    AppImages.homeIcon,
+    AppImages.upComing,
+    AppImages.notificationsIcon,
+    AppImages.settingsIcon,
   ];
 
   final List<Widget> screens = [

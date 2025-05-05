@@ -13,4 +13,10 @@ class AppImages {
   static const baseBg = 'assets/images/parentYelloBg.png';
   static const shopped = 'assets/images/shopped.png';
   static const baseButton = 'assets/images/baseButton.png';
+  static const callButton = 'assets/images/callBtn.png';
+
+  static const homeIcon = 'assets/images/homeIcon.png';
+  static const upComing = 'assets/images/upComing.png';
+  static const notificationsIcon = 'assets/images/notificationsIcon.png';
+  static const settingsIcon = 'assets/images/settingsIcon.png';
 }

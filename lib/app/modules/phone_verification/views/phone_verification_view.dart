@@ -127,7 +127,7 @@ class PhoneVerificationView extends GetView<PhoneVerificationController> {
                   ),
                 ),
 
-                const SizedBox(height: 55), // Space between text and OTP field
+                const SizedBox(height: 60), // Space between text and OTP field
 
                 Pinput(
                   defaultPinTheme: defaultPinTheme,
