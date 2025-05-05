@@ -8,10 +8,13 @@ import 'package:snacktag/widgets/custom_password_text_field.dart';
 import 'package:snacktag/widgets/custom_simple_textfields.dart';
 import 'package:snacktag/widgets/reuse_button.dart';
 
+import '../../../../config/app_images.dart';
+
 class StaffPhoneAuthenticationView extends StatelessWidget {
   StaffPhoneAuthenticationView({super.key});
 
-  final StaffPhoneVerificationController controller = Get.put(StaffPhoneVerificationController());
+  final StaffPhoneVerificationController controller =
+      Get.put(StaffPhoneVerificationController());
 
   @override
   Widget build(BuildContext context) {
@@ -25,6 +28,14 @@ class StaffPhoneAuthenticationView extends StatelessWidget {
               child: Column(
                 children: [
                   const SizedBox(height: 200),
+
+                  Image.asset(
+                    AppImages.authImg,
+                    width: 85,
+                    height: 95,
+                  ),
+
+                  const SizedBox(height: 50),
 
                   Text(
                     'STAFF AUTHENTICATION',
@@ -78,9 +89,10 @@ class StaffPhoneAuthenticationView extends StatelessWidget {
                         ),
                         initialCountryCode: 'PK',
                         onChanged: (phone) {
-                          controller.phoneController.text = phone.completeNumber;
+                          controller.phoneController.text =
+                              phone.completeNumber;
                         },
-                        autovalidateMode:     AutovalidateMode.disabled     ),
+                        autovalidateMode: AutovalidateMode.disabled),
                   ),
                   // SimpleTextFieldWidget(
                   //   hintText: 'Mobile No',
@@ -104,9 +116,8 @@ class StaffPhoneAuthenticationView extends StatelessWidget {
                 ],
               ),
             ),
-
             Obx(
-                  () => CustomButton1(
+              () => CustomButton1(
                 text: 'CONTINUE',
                 onPressed: () async => controller.staffLogin(),
                 isLoading: controller.isLoading.value,
@@ -118,4 +129,3 @@ class StaffPhoneAuthenticationView extends StatelessWidget {
     );
   }
 }
-

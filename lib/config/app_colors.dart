@@ -16,4 +16,5 @@ class AppColors {
 
   static const Color gradientStartColor = Color(0xFF0B3954);
   static const Color gradientEndColor = Color(0xFFCCFF00);
+  static const Color baseColor = Color(0xFFCCFF00);
 }

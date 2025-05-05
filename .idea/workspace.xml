@@ -5,19 +5,17 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="49eed9f5-08af-4abd-a956-072a62d2a218" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/assets/images/newCafe.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/assets/images/newUser.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.dart_tool/package_config.json" beforeDir="false" afterPath="$PROJECT_DIR$/.dart_tool/package_config.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.flutter-plugins-dependencies" beforeDir="false" afterPath="$PROJECT_DIR$/.flutter-plugins-dependencies" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/assets/images/authImg.png" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/android/app/.cxx/Debug/1a3a275i/arm64-v8a/configure_fingerprint.bin" beforeDir="false" afterPath="$PROJECT_DIR$/android/app/.cxx/Debug/1a3a275i/arm64-v8a/configure_fingerprint.bin" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/android/app/.cxx/Debug/1a3a275i/armeabi-v7a/configure_fingerprint.bin" beforeDir="false" afterPath="$PROJECT_DIR$/android/app/.cxx/Debug/1a3a275i/armeabi-v7a/configure_fingerprint.bin" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/android/app/.cxx/Debug/1a3a275i/x86/configure_fingerprint.bin" beforeDir="false" afterPath="$PROJECT_DIR$/android/app/.cxx/Debug/1a3a275i/x86/configure_fingerprint.bin" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/android/app/.cxx/Debug/1a3a275i/x86_64/configure_fingerprint.bin" beforeDir="false" afterPath="$PROJECT_DIR$/android/app/.cxx/Debug/1a3a275i/x86_64/configure_fingerprint.bin" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/app/modules/cafeteria_phone_authenication/views/cafeteria_phone_authenication_view.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/app/modules/cafeteria_phone_authenication/views/cafeteria_phone_authenication_view.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/app/modules/cafeteria_phone_verification/views/cafeteria_phone_verification_view.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/app/modules/cafeteria_phone_verification/views/cafeteria_phone_verification_view.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/app/modules/phone_authentication/views/phone_authentication_view.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/app/modules/phone_authentication/views/phone_authentication_view.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/app/modules/phone_verification/views/phone_verification_view.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/app/modules/phone_verification/views/phone_verification_view.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/lib/app/modules/selection/views/selection_view.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/app/modules/selection/views/selection_view.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/config/app_fonts.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/config/app_fonts.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/app/modules/staff_phone_verification/views/staff_phone_verification_view.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/app/modules/staff_phone_verification/views/staff_phone_verification_view.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/config/app_colors.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/config/app_colors.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/lib/config/app_images.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/config/app_images.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/widgets/selection_tile.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/widgets/selection_tile.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/widgets/reuse_button.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/widgets/reuse_button.dart" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -442,7 +440,15 @@
       <option name="project" value="LOCAL" />
       <updated>1746442963854</updated>
     </task>
-    <option name="localTasksCounter" value="43" />
+    <task id="LOCAL-00043" summary="selection page view and functionality fixed">
+      <option name="closed" value="true" />
+      <created>1746447831387</created>
+      <option name="number" value="00043" />
+      <option name="presentableId" value="LOCAL-00043" />
+      <option name="project" value="LOCAL" />
+      <updated>1746447831387</updated>
+    </task>
+    <option name="localTasksCounter" value="44" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -457,7 +463,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="set the stripe payment method and required files" />
     <MESSAGE value="set the preperations notifications" />
     <MESSAGE value="fix the notifications twice problem" />
     <MESSAGE value="payout method edded in the functions" />
@@ -482,6 +487,7 @@
     <MESSAGE value="check the order with days if the current day is not for the then it will not move further." />
     <MESSAGE value="staff and admin will receive notification and resolve the cafe's list errors" />
     <MESSAGE value="add to the new repo" />
-    <option name="LAST_COMMIT_MESSAGE" value="add to the new repo" />
+    <MESSAGE value="selection page view and functionality fixed" />
+    <option name="LAST_COMMIT_MESSAGE" value="selection page view and functionality fixed" />
   </component>
 </project>

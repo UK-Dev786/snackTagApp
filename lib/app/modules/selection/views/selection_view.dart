@@ -46,7 +46,7 @@ class SelectionView extends GetView<SelectionController> {
                 height: 100,
               ),
 
-              const Spacer(flex: 10), // Push "TYPE SELECTION" further down
+              const Spacer(flex: 12), // Push "TYPE SELECTION" further down
 
               Text(
                 'TYPE SELECTION',

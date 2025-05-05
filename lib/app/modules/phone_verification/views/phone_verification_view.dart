@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import 'package:snacktag/config/app_colors.dart';
+import 'package:snacktag/config/app_images.dart';
 import 'package:snacktag/config/app_text_style.dart';
 import 'package:snacktag/widgets/reuse_button.dart';
 import 'package:pinput/pinput.dart';
@@ -93,9 +94,15 @@ class PhoneVerificationView extends GetView<PhoneVerificationController> {
             padding: const EdgeInsets.symmetric(horizontal: 20.0),
             child: Column(
               children: [
-                const SizedBox(height: 60), // Padding to push content down
+                const SizedBox(height: 200), // Padding to push content down
 
-                const SizedBox(height: 140), // Space between logo and form
+                Image.asset(
+                  AppImages.authImg,
+                  width: 85,
+                  height: 95,
+                ),
+
+                const SizedBox(height: 50),
 
                 // Heading text
                 Text(
@@ -106,8 +113,7 @@ class PhoneVerificationView extends GetView<PhoneVerificationController> {
                   ),
                 ),
 
-                const SizedBox(
-                    height: 20),
+                const SizedBox(height: 20),
 
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 50),
@@ -144,7 +150,6 @@ class PhoneVerificationView extends GetView<PhoneVerificationController> {
                     //   Get.offAllNamed(
                     //       '/cafeteria');
                     // }
-
                   },
                   mainAxisAlignment: MainAxisAlignment
                       .spaceEvenly, // Adds even spacing between boxes
@@ -156,14 +161,14 @@ class PhoneVerificationView extends GetView<PhoneVerificationController> {
 
                 // Verify Button
                 Obx(
-                      ()=> CustomButton1(
+                  () => CustomButton1(
                     text: 'VERIFY',
                     onPressed: () {
                       controller.verifyOTP();
                     },
                     isLoading: controller.isLoading.value,
                     // RxBool for loading state
-                   // gradientColors: const [Colors.orange, Colors.red],
+                    // gradientColors: const [Colors.orange, Colors.red],
                     height: 60.0,
                     borderRadius: 12.0,
                     fontSize: 18.0,

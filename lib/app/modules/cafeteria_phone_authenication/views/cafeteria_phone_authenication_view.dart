@@ -6,10 +6,12 @@ import 'package:snacktag/config/app_colors.dart';
 import 'package:snacktag/config/app_text_style.dart';
 import 'package:snacktag/widgets/custom_simple_textfields.dart';
 import 'package:snacktag/widgets/reuse_button.dart';
+import '../../../../config/app_images.dart';
 import '../../staff_phone_verification/controllers/staff_phone_verification_controller.dart';
 import '../controllers/cafeteria_phone_authenication_controller.dart';
 
-class CafeteriaPhoneAuthenicationView extends GetView<CafeteriaPhoneAuthenicationController> {
+class CafeteriaPhoneAuthenicationView
+    extends GetView<CafeteriaPhoneAuthenicationController> {
   const CafeteriaPhoneAuthenicationView({super.key});
 
   @override
@@ -24,6 +26,15 @@ class CafeteriaPhoneAuthenicationView extends GetView<CafeteriaPhoneAuthenicatio
               child: Column(
                 children: [
                   const SizedBox(height: 200),
+
+                  Image.asset(
+                    AppImages.authImg,
+                    width: 85,
+                    height: 95,
+                  ),
+
+                  const SizedBox(height: 50),
+
                   Text(
                     'PHONE AUTHENTICATION',
                     style: AppTextStyles.MetropolisMedium.copyWith(
@@ -72,9 +83,10 @@ class CafeteriaPhoneAuthenicationView extends GetView<CafeteriaPhoneAuthenicatio
                         ),
                         initialCountryCode: 'PK',
                         onChanged: (phone) {
-                          controller.phoneController.text = phone.completeNumber;
+                          controller.phoneController.text =
+                              phone.completeNumber;
                         },
-                        autovalidateMode:     AutovalidateMode.disabled     ),
+                        autovalidateMode: AutovalidateMode.disabled),
                   ),
                   // SimpleTextFieldWidget(
                   //   hintText: 'Mobile No',
@@ -87,22 +99,25 @@ class CafeteriaPhoneAuthenicationView extends GetView<CafeteriaPhoneAuthenicatio
               ),
             ),
             Obx(
-                  () => CustomButton1(
+              () => CustomButton1(
                 text: 'CONTINUE AS CAFETERIA OWNER',
-                onPressed: () async => await controller.authenticatePhoneNumber(true),
+                onPressed: () async =>
+                    await controller.authenticatePhoneNumber(true),
                 isLoading: controller.isLoading.value,
               ),
             ),
             const SizedBox(height: 10),
             Obx(
-                  () => CustomButton1(
+              () => CustomButton1(
                 text: 'CONTINUE AS STAFF',
                 onPressed: () {
                   String enteredPhone = controller.phoneController.text.trim();
 
                   if (enteredPhone.isNotEmpty) {
                     // Assign entered phone to staff login field
-                    Get.find<StaffPhoneVerificationController>().phoneController.text = enteredPhone;
+                    Get.find<StaffPhoneVerificationController>()
+                        .phoneController
+                        .text = enteredPhone;
                   }
                   Get.toNamed(Routes.STAFF_PHONE_VERIFICATION);
                 },

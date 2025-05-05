@@ -7,9 +7,11 @@ import 'package:snacktag/config/app_text_style.dart';
 import 'package:snacktag/widgets/reuse_button.dart';
 import 'package:pinput/pinput.dart';
 
+import '../../../../config/app_images.dart';
 import '../controllers/cafeteria_phone_verification_controller.dart';
 
-class CafeteriaPhoneVerificationView extends GetView<CafeteriaPhoneVerificationController> {
+class CafeteriaPhoneVerificationView
+    extends GetView<CafeteriaPhoneVerificationController> {
   const CafeteriaPhoneVerificationView({super.key});
 
   @override
@@ -48,7 +50,8 @@ class CafeteriaPhoneVerificationView extends GetView<CafeteriaPhoneVerificationC
       borderRadius: BorderRadius.circular(40), // Maintain rounded corners
       boxShadow: [
         BoxShadow(
-          color: Colors.black.withOpacity(0.3), // Slightly stronger shadow on focus
+          color: Colors.black
+              .withOpacity(0.3), // Slightly stronger shadow on focus
           blurRadius: 8, // Increase blur radius for the shadow
           offset: const Offset(0, 4), // Shadow offset for focus state
         ),
@@ -59,7 +62,8 @@ class CafeteriaPhoneVerificationView extends GetView<CafeteriaPhoneVerificationC
       color: Colors.white, // Maintain white background
       boxShadow: [
         BoxShadow(
-          color: Colors.black.withOpacity(0.2), // Consistent shadow for submitted state
+          color: Colors.black
+              .withOpacity(0.2), // Consistent shadow for submitted state
           blurRadius: 6,
           offset: const Offset(0, 3),
         ),
@@ -95,6 +99,14 @@ class CafeteriaPhoneVerificationView extends GetView<CafeteriaPhoneVerificationC
                   children: [
                     const SizedBox(height: 200), // Space between logo and form
 
+                    Image.asset(
+                      AppImages.authImg,
+                      width: 85,
+                      height: 95,
+                    ),
+
+                    const SizedBox(height: 50),
+
                     // Heading text
                     Text(
                       'VERIFICATION',
@@ -104,7 +116,8 @@ class CafeteriaPhoneVerificationView extends GetView<CafeteriaPhoneVerificationC
                       ),
                     ),
 
-                    const SizedBox(height: 20), // Space between heading and text field
+                    const SizedBox(
+                        height: 20), // Space between heading and text field
 
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 50),
@@ -118,7 +131,8 @@ class CafeteriaPhoneVerificationView extends GetView<CafeteriaPhoneVerificationC
                       ),
                     ),
 
-                    const SizedBox(height: 40), // Space between text and OTP field
+                    const SizedBox(
+                        height: 40), // Space between text and OTP field
 
                     Pinput(
                       length: 6, // Number of digits in the PIN
@@ -135,11 +149,12 @@ class CafeteriaPhoneVerificationView extends GetView<CafeteriaPhoneVerificationC
                       onCompleted: (pin) {
                         controller.otpController.value = pin;
                       },
-                      mainAxisAlignment:
-                          MainAxisAlignment.spaceEvenly, // Adds even spacing between boxes
+                      mainAxisAlignment: MainAxisAlignment
+                          .spaceEvenly, // Adds even spacing between boxes
                     ),
 
-                    const SizedBox(height: 20), // Space between OTP field and button
+                    const SizedBox(
+                        height: 20), // Space between OTP field and button
                   ],
                 ),
               ),
@@ -149,7 +164,8 @@ class CafeteriaPhoneVerificationView extends GetView<CafeteriaPhoneVerificationC
                   onPressed: () async {
                     await controller.verifyOTP();
                   },
-                  isLoading: controller.isLoading.value, // RxBool for loading state
+                  isLoading:
+                      controller.isLoading.value, // RxBool for loading state
                 ),
               ),
             ],
