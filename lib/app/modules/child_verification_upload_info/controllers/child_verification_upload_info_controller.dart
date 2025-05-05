@@ -1,0 +1,394 @@
+import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:snacktag/app/modules/staff_history/controllers/staff_history_controller.dart';
+import 'package:snacktag/app/modules/staff_landing_page/controllers/staff_landing_page_controller.dart';
+import 'package:snacktag/app/routes/app_pages.dart';
+import 'package:snacktag/models/cefeteria_admin/staff_model.dart';
+import 'package:snacktag/models/parents_models/add_children.dart';
+import 'package:snacktag/models/parents_models/parent_add_wallet_model.dart';
+import 'package:snacktag/services/Shared_preference/preferences.dart';
+import 'package:snacktag/services/notifications_service/notifications_service.dart';
+import 'package:snacktag/services/staff_services/child_verification_wallet_service.dart';
+
+class ChildVerificationUploadInfoController extends GetxController {
+  final ChildVerificationWalletService _walletService =
+      ChildVerificationWalletService();
+  final NotificationService _notificationService = NotificationService();
+  var childrenList = <ParentsAddChildren>[].obs;
+  var isLoading = false.obs;
+  final walletData = Rxn<ParentAddWalletModel>();
+  late final StaffHistoryController historyController;
+  final UserPreferences preferences = UserPreferences();
+  StaffModel? staffModel;
+  @override
+  void onInit() {
+    super.onInit();
+    getStaffData();
+    // Initialize StaffHistoryController if it doesn't exist
+
+    if (!Get.isRegistered<StaffHistoryController>()) {
+      Get.put(StaffHistoryController(),
+          permanent: true); // Make it permanent here too
+    }
+    historyController = Get.find<StaffHistoryController>();
+
+    if (Get.arguments != null && Get.arguments is Map<String, dynamic>) {
+      var receivedList =
+          Get.arguments['childrenList'] as List<ParentsAddChildren>;
+      if (receivedList.isNotEmpty) {
+        childrenList.assignAll(receivedList);
+        print("Received children data: ${childrenList.length} children");
+      } else {
+        print("No children data received");
+      }
+    } else {
+      print("No arguments received or invalid format");
+    }
+  }
+
+  void getStaffData() async {
+    staffModel = await preferences.getStaffDataPreference();
+    print("staff name is ${staffModel?.staffName}");
+  }
+
+  Future<void> fetchChildParentWallet(String parentId) async {
+    try {
+      isLoading.value = true;
+
+      // Get the parent ID from the selected child
+
+      if (parentId.isEmpty) {
+        Get.snackbar('Error', 'Parent ID not found');
+        return;
+      }
+      print("parent id is bbb  $parentId");
+
+      // Fetch the wallet data
+      final wallet = await _walletService.fetchChildParentWallet(parentId);
+
+      if (wallet == null) {
+        Get.snackbar('Error', 'Parent wallet not found');
+        return;
+      }
+
+      walletData.value = wallet;
+      print(
+          "Query completed. Number of documents found: ${walletData.value!.amount}");
+      checkWalletBalance();
+      // Start preparation process here
+      // Add your preparation logic
+    } catch (e) {
+      Get.snackbar('Error', 'Failed to fetch wallet: $e');
+    } finally {
+      isLoading.value = false;
+    }
+  }
+
+  // Check if the current day matches the scheduled day for the order
+  bool isOrderForToday(ParentsAddChildren child) {
+    try {
+      // Get the current day of the week (0 = Sunday, 1 = Monday, etc.)
+      final now = DateTime.now();
+      final currentDayOfWeek =
+          now.weekday % 7; // Convert to 0-6 format where 0 is Sunday
+
+      // Get the day names for easier display in the snackbar
+      final dayNames = [
+        'Sunday',
+        'Monday',
+        'Tuesday',
+        'Wednesday',
+        'Thursday',
+        'Friday',
+        'Saturday'
+      ];
+      final currentDayName = dayNames[currentDayOfWeek];
+
+      // Check if the child has meal data
+      if (child.selectedMealMenuData == null ||
+          child.selectedMealMenuData!.isEmpty) {
+        print("No meal data available for this child");
+        return true; // Allow preparation if no meal data (default behavior)
+      }
+
+      // Check each meal's schedule
+      for (var meal in child.selectedMealMenuData!) {
+        if (meal.schedule == null ||
+            meal.schedule!.repeatOn == null ||
+            meal.schedule!.repeatOn!.isEmpty) {
+          print("No schedule data available for meal: ${meal.mealName}");
+          continue; // Skip this meal if no schedule data
+        }
+
+        // Get the scheduled days for this meal
+        final scheduledDays = meal.schedule!.repeatOn!;
+
+        // Check if the current day is in the scheduled days
+        bool isDayMatched = false;
+        List<String> scheduledDayNames = [];
+
+        for (var day in scheduledDays) {
+          // Convert day string to index (assuming format like "0" for Sunday, "1" for Monday, etc.)
+          try {
+            final dayIndex = int.parse(day);
+            scheduledDayNames.add(dayNames[dayIndex]);
+
+            if (dayIndex == currentDayOfWeek) {
+              isDayMatched = true;
+              break;
+            }
+          } catch (e) {
+            print("Error parsing day: $day - $e");
+          }
+        }
+
+        // If this meal is scheduled for today, the order is valid for today
+        if (isDayMatched) {
+          return true;
+        }
+
+        // Store the scheduled days for this meal for the snackbar message
+        print(
+            "Meal ${meal.mealName} is scheduled for: ${scheduledDayNames.join(', ')}");
+        // meal.scheduledDayNames = scheduledDayNames;
+      }
+
+      // If we get here, none of the meals are scheduled for today
+      return false;
+    } catch (e) {
+      print("Error checking if order is for today: $e");
+      return true; // Allow preparation if there's an error (default behavior)
+    }
+  }
+
+  Future<void> checkWalletBalance() async {
+    if (walletData.value == null || childrenList.isEmpty) {
+      print("No wallet data or children data available");
+      return;
+    }
+
+    // First check if an order has already been prepared for this child today
+    try {
+      final childId = childrenList.first.childId;
+      if (childId != null && childId.isNotEmpty) {
+        final alreadyPrepared =
+            await _walletService.isOrderAlreadyPreparedToday(childId);
+
+        if (alreadyPrepared) {
+          Get.snackbar(
+            'Already Prepared',
+            'This order has already been prepared today. You cannot prepare the same order twice in a day.',
+            snackPosition: SnackPosition.TOP,
+            backgroundColor: Colors.orange,
+            colorText: Colors.white,
+            duration: const Duration(seconds: 3),
+          );
+          return;
+        }
+      }
+    } catch (e) {
+      print("Error checking for existing preparation: $e");
+      // Continue with the process even if the check fails
+    }
+
+    // Check if the order is scheduled for today
+    // if (!isOrderForToday(childrenList.first)) {
+    //   // Get the scheduled days for the snackbar message
+    //   List<String> scheduledDays = [];
+    //   for (var meal in childrenList.first.selectedMealMenuData!) {
+    //     // if (meal.scheduledDayNames != null &&
+    //     //     meal.scheduledDayNames!.isNotEmpty) {
+    //     //   scheduledDays.addAll(meal.scheduledDayNames!);
+    //     // }
+    //   }
+    //
+    //   // Remove duplicates
+    //   scheduledDays = scheduledDays.toSet().toList();
+    //
+    //   // Show snackbar with the scheduled days
+    //   Get.snackbar(
+    //     'Wrong Day',
+    //     'This order is not scheduled for today (${DateTime.now().weekday == 7 ? 'Sunday' : [
+    //         'Monday',
+    //         'Tuesday',
+    //         'Wednesday',
+    //         'Thursday',
+    //         'Friday',
+    //         'Saturday',
+    //         'Sunday'
+    //       ][DateTime.now().weekday - 1]}). Please check the order details.',
+    //     snackPosition: SnackPosition.TOP,
+    //     backgroundColor: Colors.orange,
+    //     colorText: Colors.white,
+    //     duration: const Duration(seconds: 5),
+    //   );
+    //   return;
+    // }
+
+    double walletAmount = walletData.value!.amount;
+    double mealPrice =
+        double.parse(childrenList.first.selectedMealMenuData!.first.mealPrice!);
+
+    if (walletAmount < mealPrice) {
+      await Get.dialog(
+        AlertDialog(
+          title: const Text('Insufficient Balance'),
+          content: Text(
+              'The parent\'s wallet balance (\$${walletAmount.toStringAsFixed(2)}) is less than the meal price (\$${mealPrice.toStringAsFixed(2)}).'),
+          actions: [
+            TextButton(
+              onPressed: () => Get.back(),
+              child: const Text('OK'),
+            ),
+          ],
+        ),
+      );
+      sendLowBalanceNotification(
+          walletData.value!.id!, walletAmount, mealPrice);
+    } else {
+      try {
+        startPreparationOrder(childrenList.first);
+      } catch (e) {
+        print("Navigation error: $e");
+      }
+    }
+  }
+
+  Future<void> sendLowBalanceNotification(
+      String parentId, double walletAmount, double mealPrice) async {
+    try {
+      await _notificationService.sendNotification(
+        userId: parentId,
+        title: 'Low Wallet Balance Alert',
+        body:
+            'Your wallet balance (\$${walletAmount.toStringAsFixed(2)}) is insufficient for the meal order (\$${mealPrice.toStringAsFixed(2)}). Please recharge your wallet.',
+        type: 'low_balance',
+        data: {
+          'currentBalance': walletAmount,
+          'requiredAmount': mealPrice,
+          'notificationType': 'low_balance',
+        },
+      );
+      print("low balance notification sended ");
+    } catch (e) {
+      print('Error sending low balance notification: $e');
+    }
+  }
+
+  Future<void> startPreparationOrder(ParentsAddChildren child) async {
+    try {
+      isLoading.value = true;
+
+      // Save the order preparation
+      bool success = await _walletService.saveOrderPreparation(
+          child, staffModel!.staffName!, staffModel!.userId!);
+
+      if (success) {
+        // Update the local list item
+        int index = childrenList
+            .indexWhere((element) => element.childId == child.childId);
+        if (index != -1) {
+          childrenList[index].startPreparation = true;
+          childrenList.refresh();
+        }
+        print("kkkkkk ${staffModel!.userId}");
+
+        // Send notification to parent about order preparation
+        if (child.parentId != null && child.parentId!.isNotEmpty) {
+          try {
+            // Try to get the latest order preparation document for this child
+            ParentsAddChildren? latestOrder;
+            try {
+              latestOrder = await _walletService
+                  .getLatestOrderPreparation(child.childId!);
+            } catch (queryError) {
+              print("Error querying latest order: $queryError");
+              // Continue with null latestOrder
+            }
+
+            // Use the order ID if available, otherwise use an empty string
+            String orderId = latestOrder?.orderPrepId ?? '';
+
+            // Send the notification
+            await sendOrderPreparedNotification(
+              parentId: child.parentId!,
+              childName: child.childName ?? 'your child',
+              staffName: staffModel!.staffName ?? 'staff',
+              orderPrepId: orderId,
+            );
+          } catch (e) {
+            print("Error sending preparation notification: $e");
+            // Log the error but don't rethrow to avoid disrupting the main flow
+          }
+        }
+
+        Get.snackbar('Success', 'Order preparation started successfully',
+            snackPosition: SnackPosition.TOP
+            // backgroundColor: Colors.green,
+            // colorText: Colors.white,
+            );
+
+        // Ensure the StaffLandingPageController exists
+        if (!Get.isRegistered<StaffLandingPageController>()) {
+          Get.put(StaffLandingPageController(), permanent: true);
+        }
+        final staffLandingPageController =
+            Get.find<StaffLandingPageController>();
+
+        // Set the index before navigation
+        staffLandingPageController.selectedIndex.value = 1;
+        historyController.updateSelectedIndex(0);
+
+        // Navigate to landing page
+        await Get.offAllNamed(Routes.STAFF_LANDING_PAGE,
+            arguments: {'initialIndex': 1});
+      } else {
+        Get.snackbar('Error', 'Failed to start order preparation',
+            snackPosition: SnackPosition.TOP
+            // backgroundColor: Colors.red,
+            // colorText: Colors.white,
+            );
+      }
+    } catch (e) {
+      print("❌ Error in startPreparationOrder: $e");
+      Get.snackbar(
+        'Error',
+        'An error occurred while starting the preparation',
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+      );
+    } finally {
+      isLoading.value = false;
+    }
+  }
+
+  // Method to send notification when order preparation starts
+  Future<void> sendOrderPreparedNotification({
+    required String parentId,
+    required String childName,
+    required String staffName,
+    required String orderPrepId,
+  }) async {
+    try {
+      await _notificationService.sendNotification(
+        userId: parentId,
+        title: 'Order Preparation Started',
+        body: 'The order for $childName has been started by $staffName',
+        type: 'order_prepared',
+        data: {
+          'orderId': orderPrepId,
+          'preparedBy': staffName,
+          'notificationType': 'order_prepared',
+        },
+      );
+      print("Order preparation notification sent to parent: $parentId");
+    } catch (e) {
+      print('Error sending order preparation notification: $e');
+    }
+  }
+
+  @override
+  void onClose() {
+    super.onClose();
+  }
+}
