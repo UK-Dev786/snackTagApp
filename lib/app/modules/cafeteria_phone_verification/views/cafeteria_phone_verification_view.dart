@@ -117,7 +117,7 @@ class CafeteriaPhoneVerificationView
                     ),
 
                     const SizedBox(
-                        height: 20), // Space between heading and text field
+                        height: 15), // Space between heading and text field
 
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 50),
@@ -132,7 +132,7 @@ class CafeteriaPhoneVerificationView
                     ),
 
                     const SizedBox(
-                        height: 40), // Space between text and OTP field
+                        height: 60), // Space between text and OTP field
 
                     Pinput(
                       length: 6, // Number of digits in the PIN
