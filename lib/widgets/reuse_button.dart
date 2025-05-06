@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:snacktag/config/app_colors.dart';
+import 'package:snacktag/config/app_images.dart';
 import 'package:snacktag/config/app_text_style.dart';
 
 class CustomButton extends StatelessWidget {
@@ -48,26 +49,29 @@ class CustomButton extends StatelessWidget {
           height: height,
           decoration: BoxDecoration(
             // Check if isBackColor is true, then apply gradient
-            gradient: isBackColor
-                ? LinearGradient(
-                    colors: gradientColors,
-                    begin: Alignment.bottomLeft,
-                    end: Alignment.bottomRight,
-                  )
-                : null,
-            color: isBackColor
-                ? null
-                : AppColors.whiteColor, // Apply solid background if no gradient
-            borderRadius: BorderRadius.circular(50),
-            boxShadow: isBackColor || isForcedTextColor
-                ? [
-                    BoxShadow(
-                      color: Colors.grey.withOpacity(0.2),
-                      blurRadius: 4,
-                      spreadRadius: 2,
-                    )
-                  ]
-                : null, // No shadow when no background color
+            // gradient: isBackColor
+            //     ? LinearGradient(
+            //         colors: gradientColors,
+            //         begin: Alignment.bottomLeft,
+            //         end: Alignment.bottomRight,
+            //       )
+            //     : null,
+            // color: isBackColor
+            //     ? null
+            //     : AppColors.whiteColor, // Apply solid background if no gradient
+            // borderRadius: BorderRadius.circular(50),
+            // boxShadow: isBackColor || isForcedTextColor
+            //     ? [
+            //         BoxShadow(
+            //           color: Colors.grey.withOpacity(0.2),
+            //           blurRadius: 4,
+            //           spreadRadius: 2,
+            //         )
+            //       ]
+            //     : null, // No shadow when no background color
+
+            image: DecorationImage(
+                image: AssetImage(AppImages.baseButton), fit: BoxFit.cover),
           ),
           child: Material(
               color: Colors.transparent,
@@ -86,7 +90,7 @@ class CustomButton extends StatelessWidget {
                         style: isBackColor
                             ? AppTextStyles.MetropolisBold.copyWith(
                                 fontSize: fontSize,
-                                color: AppColors.whiteColor,
+                                color: AppColors.blackColor,
                               )
                             : isForcedTextColor
                                 ? AppTextStyles.PoppinsRegular.copyWith(
@@ -147,17 +151,29 @@ class CustomButton1 extends StatelessWidget {
           height: height,
           decoration: BoxDecoration(
             // Use solid color instead of gradient
-            color: isBackColor ? buttonColor : AppColors.whiteColor,
-            borderRadius: BorderRadius.circular(50),
-            boxShadow: isBackColor || isForcedTextColor
-                ? [
-                    BoxShadow(
-                      color: Colors.grey.withOpacity(0.2),
-                      blurRadius: 4,
-                      spreadRadius: 2,
-                    )
-                  ]
-                : null,
+
+            image: DecorationImage(
+              image: AssetImage(AppImages.baseButton),
+              fit: BoxFit.cover,
+            ),
+
+            // color: isBackColor ? buttonColor : Colors.transparent,
+            // borderRadius: BorderRadius.circular(50),
+            // boxShadow: isBackColor || isForcedTextColor
+            //     ? [
+            //         BoxShadow(
+            //           color: Colors.grey.withOpacity(0.2),
+            //           blurRadius: 4,
+            //           spreadRadius: 2,
+            //         )
+            //       ]
+            //     : null,
+            // image: isBackColor
+            //     ? null
+            //     : DecorationImage(
+            //         image: AssetImage(AppImages.baseButton),
+            //         fit: BoxFit.cover,
+            //       ),
           ),
           child: Material(
               color: Colors.transparent,

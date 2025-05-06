@@ -40,7 +40,8 @@ class HomeSettingsView extends GetView<HomeSettingsController> {
                     // const SizedBox(height: 56), // Spacing between title and list
 
                     // define the row of setting page
-                    const SizedBox(height: 40), // Spacing between title and list
+                    const SizedBox(
+                        height: 40), // Spacing between title and list
                     CafeteriaSettingWidget(
                       labelName: "Profile",
                       onTap: () {
@@ -53,6 +54,7 @@ class HomeSettingsView extends GetView<HomeSettingsController> {
                       onTap: () {
                         // Get.toNamed(Routes.CAFETERIA_ADD_STAFF, arguments: true);
                         // Get.toNamed(Routes.CAFETERIA_STAFF_LIST);
+                        Get.toNamed(Routes.PARENTS_HISTORY);
                       },
                     ),
                     // CafeteriaSettingWidget(
@@ -78,67 +80,70 @@ class HomeSettingsView extends GetView<HomeSettingsController> {
                       onTap: () {
                         Get.dialog(
                           Obx(() => controller.isLoading.value
-                            ? Dialog(
-                                backgroundColor: Colors.transparent,
-                                child: Center(
-                                  child: Container(
-                                    padding: const EdgeInsets.all(16),
-                                    decoration: BoxDecoration(
-                                      color: Colors.white,
-                                      borderRadius: BorderRadius.circular(8),
+                              ? Dialog(
+                                  backgroundColor: Colors.transparent,
+                                  child: Center(
+                                    child: Container(
+                                      padding: const EdgeInsets.all(16),
+                                      decoration: BoxDecoration(
+                                        color: Colors.white,
+                                        borderRadius: BorderRadius.circular(8),
+                                      ),
+                                      child: const Column(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          CircularProgressIndicator(),
+                                          SizedBox(height: 16),
+                                          Text("Deleting account...",
+                                              style: TextStyle(
+                                                  color: Colors.black)),
+                                        ],
+                                      ),
                                     ),
-                                    child: const Column(
-                                      mainAxisSize: MainAxisSize.min,
-                                      children: [
-                                        CircularProgressIndicator(),
-                                        SizedBox(height: 16),
-                                        Text("Deleting account...",
-                                            style: TextStyle(color: Colors.black)),
-                                      ],
+                                  ),
+                                )
+                              : AlertDialog(
+                                  title: Text("Delete Account",
+                                      textAlign: TextAlign.center,
+                                      style: AppTextStyles.MetropolisRegular
+                                          .copyWith(
+                                        color: Colors.red,
+                                        fontSize: 16,
+                                      )),
+                                  content: Text(
+                                      "Are you sure you want to delete your account? This action cannot be undone.",
+                                      textAlign: TextAlign.center,
+                                      style: AppTextStyles.MetropolisRegular
+                                          .copyWith(
+                                        color: const Color(0xFF4A4B4D),
+                                        fontSize: 15,
+                                      )),
+                                  actions: [
+                                    TextButton(
+                                      onPressed: () {
+                                        Get.back(); // Close dialog
+                                      },
+                                      child: Text("Cancel",
+                                          style: AppTextStyles.MetropolisRegular
+                                              .copyWith(
+                                            color: const Color(0xFF4A4B4D),
+                                            fontSize: 14,
+                                          )),
                                     ),
-                                  ),
-                                ),
-                              )
-                            : AlertDialog(
-                                title: Text("Delete Account",
-                                    textAlign: TextAlign.center,
-                                    style: AppTextStyles.MetropolisRegular.copyWith(
-                                      color: Colors.red,
-                                      fontSize: 16,
-                                    )),
-                                content: Text(
-                                    "Are you sure you want to delete your account? This action cannot be undone.",
-                                    textAlign: TextAlign.center,
-                                    style: AppTextStyles.MetropolisRegular.copyWith(
-                                      color: const Color(0xFF4A4B4D),
-                                      fontSize: 15,
-                                    )),
-                                actions: [
-                                  TextButton(
-                                    onPressed: () {
-                                      Get.back(); // Close dialog
-                                    },
-                                    child: Text("Cancel",
-                                        style: AppTextStyles.MetropolisRegular.copyWith(
-                                          color: const Color(0xFF4A4B4D),
-                                          fontSize: 14,
-                                        )),
-                                  ),
-                                  TextButton(
-                                    onPressed: () async {
-                                      await controller.deleteAccount();
-                                                                            Get.back(); // Close confirmation dialog
-
-                                    },
-                                    child: Text("Delete",
-                                        style: AppTextStyles.MetropolisRegular.copyWith(
-                                          color: Colors.red,
-                                          fontSize: 14,
-                                        )),
-                                  ),
-                                ],
-                              )
-                          ),
+                                    TextButton(
+                                      onPressed: () async {
+                                        await controller.deleteAccount();
+                                        Get.back(); // Close confirmation dialog
+                                      },
+                                      child: Text("Delete",
+                                          style: AppTextStyles.MetropolisRegular
+                                              .copyWith(
+                                            color: Colors.red,
+                                            fontSize: 14,
+                                          )),
+                                    ),
+                                  ],
+                                )),
                           barrierDismissible: false,
                         );
                       },

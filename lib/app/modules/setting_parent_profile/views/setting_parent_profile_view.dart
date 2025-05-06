@@ -36,7 +36,6 @@ class SettingParentProfileView extends GetView<SettingParentProfileController> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
-
                   Align(
                     alignment: Alignment.topLeft,
                     child: GestureDetector(
@@ -44,12 +43,12 @@ class SettingParentProfileView extends GetView<SettingParentProfileController> {
                         Get.back();
                         // historyController.updateSelectedIndex(0);
                         // historyController.updateSelectedIndex(0);
-
                       },
                       child: Container(
                         height: 35,
                         width: 35,
-                        margin: const EdgeInsets.only(top: 16), // Add some margin if needed
+                        margin: const EdgeInsets.only(
+                            top: 16), // Add some margin if needed
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
                           boxShadow: [
@@ -59,7 +58,8 @@ class SettingParentProfileView extends GetView<SettingParentProfileController> {
                               spreadRadius: 2,
                             ),
                           ],
-                          color: Colors.white, // Background color for the container
+                          color: Colors
+                              .white, // Background color for the container
                         ),
                         child: Center(
                           child: Image.asset(
@@ -71,9 +71,13 @@ class SettingParentProfileView extends GetView<SettingParentProfileController> {
                       ),
                     ),
                   ),
-                  Text('Edit Profile' ,  style: AppTextStyles.MetropolisBold.copyWith(
-                    fontSize: 18,)),
-                  SizedBox(width: 20,),
+                  Text('Edit Profile',
+                      style: AppTextStyles.MetropolisBold.copyWith(
+                        fontSize: 18,
+                      )),
+                  SizedBox(
+                    width: 20,
+                  ),
                 ],
               ),
               const SizedBox(
@@ -86,29 +90,33 @@ class SettingParentProfileView extends GetView<SettingParentProfileController> {
                   child: Stack(
                     children: [
                       Obx(() => CircleAvatar(
-                        radius: 50,
-                        backgroundImage: controller.selectedImage.value != null
-                            ? FileImage(controller.selectedImage.value!) as ImageProvider
-                            : controller.currentImageUrl.value != null
-                            ? NetworkImage(controller.currentImageUrl.value!)
-                            : null,
-                        child: controller.isImageLoading.value
-                            ? Container(
-                          decoration: BoxDecoration(
-                            color: Colors.black.withOpacity(0.5),
-                            shape: BoxShape.circle,
-                          ),
-                          child: const Center(
-                            child: CircularProgressIndicator(
-                              color: Colors.white,
-                            ),
-                          ),
-                        )
-                            : (controller.selectedImage.value == null &&
-                            controller.currentImageUrl.value == null)
-                            ? const Icon(Icons.person, size: 50)
-                            : null,
-                      )),
+                            radius: 50,
+                            backgroundImage:
+                                controller.selectedImage.value != null
+                                    ? FileImage(controller.selectedImage.value!)
+                                        as ImageProvider
+                                    : controller.currentImageUrl.value != null
+                                        ? NetworkImage(
+                                            controller.currentImageUrl.value!)
+                                        : null,
+                            child: controller.isImageLoading.value
+                                ? Container(
+                                    decoration: BoxDecoration(
+                                      color: Colors.black.withOpacity(0.5),
+                                      shape: BoxShape.circle,
+                                    ),
+                                    child: const Center(
+                                      child: CircularProgressIndicator(
+                                        color: Colors.white,
+                                      ),
+                                    ),
+                                  )
+                                : (controller.selectedImage.value == null &&
+                                        controller.currentImageUrl.value ==
+                                            null)
+                                    ? const Icon(Icons.person, size: 50)
+                                    : null,
+                          )),
                       Positioned(
                         bottom: 0,
                         right: 0,

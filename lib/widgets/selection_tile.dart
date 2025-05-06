@@ -11,8 +11,8 @@ class SelectionTile extends StatelessWidget {
 
   const SelectionTile({
     required this.imgPath,
-    this.imageHeight = 102,
-    this.imageWidth = 102,
+    this.imageHeight = 120,
+    this.imageWidth = 120,
     required this.isSelected,
     required this.onTap,
   });

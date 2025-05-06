@@ -14,21 +14,52 @@ class ParentsHomeController extends GetxController {
   final count = 0.obs;
   // FETCHING CHILDREN DATA AGAINST PARENTS
   var childrenList = <ParentsAddChildren>[].obs;
-  var parentAddWalletModel = Rxn<ParentAddWalletModel>(); // Observable wallet model
+  var parentAddWalletModel =
+      Rxn<ParentAddWalletModel>(); // Observable wallet model
   var isLoading = false.obs;
   final switchController = ValueNotifier<bool>(false);
+
+  // Add parent name observable
+  var parentName = RxnString();
+
+  // Add parent profile image observable
+  var parentProfileImage = RxnString();
+
   @override
   void onInit() {
     listenToWalletChanges(); // Start listening for real-time updates
     fetchChildren();
+    fetchParentInfo(); // Add this line to fetch parent info
 
     super.onInit();
+  }
+
+  // Add this method to fetch parent information
+  void fetchParentInfo() {
+    final currentUser = _auth.currentUser;
+    if (currentUser == null) return;
+
+    FirebaseFirestore.instance
+        .collection('users')
+        .doc(currentUser.uid)
+        .get()
+        .then((doc) {
+      if (doc.exists && doc.data() != null) {
+        parentName.value = doc.data()!['parentsName'];
+        parentProfileImage.value = doc.data()!['parentsPic'];
+        print(
+            "✅ Parent info loaded: ${parentName.value}, ${parentProfileImage.value}");
+      }
+    }).catchError((error) {
+      print("❌ Error fetching parent info: $error");
+    });
   }
 
   Future<void> deleteChildrenById(String parentId, String childId) async {
     print("Parent ID: $parentId, Child ID: $childId");
 
-    final result = await parentHomeService.deleteChildByParentId(parentId, childId);
+    final result =
+        await parentHomeService.deleteChildByParentId(parentId, childId);
     if (result == true) {
       print("✅ Child deleted successfully. Refreshing list...");
 
@@ -45,7 +76,8 @@ class ParentsHomeController extends GetxController {
 
     final currentParent = FirebaseAuth.instance.currentUser;
     if (currentParent != null) {
-      parentHomeService.fetchChildrenByParentId(currentParent.uid).listen((children) {
+      parentHomeService.fetchChildrenByParentId(currentParent.uid).listen(
+          (children) {
         childrenList.assignAll(children); // ✅ Automatically updates the UI
         print("✅ Children data updated: ${children.length} children found.");
       }, onError: (error) {
@@ -55,7 +87,6 @@ class ParentsHomeController extends GetxController {
 
     isLoading.value = false;
   }
-
 
   // Listen for real-time wallet data updates
   void listenToWalletChanges() {
@@ -71,7 +102,8 @@ class ParentsHomeController extends GetxController {
       (wallet) {
         parentAddWalletModel.value = wallet as ParentAddWalletModel;
         if (wallet != null) {
-          switchController.value = wallet.enableMonthlyReload; // Sync switch state
+          switchController.value =
+              wallet.enableMonthlyReload; // Sync switch state
         }
         print("🔄 Wallet data updated: ${wallet?.toJson()}");
       },
@@ -99,7 +131,6 @@ class ParentsHomeController extends GetxController {
       print("❌ Error updating monthly reload: $e");
     }
   }
-
 
   @override
   void onReady() {
