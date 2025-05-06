@@ -476,8 +476,13 @@ class ParentsHeader extends StatelessWidget {
 
                     // Done button
                     GestureDetector(
-                      onTap: () {
+                      onTap: () async {
                         if (amountController.text.isNotEmpty) {
+                          // Show loading indicator
+                          setState(() {
+                            // You can add a loading state variable here if needed
+                          });
+
                           // Get the amount and close the dialog
                           final amount =
                               amountController.text.replaceAll('\$', '');
@@ -494,8 +499,8 @@ class ParentsHeader extends StatelessWidget {
                               Get.find<ParentsAddWalletController>();
                           walletController.amount.value = amount;
 
-                          // Process the wallet data directly
-                          walletController.saveWalletData();
+                          // Process the wallet data asynchronously
+                          await walletController.saveWalletData();
                         } else {
                           // Show error if no amount is entered
                           Get.snackbar(
@@ -509,8 +514,7 @@ class ParentsHeader extends StatelessWidget {
                         width: double.infinity,
                         padding: const EdgeInsets.symmetric(vertical: 15),
                         decoration: BoxDecoration(
-                          color: const Color(
-                              0xFFD6FF00), // Bright yellow-green color
+                          color: const Color(0xFFD6FF00),
                           borderRadius: BorderRadius.circular(30),
                         ),
                         alignment: Alignment.center,
