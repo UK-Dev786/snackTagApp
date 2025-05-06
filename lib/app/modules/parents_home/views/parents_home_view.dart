@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_advanced_switch/flutter_advanced_switch.dart';
 import 'package:get/get.dart';
 import 'package:snacktag/app/routes/app_pages.dart';
+import 'package:snacktag/config/app_images.dart';
 import 'package:snacktag/config/app_text_style.dart';
 import 'package:snacktag/widgets/custom_wallet_widget.dart';
 import 'package:snacktag/widgets/parent_header.dart';
@@ -85,7 +86,7 @@ class ParentsHomeView extends GetView<ParentsHomeController> {
                             ),
                         itemBuilder: (context, index) {
                           return Container(
-                              height: 80,
+                              height: 95,
                               decoration: BoxDecoration(
                                 color: Colors.white,
                                 borderRadius: BorderRadius.circular(12),
@@ -107,6 +108,7 @@ class ParentsHomeView extends GetView<ParentsHomeController> {
                                   mainAxisAlignment: MainAxisAlignment
                                       .start, // Align image to top
                                   children: [
+                                    SizedBox(height: 12),
                                     Container(
                                       width: 55,
                                       height: 55,
@@ -178,18 +180,8 @@ class ParentsHomeView extends GetView<ParentsHomeController> {
                                         children: [
                                       Row(
                                         mainAxisAlignment:
-                                            MainAxisAlignment.spaceBetween,
+                                            MainAxisAlignment.end,
                                         children: [
-                                          Text(
-                                            parentController.childrenList
-                                                .value[index].childName!,
-                                            style: AppTextStyles
-                                                .MetropolisMedium.copyWith(
-                                              fontSize: 14,
-                                            ),
-                                          ),
-                                          const Spacer(),
-                                          // if (isEdit)
                                           GestureDetector(
                                             onTap: () {
                                               // Get.toNamed(Routes.CAFETERIA);
@@ -233,6 +225,14 @@ class ParentsHomeView extends GetView<ParentsHomeController> {
                                       ),
                                       Text(
                                         parentController.childrenList
+                                            .value[index].childName!,
+                                        style: AppTextStyles.MetropolisMedium
+                                            .copyWith(
+                                          fontSize: 14,
+                                        ),
+                                      ),
+                                      Text(
+                                        parentController.childrenList
                                             .value[index].schoolName!,
                                         style: AppTextStyles.MetropolisRegular
                                             .copyWith(
@@ -246,9 +246,34 @@ class ParentsHomeView extends GetView<ParentsHomeController> {
                                             .copyWith(
                                                 fontSize: 12,
                                                 color: const Color(0xFF858585)),
-                                      )
-                                      // if (isType)
-                                    ]))
+                                      ),
+                                    ])),
+                                VerticalDivider(
+                                    width: 20,
+                                    thickness: 1.5,
+                                    color: Colors.black.withOpacity(0.3)),
+                                Column(
+                                  children: [
+                                    SizedBox(height: 4),
+                                    Image.asset(
+                                      AppImages.authImg,
+                                      width: 36,
+                                      height: 36,
+                                    ),
+                                    SizedBox(height: 9),
+                                    Text(
+                                      'MX\$250',
+                                      style: AppTextStyles.MetropolisMedium
+                                          .copyWith(fontSize: 13),
+                                    ),
+                                    SizedBox(height: 2),
+                                    Text(
+                                      'Monthly Spending',
+                                      style: AppTextStyles.MetropolisMedium
+                                          .copyWith(fontSize: 5),
+                                    ),
+                                  ],
+                                )
                               ])
 
                               // return WalletBalanceCard(
@@ -277,7 +302,7 @@ class ParentsHomeView extends GetView<ParentsHomeController> {
                   //   isType: false,
                   //   isStaff: false,
                   // ),
-                  const SizedBox(height: 16),
+                  const SizedBox(height: 13),
 
                   // CustomButton(
                   //     text: 'ADD WALLET BALANCE',
@@ -293,7 +318,7 @@ class ParentsHomeView extends GetView<ParentsHomeController> {
                       },
                       isLoading: false.obs),
 
-                  const SizedBox(height: 16),
+                  const SizedBox(height: 14),
                 ],
               ),
             );
