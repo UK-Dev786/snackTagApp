@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:snacktag/config/app_images.dart';
 import 'package:snacktag/config/app_text_style.dart';
+import '../app/modules/parents_add_wallet/controllers/parents_add_wallet_controller.dart';
+import '../app/routes/app_pages.dart';
 import '../config/app_colors.dart';
 import '../app/modules/parents_home/controllers/parents_home_controller.dart';
 
@@ -90,46 +92,46 @@ class ParentsHeader extends StatelessWidget {
                   SizedBox(
                     width: 8,
                   ),
-                  Stack(
-                    children: [
-                      Container(
-                        width: 100, // or a fixed width if needed
-                        height: 45, // adjust height as needed
-                        decoration: BoxDecoration(
-                          image: DecorationImage(
-                            image: AssetImage(AppImages.headerBtn),
-                            fit: BoxFit.cover,
+                  GestureDetector(
+                    onTap: () {
+                      _showAddWalletDialog(context, parentController);
+                    },
+                    child: Stack(
+                      children: [
+                        Container(
+                          width: 100, // or a fixed width if needed
+                          height: 45, // adjust height as needed
+                          decoration: BoxDecoration(
+                            image: DecorationImage(
+                              image: AssetImage(AppImages.headerBtn),
+                              fit: BoxFit.cover,
+                            ),
                           ),
                         ),
-                      ),
-                      Positioned(
-                        top: 10,
-                        left: 10,
-                        child: Text(
-                          'WALLET',
-                          // style: TextStyle(
-                          //   color: Colors.black.withOpacity(0.7),
-                          //   fontSize: 8,
-                          //   fontWeight: FontWeight.bold,
-                          // ),
-                          style: AppTextStyles.MetropolisRegular.copyWith(
-                              fontWeight: FontWeight.w500,
-                              fontSize: 7,
-                              color: Colors.black.withOpacity(0.7)),
+                        Positioned(
+                          top: 10,
+                          left: 10,
+                          child: Text(
+                            'WALLET',
+                            style: AppTextStyles.MetropolisRegular.copyWith(
+                                fontWeight: FontWeight.w500,
+                                fontSize: 7,
+                                color: Colors.black.withOpacity(0.7)),
+                          ),
                         ),
-                      ),
-                      Positioned(
-                        bottom: 15,
-                        right: 10,
-                        child: Text(
-                          'ADD',
-                          style: AppTextStyles.MetropolisRegular.copyWith(
-                              fontWeight: FontWeight.w500,
-                              fontSize: 8,
-                              color: Colors.black.withOpacity(0.7)),
+                        Positioned(
+                          bottom: 15,
+                          right: 10,
+                          child: Text(
+                            'ADD',
+                            style: AppTextStyles.MetropolisRegular.copyWith(
+                                fontWeight: FontWeight.w500,
+                                fontSize: 8,
+                                color: Colors.black.withOpacity(0.7)),
+                          ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                   SizedBox(
                     width: 8,
@@ -320,6 +322,196 @@ class ParentsHeader extends StatelessWidget {
           ),
         ),
       ),
+    );
+  }
+
+  void _showAddWalletDialog(
+      BuildContext context, ParentsHomeController controller) {
+    final TextEditingController amountController = TextEditingController();
+    int selectedAmount = -1;
+    final List<double> presetAmounts = [100.00, 500.00, 800.00, 1000.00];
+
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return Dialog(
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(20),
+              ),
+              child: Container(
+                padding: const EdgeInsets.all(20),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    // Close button at top right
+                    Align(
+                      alignment: Alignment.topRight,
+                      child: GestureDetector(
+                        onTap: () => Navigator.of(context).pop(),
+                        child: Image.asset(
+                          AppImages.crossIcon,
+                          width: 29,
+                          height: 29,
+                        ),
+                      ),
+                    ),
+
+                    // Title
+                    Text(
+                      'WALLET',
+                      style: AppTextStyles.MetropolisBold.copyWith(
+                        fontSize: 18,
+                        color: Colors.black,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: 20),
+
+                    // Preset amounts in a grid (2x2)
+                    Wrap(
+                      spacing: 15,
+                      runSpacing: 15,
+                      alignment: WrapAlignment.center,
+                      children: [
+                        for (int i = 0; i < presetAmounts.length; i++)
+                          GestureDetector(
+                            onTap: () {
+                              setState(() {
+                                selectedAmount = i;
+                                amountController.text =
+                                    presetAmounts[i].toStringAsFixed(2);
+                              });
+                            },
+                            child: Container(
+                              width: 120,
+                              padding: const EdgeInsets.symmetric(vertical: 10),
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(30),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.grey.withOpacity(0.2),
+                                    spreadRadius: 1,
+                                    blurRadius: 5,
+                                    offset: const Offset(0, 2),
+                                  ),
+                                ],
+                                border: Border.all(
+                                  color: selectedAmount == i
+                                      ? AppColors.gradientStartColor
+                                      : Colors.transparent,
+                                  width: 2,
+                                ),
+                              ),
+                              alignment: Alignment.center,
+                              child: Text(
+                                'MX\$${presetAmounts[i].toStringAsFixed(2)}',
+                                style: AppTextStyles.MetropolisMedium.copyWith(
+                                  fontSize: 14,
+                                  color: Colors.black,
+                                ),
+                              ),
+                            ),
+                          ),
+                      ],
+                    ),
+
+                    const SizedBox(height: 20),
+
+                    // Custom amount input
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 15, vertical: 5),
+                      decoration: BoxDecoration(
+                        color: Colors.grey.withOpacity(0.1),
+                        borderRadius: BorderRadius.circular(30),
+                      ),
+                      child: TextField(
+                        controller: amountController,
+                        keyboardType:
+                            TextInputType.numberWithOptions(decimal: true),
+                        textAlign: TextAlign.center,
+                        decoration: InputDecoration(
+                          hintText: 'MX\$0.00',
+                          border: InputBorder.none,
+                          hintStyle: AppTextStyles.MetropolisRegular.copyWith(
+                            color: Colors.grey,
+                          ),
+                          prefixText: selectedAmount == -1 ? 'MX\$' : '',
+                          prefixStyle: AppTextStyles.MetropolisRegular.copyWith(
+                            color: Colors.black,
+                          ),
+                        ),
+                        style: AppTextStyles.MetropolisMedium.copyWith(
+                          fontSize: 16,
+                        ),
+                        onChanged: (value) {
+                          if (value.isNotEmpty) {
+                            setState(() {
+                              selectedAmount = -1;
+                            });
+                          }
+                        },
+                      ),
+                    ),
+
+                    const SizedBox(height: 20),
+
+                    // Done button
+                    GestureDetector(
+                      onTap: () {
+                        if (amountController.text.isNotEmpty) {
+                          // Navigate to add wallet page with the amount
+                          Navigator.of(context).pop();
+
+                          // Create a temporary controller to pass the amount
+                          final tempController =
+                              Get.find<ParentsAddWalletController>();
+                          tempController.amount.value =
+                              amountController.text.replaceAll('\$', '');
+
+                          // Navigate to add wallet page
+                          Get.toNamed(Routes.PARENTS_ADD_WALLET);
+                        } else {
+                          // Show error if no amount is entered
+                          Get.snackbar(
+                            'Error',
+                            'Please enter an amount',
+                            snackPosition: SnackPosition.BOTTOM,
+                          );
+                        }
+                      },
+                      child: Container(
+                        width: double.infinity,
+                        padding: const EdgeInsets.symmetric(vertical: 15),
+                        decoration: BoxDecoration(
+                          color: const Color(
+                              0xFFD6FF00), // Bright yellow-green color
+                          borderRadius: BorderRadius.circular(30),
+                        ),
+                        alignment: Alignment.center,
+                        child: Text(
+                          'DONE',
+                          style: AppTextStyles.MetropolisBold.copyWith(
+                            fontSize: 16,
+                            color: Colors.black,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            );
+          },
+        );
+      },
     );
   }
 }
