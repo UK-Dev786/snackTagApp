@@ -47,11 +47,6 @@ class ParentsHeader extends StatelessWidget {
                       left: 10,
                       child: Text(
                         'BALANCE',
-                        // style: TextStyle(
-                        //   color: Colors.black.withOpacity(0.7),
-                        //   fontSize: 8,
-                        //   fontWeight: FontWeight.bold,
-                        // ),
                         style: AppTextStyles.MetropolisRegular.copyWith(
                             fontWeight: FontWeight.w500,
                             fontSize: 7,
@@ -61,29 +56,31 @@ class ParentsHeader extends StatelessWidget {
                     Positioned(
                       bottom: 15,
                       right: 10,
-                      child: RichText(
-                        text: TextSpan(
-                          children: [
-                            TextSpan(
-                              text: 'MX\$ ',
-                              style: AppTextStyles.MetropolisRegular.copyWith(
-                                fontWeight: FontWeight.w500,
-                                fontSize: 8,
-                                color: Colors.black.withOpacity(0.7),
-                              ),
+                      child: Obx(() => RichText(
+                            text: TextSpan(
+                              children: [
+                                TextSpan(
+                                  text: 'MX\$ ',
+                                  style:
+                                      AppTextStyles.MetropolisRegular.copyWith(
+                                    fontWeight: FontWeight.w500,
+                                    fontSize: 8,
+                                    color: Colors.black.withOpacity(0.7),
+                                  ),
+                                ),
+                                TextSpan(
+                                  text:
+                                      '${parentController.parentAddWalletModel.value?.amount ?? "0.00"}',
+                                  style:
+                                      AppTextStyles.MetropolisRegular.copyWith(
+                                    fontWeight: FontWeight.w600,
+                                    fontSize: 8,
+                                    color: Colors.black,
+                                  ),
+                                ),
+                              ],
                             ),
-                            TextSpan(
-                              text:
-                                  '${parentController.parentAddWalletModel.value?.amount ?? "0.00"}',
-                              style: AppTextStyles.MetropolisRegular.copyWith(
-                                fontWeight: FontWeight.w600,
-                                fontSize: 8,
-                                color: Colors.black,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
+                          )),
                     ),
                   ],
                 ),
@@ -137,8 +134,8 @@ class ParentsHeader extends StatelessWidget {
                 Stack(
                   children: [
                     Container(
-                      width: 100, // or a fixed width if needed
-                      height: 45, // adjust height as needed
+                      width: 100,
+                      height: 45,
                       decoration: BoxDecoration(
                         image: DecorationImage(
                           image: AssetImage(AppImages.headerBtn),
@@ -159,29 +156,31 @@ class ParentsHeader extends StatelessWidget {
                     Positioned(
                       bottom: 15,
                       right: 10,
-                      child: RichText(
-                        text: TextSpan(
-                          children: [
-                            TextSpan(
-                              text: 'MX\$ ',
-                              style: AppTextStyles.MetropolisRegular.copyWith(
-                                fontWeight: FontWeight.w500,
-                                fontSize: 8,
-                                color: Colors.black.withOpacity(0.7),
-                              ),
+                      child: Obx(() => RichText(
+                            text: TextSpan(
+                              children: [
+                                TextSpan(
+                                  text: 'MX\$ ',
+                                  style:
+                                      AppTextStyles.MetropolisRegular.copyWith(
+                                    fontWeight: FontWeight.w500,
+                                    fontSize: 8,
+                                    color: Colors.black.withOpacity(0.7),
+                                  ),
+                                ),
+                                TextSpan(
+                                  text:
+                                      '${parentController.parentAddWalletModel.value?.monthlyExpenditures.toStringAsFixed(2) ?? "0.00"}',
+                                  style:
+                                      AppTextStyles.MetropolisRegular.copyWith(
+                                    fontWeight: FontWeight.w600,
+                                    fontSize: 8,
+                                    color: Colors.black,
+                                  ),
+                                ),
+                              ],
                             ),
-                            TextSpan(
-                              text:
-                                  '${parentController.parentAddWalletModel.value?.monthlyExpenditures.toStringAsFixed(2) ?? "0.00"}',
-                              style: AppTextStyles.MetropolisRegular.copyWith(
-                                fontWeight: FontWeight.w600,
-                                fontSize: 8,
-                                color: Colors.black,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
+                          )),
                     ),
                   ],
                 ),
