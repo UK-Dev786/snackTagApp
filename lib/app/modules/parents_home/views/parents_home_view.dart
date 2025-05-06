@@ -24,8 +24,7 @@ class ParentsHomeView extends GetView<ParentsHomeController> {
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   SizedBox(
-                    height:
-                        350, // Set a fixed height that fits your header content
+                    height: 380,
                     child: ParentsHeader(),
                   ),
                   // Total Wallet Balance Section
@@ -281,14 +280,13 @@ class ParentsHomeView extends GetView<ParentsHomeController> {
                   // ),
                   const SizedBox(height: 16),
 
-                  CustomButton(
-                      text: 'ADD WALLET BALANCE',
-                      onPressed: () {
-                        Get.toNamed(Routes.PARENTS_ADD_WALLET);
-                      },
-                      isLoading: false.obs),
+                  // CustomButton(
+                  //     text: 'ADD WALLET BALANCE',
+                  //     onPressed: () {
+                  //       Get.toNamed(Routes.PARENTS_ADD_WALLET);
+                  //     },
+                  //     isLoading: false.obs),
 
-                  const SizedBox(height: 16),
                   CustomButton(
                       text: 'ADD CHILD',
                       onPressed: () {
