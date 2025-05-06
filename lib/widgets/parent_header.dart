@@ -159,12 +159,28 @@ class ParentsHeader extends StatelessWidget {
                     Positioned(
                       bottom: 15,
                       right: 10,
-                      child: Text(
-                        'MX\$ ',
-                        style: AppTextStyles.MetropolisRegular.copyWith(
-                            fontWeight: FontWeight.w500,
-                            fontSize: 8,
-                            color: Colors.black.withOpacity(0.7)),
+                      child: RichText(
+                        text: TextSpan(
+                          children: [
+                            TextSpan(
+                              text: 'MX\$ ',
+                              style: AppTextStyles.MetropolisRegular.copyWith(
+                                fontWeight: FontWeight.w500,
+                                fontSize: 8,
+                                color: Colors.black.withOpacity(0.7),
+                              ),
+                            ),
+                            TextSpan(
+                              text:
+                                  '${parentController.parentAddWalletModel.value?.monthlyExpenditures.toStringAsFixed(2) ?? "0.00"}',
+                              style: AppTextStyles.MetropolisRegular.copyWith(
+                                fontWeight: FontWeight.w600,
+                                fontSize: 8,
+                                color: Colors.black,
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
                     ),
                   ],

@@ -30,6 +30,7 @@ class ParentsHomeController extends GetxController {
     listenToWalletChanges(); // Start listening for real-time updates
     fetchChildren();
     fetchParentInfo(); // Add this line to fetch parent info
+    checkAndResetMonthlyExpenditures(); // Check if monthly expenditures need to be reset
 
     super.onInit();
   }
@@ -129,6 +130,31 @@ class ParentsHomeController extends GetxController {
       print("✅ Monthly reload updated to: $newValue");
     } catch (e) {
       print("❌ Error updating monthly reload: $e");
+    }
+  }
+
+  // Check and reset monthly expenditures if needed
+  void checkAndResetMonthlyExpenditures() {
+    final currentUser = _auth.currentUser;
+    if (currentUser == null || parentAddWalletModel.value == null) return;
+
+    // Get the current date
+    final now = DateTime.now();
+    final firstDayOfMonth = DateTime(now.year, now.month, 1);
+    final today = DateTime(now.year, now.month, now.day);
+
+    // If today is the first day of the month, reset monthly expenditures
+    if (today.isAtSameMomentAs(firstDayOfMonth)) {
+      FirebaseFirestore.instance
+          .collection('users')
+          .doc(currentUser.uid)
+          .collection('ParentWalletAmount')
+          .doc(parentAddWalletModel.value!.id)
+          .update({'monthlyExpenditures': 0.0}).then((_) {
+        print("✅ Monthly expenditures reset to 0");
+      }).catchError((error) {
+        print("❌ Error resetting monthly expenditures: $error");
+      });
     }
   }
 

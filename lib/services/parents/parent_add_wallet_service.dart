@@ -25,6 +25,8 @@ class ParentAddWalletService extends BaseService {
           'amount': newTotalAmount,
           'enableMonthlyReload': model.enableMonthlyReload, // Update boolean
           'updatedAt': FieldValue.serverTimestamp(), // Store last update time
+          'monthlyExpenditures':
+              model.monthlyExpenditures, // Update monthly expenditures
         });
 
         print(
@@ -37,6 +39,7 @@ class ParentAddWalletService extends BaseService {
           'userId': model.parrentId,
           'amount': model.amount, // Set initial amount
           'enableMonthlyReload': model.enableMonthlyReload,
+          'monthlyExpenditures': 0.0, // Initialize monthly expenditures
           'createdAt': FieldValue.serverTimestamp(),
           'updatedAt': FieldValue.serverTimestamp(),
         });
@@ -69,6 +72,9 @@ class ParentAddWalletService extends BaseService {
       // Get current amount
       double currentAmount =
           (walletSnapshot.data() as Map<String, dynamic>)['amount'] ?? 0.0;
+      double currentMonthlyExpenditures = (walletSnapshot.data()
+              as Map<String, dynamic>)['monthlyExpenditures'] ??
+          0.0;
 
       // Check if there's enough balance
       if (currentAmount < amount) {
@@ -77,17 +83,19 @@ class ParentAddWalletService extends BaseService {
         return false;
       }
 
-      // Calculate new amount
+      // Calculate new amount and update monthly expenditures
       double newAmount = currentAmount - amount;
+      double newMonthlyExpenditures = currentMonthlyExpenditures + amount;
 
-      // Update wallet with deducted amount
+      // Update wallet with deducted amount and increased expenditures
       await userWalletRef.update({
         'amount': newAmount,
+        'monthlyExpenditures': newMonthlyExpenditures,
         'updatedAt': FieldValue.serverTimestamp(),
       });
 
       print(
-          "✅ Payment of $amount deducted from parent wallet: $parentId. New balance: $newAmount");
+          "✅ Payment of $amount deducted from parent wallet: $parentId. New balance: $newAmount, Monthly expenditures: $newMonthlyExpenditures");
       return true;
     } catch (e) {
       print("❌ Error deducting payment from parent wallet: $e");
