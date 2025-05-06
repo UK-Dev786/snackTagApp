@@ -222,9 +222,10 @@ class ParentsHeader extends StatelessWidget {
                     color: AppColors.blackColor))),
             // Child images horizontal list
             Padding(
-              padding: const EdgeInsets.all(20.0),
+              padding: const EdgeInsets.only(
+                  top: 20.0, left: 20, right: 20, bottom: 10),
               child: SizedBox(
-                height: 80, // Reduced height
+                height: 70, // Reduced height
                 child: Obx(
                   () => parentController.childrenList.isEmpty
                       ? Center(

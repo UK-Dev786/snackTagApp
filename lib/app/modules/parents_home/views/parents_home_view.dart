@@ -24,7 +24,7 @@ class ParentsHomeView extends GetView<ParentsHomeController> {
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   SizedBox(
-                    height: 380,
+                    height: 370,
                     child: ParentsHeader(),
                   ),
                   // Total Wallet Balance Section
@@ -71,7 +71,6 @@ class ParentsHomeView extends GetView<ParentsHomeController> {
                   //   ],
                   // ),
 
-                  const SizedBox(height: 20),
                   // Two Wallet Balance Cards
                   Expanded(
                       child: Padding(
