@@ -27,11 +27,11 @@ class ParentsHomeController extends GetxController {
 
   @override
   void onInit() {
-    listenToWalletChanges(); // Start listening for real-time updates
-    fetchChildren();
     fetchParentInfo(); // Add this line to fetch parent info
     checkAndResetMonthlyExpenditures(); // Check if monthly expenditures need to be reset
-
+    fetchChildren();
+    listenToWalletChanges();
+    resetChildrenMonthlyExpenditures(); // Add this line
     super.onInit();
   }
 
@@ -81,6 +81,11 @@ class ParentsHomeController extends GetxController {
           (children) {
         childrenList.assignAll(children); // ✅ Automatically updates the UI
         print("✅ Children data updated: ${children.length} children found.");
+        // Debug log to check if monthly expenditures are coming through
+        for (var child in children) {
+          print(
+              "Child: ${child.childName}, Monthly Expenditures: ${child.monthlyExpenditures}");
+        }
       }, onError: (error) {
         print("❌ Error fetching children: $error");
       });
@@ -154,6 +159,40 @@ class ParentsHomeController extends GetxController {
         print("✅ Monthly expenditures reset to 0");
       }).catchError((error) {
         print("❌ Error resetting monthly expenditures: $error");
+      });
+    }
+  }
+
+  // Reset monthly expenditures for all children on the first day of the month
+  void resetChildrenMonthlyExpenditures() {
+    final currentUser = FirebaseAuth.instance.currentUser;
+    if (currentUser == null) return;
+
+    DateTime today = DateTime.now();
+    DateTime firstDayOfMonth = DateTime(today.year, today.month, 1);
+
+    // If today is the first day of the month, reset monthly expenditures
+    if (today.day == firstDayOfMonth.day) {
+      // Reset all children's monthly expenditures
+      FirebaseFirestore.instance
+          .collection('parentsChildren')
+          .where('parentId', isEqualTo: currentUser.uid)
+          .get()
+          .then((querySnapshot) {
+        for (var doc in querySnapshot.docs) {
+          FirebaseFirestore.instance
+              .collection('parentsChildren')
+              .doc(doc.id)
+              .update({'monthlyExpenditures': 0.0}).then((_) {
+            print("✅ Child ${doc.id} monthly expenditures reset to 0");
+          }).catchError((error) {
+            print(
+                "❌ Error resetting child ${doc.id} monthly expenditures: $error");
+          });
+        }
+      }).catchError((error) {
+        print(
+            "❌ Error fetching children for monthly expenditures reset: $error");
       });
     }
   }

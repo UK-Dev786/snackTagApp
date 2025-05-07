@@ -14,7 +14,9 @@ class ParentsHomeView extends GetView<ParentsHomeController> {
 
   @override
   Widget build(BuildContext context) {
-    // Controller for switch
+    // Make sure controller is initialized before using it
+    final parentController = Get.put(ParentsHomeController());
+
     return Scaffold(
       backgroundColor: Colors.white,
       body: GetBuilder<ParentsHomeController>(
@@ -86,7 +88,7 @@ class ParentsHomeView extends GetView<ParentsHomeController> {
                             ),
                         itemBuilder: (context, index) {
                           return Container(
-                              height: 95,
+                              height: 110,
                               decoration: BoxDecoration(
                                 color: Colors.white,
                                 borderRadius: BorderRadius.circular(12),
@@ -262,7 +264,7 @@ class ParentsHomeView extends GetView<ParentsHomeController> {
                                     ),
                                     SizedBox(height: 9),
                                     Text(
-                                      'MX\$250',
+                                      'MX\$${parentController.childrenList.value[index].monthlyExpenditures.toStringAsFixed(2)}',
                                       style: AppTextStyles.MetropolisMedium
                                           .copyWith(fontSize: 13),
                                     ),
@@ -271,6 +273,12 @@ class ParentsHomeView extends GetView<ParentsHomeController> {
                                       'Monthly Spending',
                                       style: AppTextStyles.MetropolisMedium
                                           .copyWith(fontSize: 5),
+                                    ),
+                                    // Add debug text to verify data
+                                    Text(
+                                      'ID: ${parentController.childrenList.value[index].childId?.substring(0, 4) ?? "none"}',
+                                      style: TextStyle(
+                                          fontSize: 4, color: Colors.grey),
                                     ),
                                   ],
                                 )
