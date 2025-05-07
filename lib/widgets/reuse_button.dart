@@ -154,7 +154,7 @@ class CustomButton1 extends StatelessWidget {
 
             image: DecorationImage(
               image: AssetImage(AppImages.baseButton),
-              fit: BoxFit.cover,
+              fit: BoxFit.contain,
             ),
 
             // color: isBackColor ? buttonColor : Colors.transparent,
