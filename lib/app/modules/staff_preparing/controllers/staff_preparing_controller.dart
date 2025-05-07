@@ -162,7 +162,9 @@ class StaffOrderPreparingController extends GetxController {
           // Deduct payment from parent wallet
           paymentDeducted =
               await _preparationService.deductPaymentFromParentWallet(
-                  orderDetails.parentId!, totalAmount);
+                  orderDetails.parentId!,
+                  totalAmount,
+                  orderDetails.childId ?? ''); // Add childId parameter
 
           if (!paymentDeducted) {
             print(

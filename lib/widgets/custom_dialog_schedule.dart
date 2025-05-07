@@ -493,6 +493,8 @@ class ScheduleDialog extends StatelessWidget {
                         //       .toList(),
                         // ),
                         SingleChildScrollView(
+                          scrollDirection: Axis
+                              .horizontal, // Explicitly set horizontal scroll
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: controller.selectedDaysList
@@ -505,7 +507,7 @@ class ScheduleDialog extends StatelessWidget {
                                     child: Obx(() => Container(
                                           height: 32,
                                           width: 32,
-                                          margin: EdgeInsets.symmetric(
+                                          margin: const EdgeInsets.symmetric(
                                               horizontal: 3),
                                           decoration: BoxDecoration(
                                             color: controller

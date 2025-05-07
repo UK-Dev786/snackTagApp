@@ -3,12 +3,14 @@ class ParentAddWalletModel {
   double amount;
   bool enableMonthlyReload;
   String parrentId;
+  double monthlyExpenditures;
 
   ParentAddWalletModel({
-     this.id,
+    this.id,
     required this.amount,
     required this.enableMonthlyReload,
     required this.parrentId,
+    this.monthlyExpenditures = 0.0,
   });
 
   // Convert to JSON for Firebase
@@ -17,7 +19,8 @@ class ParentAddWalletModel {
       'id': id,
       'amount': amount,
       'enableMonthlyReload': enableMonthlyReload,
-      'parentId' : parrentId
+      'parentId': parrentId,
+      'monthlyExpenditures': monthlyExpenditures
     };
   }
 
@@ -26,8 +29,11 @@ class ParentAddWalletModel {
     return ParentAddWalletModel(
       id: id ?? json['userId'], // Use passed ID if available
       amount: (json['amount'] ?? 0).toDouble(), // Ensure double type
-      enableMonthlyReload: json['enableMonthlyReload'] ?? false, // Default to false
+      enableMonthlyReload:
+          json['enableMonthlyReload'] ?? false, // Default to false
       parrentId: json['parentId']?.toString() ?? '', // Ensure it's a string
+      monthlyExpenditures:
+          (json['monthlyExpenditures'] ?? 0).toDouble(), // Default to 0
     );
   }
 }

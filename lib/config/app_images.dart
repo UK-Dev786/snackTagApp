@@ -19,4 +19,7 @@ class AppImages {
   static const upComing = 'assets/images/upComing.png';
   static const notificationsIcon = 'assets/images/notificationsIcon.png';
   static const settingsIcon = 'assets/images/settingsIcon.png';
+  static const crossIcon = 'assets/images/crossIcon.png';
+
+  static const aboutMeal = 'assets/icon/aboutMeal.png';
 }

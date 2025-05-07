@@ -22,11 +22,12 @@ class ParentsAddChildren {
   String? status;
   String? orderPreparedBy;
   String? orderDeliveredBy;
-  
+
   bool startPreparation;
   bool delivered;
 
   List<ParentSelectedMeals>? selectedMealMenuData;
+  double monthlyExpenditures;
 
   ParentsAddChildren({
     this.id,
@@ -51,6 +52,7 @@ class ParentsAddChildren {
     this.startPreparation = false,
     this.delivered = false,
     this.selectedMealMenuData,
+    this.monthlyExpenditures = 0.0,
   });
 
   factory ParentsAddChildren.fromJson(Map<String, dynamic> json) {
@@ -81,6 +83,7 @@ class ParentsAddChildren {
               .map((meal) => ParentSelectedMeals.fromMap(meal))
               .toList()
           : [],
+      monthlyExpenditures: (json['monthlyExpenditures'] ?? 0.0).toDouble(),
     );
   }
 
@@ -107,7 +110,9 @@ class ParentsAddChildren {
       'orderDeliveredBy': orderDeliveredBy,
       'startPreparation': startPreparation,
       'delivered': delivered,
-      'selectedMealMenuData': selectedMealMenuData?.map((meal) => meal.toMap()).toList(),
+      'selectedMealMenuData':
+          selectedMealMenuData?.map((meal) => meal.toMap()).toList(),
+      'monthlyExpenditures': monthlyExpenditures,
     };
   }
 }

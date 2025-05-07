@@ -30,14 +30,14 @@ class NotificationsView extends GetView<NotificationsController> {
                     color: const Color(0xFF434343),
                   ),
                 ),
-                const SizedBox(width: 10),
-                // Refresh button
-                IconButton(
-                  icon: const Icon(Icons.refresh, color: Color(0xFF434343)),
-                  onPressed: () {
-                    controller.refreshNotifications();
-                  },
-                ),
+                // const SizedBox(width: 10),
+                // // Refresh button
+                // IconButton(
+                //   icon: const Icon(Icons.refresh, color: Color(0xFF434343)),
+                //   onPressed: () {
+                //     controller.refreshNotifications();
+                //   },
+                // ),
               ],
             ),
             Expanded(
