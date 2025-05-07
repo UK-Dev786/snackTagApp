@@ -163,7 +163,10 @@ class MenuPageView extends GetView<MenuPageController> {
     return Container(
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(12),
-        color: Colors.white,
+        color: controller.selectedIndexes.contains(index)
+            ? const Color(0xFFFC6011)
+                .withOpacity(0.2) // Background for selected item
+            : Colors.white, // Default background
         boxShadow: [
           BoxShadow(
             color: Colors.grey.withOpacity(0.2),
@@ -417,10 +420,40 @@ class MenuPageView extends GetView<MenuPageController> {
                           );
 
                           bool isConfirmed = result?['isConfirmed'] ?? false;
-                          if (isConfirmed) {
-                            controller.selectedIndexes.contains(index)
-                                ? controller.selectedIndexes.remove(index)
-                                : controller.selectedIndexes.add(index);
+                          MealSheduleModel? updatedMeal = result?['mealModel'];
+                          String? listData = result?['scheduleStatementList'];
+                          Schedule? schedule = result?['schedule'];
+
+                          if (isConfirmed &&
+                              updatedMeal != null &&
+                              schedule != null) {
+                            if (controller.selectedIndexes.contains(index)) {
+                              controller.selectedIndexes.remove(index);
+
+                              // Remove meal from scheduleModel
+                              controller.scheduleModel.removeWhere(
+                                  (meal) => meal.mealId == updatedMeal.mealId);
+
+                              // Remove meal from list
+                              mealsList.removeWhere((m) => m.id == meal.id);
+
+                              // Remove from parentSelectedMeals
+                              parentSelectedMeals
+                                  .removeWhere((m) => m.mealName == meal.name);
+                            } else {
+                              // Add to selected meals
+                              selectedMeals = ParentSelectedMeals(
+                                  mealName: meal.name!,
+                                  mealPrice: meal.price,
+                                  scheduleStatement: listData,
+                                  imageUrl: meal.imageUrl,
+                                  schedule: schedule);
+
+                              parentSelectedMeals.add(selectedMeals);
+                              controller.scheduleModel.add(updatedMeal);
+                              mealsList.add(meal);
+                              controller.selectedIndexes.add(index);
+                            }
                           }
                         },
                         style: ElevatedButton.styleFrom(
@@ -720,19 +753,12 @@ class MenuPageView extends GetView<MenuPageController> {
               width: 325,
               text: 'CONFIRM',
               onPressed: () {
-                print("Selected Meal Models:");
-                for (var meal in controller.scheduleModel) {
-                  print(
-                      "Meal ID: ${meal.mealId}, Repeat Every: ${meal.repeatEvery}, Available At: ${meal.availableAt}, Repeat On: ${meal.repeatOn}");
-                }
-
                 if (controller.selectedIndexes.isEmpty) {
                   Get.snackbar('Error', 'Please select a meal');
                 } else {
-                  // print(
-                  //   "Meal ID: ${controller.cafeModel});");
+                  print("Selected meals count: ${parentSelectedMeals.length}");
                   print(
-                      "parentController.cafeteriaNameList[0] id is ${controller.cafeModel[0].cafeteriaName}");
+                      "Schedule model count: ${controller.scheduleModel.length}");
 
                   Get.toNamed(
                     Routes.CHILDREN_DETAILS,
@@ -742,8 +768,7 @@ class MenuPageView extends GetView<MenuPageController> {
                       'mealList': mealsList,
                       'selectedMealData': parentSelectedMeals,
                       'childData': controller.childData,
-                      "imageFile":
-                          controller.childImageFile, // Passing the image file
+                      "imageFile": controller.childImageFile,
                     },
                   );
                 }
