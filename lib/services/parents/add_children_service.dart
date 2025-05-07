@@ -156,11 +156,16 @@ class AddChildrenService extends BaseService {
   /// **Add a Child to Firestore**
   Future<bool> addOrUpdateChild(
       ParentsAddChildren childData, String? imgUrl) async {
+    print("[UpdatingChildrenMealData] Service: Starting addOrUpdateChild");
+    print("[UpdatingChildrenMealData] Service: Parent ID: ${childData.parentId}");
+    print("[UpdatingChildrenMealData] Service: Child ID: ${childData.childId}");
+    print("[UpdatingChildrenMealData] Service: Image URL provided: ${imgUrl != null ? 'Yes' : 'No'}");
+    
     final FirebaseFirestore firestore = FirebaseFirestore.instance;
-    print("Parent ID: ${childData.parentId}, Child ID: ${childData.childId}");
 
     try {
       // Query Firestore for an existing child
+      print("[UpdatingChildrenMealData] Service: Querying Firestore for existing child");
       QuerySnapshot querySnapshot = await firestore
           .collection('parentsChildren')
           .where('parentId', isEqualTo: childData.parentId)
@@ -168,75 +173,116 @@ class AddChildrenService extends BaseService {
           .get();
 
       // Print all matched documents
+      print("[UpdatingChildrenMealData] Service: Found ${querySnapshot.docs.length} matching documents");
       for (var doc in querySnapshot.docs) {
-        print("Document ID: ${doc.id}");
-        print("Data: ${doc.data()}");
+        print("[UpdatingChildrenMealData] Service: Document ID: ${doc.id}");
+        print("[UpdatingChildrenMealData] Service: Data: ${doc.data()}");
       }
 
       bool isNewOrder = querySnapshot.docs.isEmpty;
+      print("[UpdatingChildrenMealData] Service: Is new order: $isNewOrder");
+      
       String childId = "";
 
       if (querySnapshot.docs.isNotEmpty) {
-        print("Child data exists, updating...");
+        print("[UpdatingChildrenMealData] Service: Child data exists, updating...");
 
         // Get the existing document ID
         String existingChildId = querySnapshot.docs.first.id;
         childId = existingChildId;
+        print("[UpdatingChildrenMealData] Service: Existing document ID: $existingChildId");
+        
         DocumentReference childDocRef =
             firestore.collection('parentsChildren').doc(existingChildId);
 
         // If a new image is provided, upload it and update Firestore
         if (imgUrl != null && imgUrl.isNotEmpty) {
+          print("[UpdatingChildrenMealData] Service: New image provided, uploading...");
           File imageFile = File(imgUrl);
           String imageUrl = await uploadChildImage(imageFile,
               "parentsChildren/${childData.parentId}", existingChildId);
+              
+          print("[UpdatingChildrenMealData] Service: Image uploaded, URL: ${imageUrl.isNotEmpty ? 'Success' : 'Failed'}");
+          
           if (imageUrl.isNotEmpty) {
             childData.childImageUrl = imageUrl; // Store the new image URL
+            print("[UpdatingChildrenMealData] Service: Updated child image URL in data model");
+          } else {
+            print("[UpdatingChildrenMealData] Service: WARNING: Image upload failed");
           }
+        } else {
+          print("[UpdatingChildrenMealData] Service: No new image provided, keeping existing image");
         }
 
         // Update the existing child data
+        print("[UpdatingChildrenMealData] Service: Updating document in Firestore");
+        print("[UpdatingChildrenMealData] Service: Data to update: ${childData.toJson()}");
+        
         await childDocRef.update(childData.toJson());
-        print("Child updated successfully: $existingChildId");
+        print("[UpdatingChildrenMealData] Service: Child updated successfully: $existingChildId");
       } else {
-        print("Child does not exist, adding new child...");
+        print("[UpdatingChildrenMealData] Service: Child does not exist, adding new child...");
 
         // Create a new document
         DocumentReference childRef =
             firestore.collection('parentsChildren').doc();
         childData.id = childRef.id; // Assign Firestore-generated ID
         childId = childRef.id;
+        
+        print("[UpdatingChildrenMealData] Service: New document ID: ${childRef.id}");
 
         // If an image is provided, upload it
         if (imgUrl != null && imgUrl.isNotEmpty) {
+          print("[UpdatingChildrenMealData] Service: Image provided for new child, uploading...");
           File imageFile = File(imgUrl);
           String imageUrl = await uploadChildImage(
               imageFile, "parentsChildren/${childData.parentId}", childRef.id);
+              
+          print("[UpdatingChildrenMealData] Service: Image uploaded, URL: ${imageUrl.isNotEmpty ? 'Success' : 'Failed'}");
+          
           if (imageUrl.isNotEmpty) {
             childData.childImageUrl = imageUrl; // Store the image URL
+            print("[UpdatingChildrenMealData] Service: Set child image URL in data model");
+          } else {
+            print("[UpdatingChildrenMealData] Service: WARNING: Image upload failed");
           }
+        } else {
+          print("[UpdatingChildrenMealData] Service: No image provided for new child");
         }
 
         // Save new child data to Firestore
+        print("[UpdatingChildrenMealData] Service: Saving new child data to Firestore");
+        print("[UpdatingChildrenMealData] Service: Data to save: ${childData.toJson()}");
+        
         await childRef.set(childData.toJson());
-        print("New child added successfully: ${childRef.id}");
+        print("[UpdatingChildrenMealData] Service: New child added successfully: ${childRef.id}");
       }
 
       // If this is a new order, send notifications to cafeteria owner and staff
       if (isNewOrder &&
           childData.cafeteriaName != null &&
           childData.cafeteriaName!.isNotEmpty) {
+        print("[UpdatingChildrenMealData] Service: New order, sending notifications to cafeteria staff");
+        print("[UpdatingChildrenMealData] Service: Cafeteria name: ${childData.cafeteriaName}");
+        print("[UpdatingChildrenMealData] Service: Child name: ${childData.childName ?? 'a child'}");
+        
         await _sendNotificationsToCafeteriaOwnerAndStaff(
           childData.cafeteriaName!,
           childData.childName ?? "a child",
           childId,
           childData.parentId ?? "",
         );
+        
+        print("[UpdatingChildrenMealData] Service: Notifications sent successfully");
+      } else {
+        print("[UpdatingChildrenMealData] Service: Not a new order or missing cafeteria name, skipping notifications");
       }
 
+      print("[UpdatingChildrenMealData] Service: addOrUpdateChild completed successfully");
       return true;
     } catch (e) {
-      print("Error adding/updating child: $e");
+      print("[UpdatingChildrenMealData] Service: ERROR adding/updating child: $e");
+      print("[UpdatingChildrenMealData] Service: Stack trace: ${StackTrace.current}");
       return false;
     }
   }
@@ -434,36 +480,69 @@ class AddChildrenService extends BaseService {
       return false; // Failure
     }
   }
-  // ========= Update  children  against Parint id and child id =========
-
+  // ========= Update children against Parent id and child id =========
   Future<bool> updateChildren(String parentId, String childId,
       ParentsAddChildren childData, String? imgUrl) async {
-    print("Updating child data for parentId: $parentId, childId: $childId");
-    print("Image URL: $imgUrl");
+    print("[UpdatingChildrenMealData] Service: Starting updateChildren");
+    print("[UpdatingChildrenMealData] Service: Parent ID: $parentId");
+    print("[UpdatingChildrenMealData] Service: Child ID: $childId");
+    print("[UpdatingChildrenMealData] Service: Image URL: $imgUrl");
 
     try {
       // Reference to Firestore document
+      print("[UpdatingChildrenMealData] Service: Getting reference to document: $childId");
       DocumentReference childDocRef = FirebaseFirestore.instance
           .collection("parentsChildren")
           .doc(childId); // Access the document directly
 
       // If a new image is provided, upload it and update the URL
       if (imgUrl != null && imgUrl.isNotEmpty) {
-        File imageFile = File(imgUrl);
-        String imageUrl = await uploadChildImage(
-            imageFile, "parentsChildren/$parentId", childId);
-        if (imageUrl.isNotEmpty) {
-          childData.childImageUrl = imageUrl;
+        print("[UpdatingChildrenMealData] Service: New image provided, uploading...");
+        
+        // Check if the image URL is already a Firebase Storage URL
+        if (imgUrl.startsWith('https://firebasestorage.googleapis.com')) {
+          print("[UpdatingChildrenMealData] Service: Image is already a Firebase Storage URL, skipping upload");
+          childData.childImageUrl = imgUrl;
+        } else {
+          // It's a local file path, upload it
+          print("[UpdatingChildrenMealData] Service: Image is a local file path, uploading to Firebase Storage");
+          File imageFile = File(imgUrl);
+          
+          // Check if file exists
+          bool fileExists = await imageFile.exists();
+          print("[UpdatingChildrenMealData] Service: File exists: $fileExists");
+          
+          if (fileExists) {
+            String imageUrl = await uploadChildImage(
+                imageFile, "parentsChildren/$parentId", childId);
+                
+            print("[UpdatingChildrenMealData] Service: Image uploaded, URL: ${imageUrl.isNotEmpty ? imageUrl : 'Failed'}");
+            
+            if (imageUrl.isNotEmpty) {
+              childData.childImageUrl = imageUrl;
+              print("[UpdatingChildrenMealData] Service: Updated child image URL in data model");
+            } else {
+              print("[UpdatingChildrenMealData] Service: WARNING: Image upload failed");
+            }
+          } else {
+            print("[UpdatingChildrenMealData] Service: WARNING: Image file does not exist at path: $imgUrl");
+          }
         }
+      } else {
+        print("[UpdatingChildrenMealData] Service: No new image provided");
       }
 
       // Update Firestore document
+      print("[UpdatingChildrenMealData] Service: Updating Firestore document");
+      print("[UpdatingChildrenMealData] Service: Data to update: ${childData.toJson()}");
+      
       await childDocRef.update(childData.toJson());
 
-      print("Child updated successfully");
+      print("[UpdatingChildrenMealData] Service: Child updated successfully");
       return true;
     } catch (e) {
-      print("Error updating child: $e");
+      print("[UpdatingChildrenMealData] Service: ERROR updating child: $e");
+      print("[UpdatingChildrenMealData] Service: Stack trace: ${StackTrace.current}");
       return false;
     }
   }

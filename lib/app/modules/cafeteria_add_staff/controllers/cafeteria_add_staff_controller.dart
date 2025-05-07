@@ -52,27 +52,22 @@ class CafeteriaAddStaffController extends GetxController {
 
   // Function to handle form submission and save data
   Future<void> addStaffData() async {
-    print("📌 Starting addStaffData method");
+    print("[AddStaffScreen] Starting addStaffData method");
 
-    // Get current user ID from Firebase Auth instead of preferences
-    String? userId = FirebaseAuth.instance.currentUser?.uid;
-    print("📌 Firebase Auth current user ID: $userId");
-
-    // If Firebase Auth doesn't have a user, try from preferences as fallback
-    if (userId == null) {
-      userId = await userPreferences.getUserId();
-      print("📌 UserPreferences user ID: $userId");
-    }
-
-    // Check if userId is still null after both attempts
-    if (userId == null) {
-      print(
-          "❌ ERROR: User ID is null from both Firebase Auth and UserPreferences");
-      Get.snackbar("Error", "User ID not found. Please login again.");
+    // Get current user ID directly from Firebase Auth
+    final FirebaseAuth auth = FirebaseAuth.instance;
+    final User? currentUser = auth.currentUser;
+    
+    if (currentUser == null) {
+      print("[AddStaffScreen] ERROR: No authenticated user found in Firebase Auth");
+      Get.snackbar("Error", "You are not logged in. Please login again.");
       return;
     }
+    
+    String userId = currentUser.uid;
+    print("[AddStaffScreen] Firebase Auth current user ID: $userId");
 
-    print("✅ Using user ID: $userId");
+    print("[AddStaffScreen] Using user ID: $userId");
 
     // Replace with actual user ID from authentication
     String staffName = nameController.text.trim();
@@ -80,22 +75,42 @@ class CafeteriaAddStaffController extends GetxController {
     String staffPhone = phoneController.text.trim();
     String staffPassword = passwordController.text.trim();
 
-    print(
-        "📌 Staff data to be added: Name=$staffName, Email=$staffEmail, Phone=$staffPhone");
+    print("[AddStaffScreen] Staff data to be added: Name=$staffName, Email=$staffEmail, Phone=$staffPhone");
 
     // Validate input data before saving
-    if (staffName.isEmpty ||
-        staffEmail.isEmpty ||
-        staffPhone.isEmpty ||
-        staffPassword.isEmpty) {
-      print("❌ Validation failed: Empty fields");
-      Get.snackbar("Validation Error", "All fields are required");
+    if (staffName.isEmpty) {
+      print("[AddStaffScreen] Validation failed: Empty staff name");
+      Get.snackbar("Validation Error", "Staff name is required");
+      return;
+    }
+    
+    if (staffEmail.isEmpty) {
+      print("[AddStaffScreen] Validation failed: Empty email");
+      Get.snackbar("Validation Error", "Email is required");
+      return;
+    }
+    
+    if (staffPhone.isEmpty) {
+      print("[AddStaffScreen] Validation failed: Empty phone number");
+      Get.snackbar("Validation Error", "Phone number is required");
+      return;
+    }
+    
+    if (staffPassword.isEmpty) {
+      print("[AddStaffScreen] Validation failed: Empty password");
+      Get.snackbar("Validation Error", "Password is required");
       return;
     }
 
     if (!(Validator.isValidEmail(staffEmail))) {
-      print("❌ Validation failed: Invalid email format");
+      print("[AddStaffScreen] Validation failed: Invalid email format");
       Get.snackbar("Validation Error", "Please Enter Valid Email");
+      return;
+    }
+    
+    if (staffPassword.length < 6) {
+      print("[AddStaffScreen] Validation failed: Password too short");
+      Get.snackbar("Validation Error", "Password must be at least 6 characters");
       return;
     }
 
@@ -103,18 +118,32 @@ class CafeteriaAddStaffController extends GetxController {
     try {
       if (staffData == null) {
         // create new model
-        print("📌 Creating new staff with user ID: $userId");
+        print("[AddStaffScreen] Creating new staff with user ID: $userId");
 
         // Check if phone number exists
         bool phoneExists =
             await _addStaffService.isPhoneNumberExists(phoneController.text);
-        print("📌 Phone number exists check: $phoneExists");
+        print("[AddStaffScreen] Phone number exists check: $phoneExists");
 
         if (phoneExists) {
-          print("❌ Phone number already registered");
+          print("[AddStaffScreen] Phone number already registered");
           Get.snackbar(
             "Phone Number Exists",
             "This phone number is already registered.",
+          );
+          isLoading.value = false;
+          return;
+        }
+        
+        // Check if email exists (optional additional validation)
+        bool emailExists = await _addStaffService.isEmailExists(staffEmail);
+        print("[AddStaffScreen] Email exists check: $emailExists");
+        
+        if (emailExists) {
+          print("[AddStaffScreen] Email already registered");
+          Get.snackbar(
+            "Email Exists",
+            "This email is already registered.",
           );
           isLoading.value = false;
           return;
@@ -128,13 +157,14 @@ class CafeteriaAddStaffController extends GetxController {
           userId: userId,
         );
 
-        print("📌 Staff model created, proceeding to save to Firestore");
+        print("[AddStaffScreen] Staff model created: ${newModel.toMap()}");
+        print("[AddStaffScreen] Proceeding to save to Firestore");
 
         // Call the service method to save data to Firestore
         await _addStaffService
             .addStaff(newModel, selectedImage.value, userId)
             .then((result) {
-          print("✅ Staff added successfully");
+          print("[AddStaffScreen] Staff added successfully with ID: ${newModel.id}");
           Get.back();
           Get.offNamed(Routes.CAFETERIA_STAFF_LIST);
 
@@ -148,16 +178,16 @@ class CafeteriaAddStaffController extends GetxController {
       }
       //for updating staff data
       else {
-        print("📌 Updating existing staff data");
+        print("[AddStaffScreen] Updating existing staff data");
         // Add update logic here
       }
 
       // Optional: Show success message using GetX
-      print("✅ Operation completed successfully");
+      print("[AddStaffScreen] Operation completed successfully");
       Get.snackbar('Success', 'Staff data saved successfully');
     } catch (e) {
       // Handle errors
-      print("❌ ERROR: Failed to save staff data: $e");
+      print("[AddStaffScreen] ERROR: Failed to save staff data: $e");
       Get.snackbar("Error", "Failed to save Staff. Please try again.");
     } finally {
       isLoading.value = false;

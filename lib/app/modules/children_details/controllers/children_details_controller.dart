@@ -85,113 +85,193 @@ class ChildrenDetailsController extends GetxController {
 
 // ============  saving children data ============
   Future<void> addChildren() async {
+    print("[UpdatingChildrenMealData] Starting addChildren() method");
     final FirebaseAuth auth = FirebaseAuth.instance;
     final User? user = auth.currentUser;
-    print("user id is ${user!.uid}");
-    print("user id is ${parentController.allChildrenSameSchool.value}");
-    print(
-        "parentController.cafeteriaNameList[0] id is ${parentsAddChild.cafeteriaName}");
+    
+    if (user == null) {
+      print("[UpdatingChildrenMealData] ERROR: No authenticated user found");
+      Get.snackbar("Error", "You are not logged in. Please login again.");
+      return;
+    }
+    
+    print("[UpdatingChildrenMealData] User ID: ${user.uid}");
+    print("[UpdatingChildrenMealData] All children same school: ${parentController.allChildrenSameSchool.value}");
+    print("[UpdatingChildrenMealData] Cafeteria name: ${cafeModel[0].cafeteriaName}");
+    print("[UpdatingChildrenMealData] Selected meal data count: ${selectedMealData.length}");
+    print("[UpdatingChildrenMealData] Selected classroom delivery: ${selectedClassRoomDeliveryOption.value}");
+    
     var isSuccess = false.obs;
 
     isLoading.value = true;
-    ParentsAddChildren parentsAddChildren = ParentsAddChildren(
-      parentId: user.uid,
-      classroomDelivery: selectedClassRoomDeliveryOption.value,
-      numberOfChildren: parentController.numberOfChildren.value.toString(),
-      allChildrenAreInSameSchool: parentController.allChildrenSameSchool.value,
-      childId: parentController.addedChildrenIdList[selectedIndex].isEmpty
-          ? DateTime.now().millisecondsSinceEpoch.toString()
-          : parentController.addedChildrenIdList[selectedIndex],
-      childName: parentsAddChild.childName,
-      childSchoolID: parentsAddChild.childSchoolID,
-      childImageUrl: parentsAddChild.childImageUrl,
-      schoolName: parentsAddChild.schoolName,
-      cafeteriaName: cafeModel[0].cafeteriaName,
-      selectedMealMenuData:
-          selectedMealData.isNotEmpty ? selectedMealData : null,
-    );
-    print(
-        " Index out of range :  ,,,, value ${parentController.addedChildrenIdList[selectedIndex].isEmpty}");
-    parentController.addedChildrenIdList[selectedIndex] =
-        parentsAddChildren.childId!;
+    
+    try {
+      // Create the data model for adding a child
+      ParentsAddChildren parentsAddChildren = ParentsAddChildren(
+        parentId: user.uid,
+        classroomDelivery: selectedClassRoomDeliveryOption.value,
+        numberOfChildren: parentController.numberOfChildren.value.toString(),
+        allChildrenAreInSameSchool: parentController.allChildrenSameSchool.value,
+        childId: parentController.addedChildrenIdList[selectedIndex].isEmpty
+            ? DateTime.now().millisecondsSinceEpoch.toString()
+            : parentController.addedChildrenIdList[selectedIndex],
+        childName: parentsAddChild.childName,
+        childSchoolID: parentsAddChild.childSchoolID,
+        childImageUrl: parentsAddChild.childImageUrl,
+        schoolName: parentsAddChild.schoolName,
+        cafeteriaName: cafeModel[0].cafeteriaName,
+        selectedMealMenuData:
+            selectedMealData.isNotEmpty ? selectedMealData : null,
+      );
+      
+      print("[UpdatingChildrenMealData] Child data prepared for Firestore:");
+      print("[UpdatingChildrenMealData] Child ID: ${parentsAddChildren.childId}");
+      print("[UpdatingChildrenMealData] Child name: ${parentsAddChildren.childName}");
+      print("[UpdatingChildrenMealData] School name: ${parentsAddChildren.schoolName}");
+      print("[UpdatingChildrenMealData] School ID: ${parentsAddChildren.childSchoolID}");
+      print("[UpdatingChildrenMealData] Classroom delivery: ${parentsAddChildren.classroomDelivery}");
+      
+      if (selectedMealData.isNotEmpty) {
+        for (int i = 0; i < selectedMealData.length; i++) {
+          print("[UpdatingChildrenMealData] Selected meal #${i+1}:");
+          print("[UpdatingChildrenMealData]   - Name: ${selectedMealData[i].mealName}");
+          print("[UpdatingChildrenMealData]   - Price: ${selectedMealData[i].mealPrice}");
+          print("[UpdatingChildrenMealData]   - Schedule: ${selectedMealData[i].scheduleStatement}");
+        }
+      } else {
+        print("[UpdatingChildrenMealData] No meals selected");
+      }
+      
+      parentController.addedChildrenIdList[selectedIndex] =
+          parentsAddChildren.childId!;
 
-    print(" Index out of range :  ,,,, value ${parentsAddChildren.childId}");
-    print(
-        " Index out of range :  ,,,, value ${parentController.addedChildrenIdList[selectedIndex]}");
+      print("[UpdatingChildrenMealData] Updated child ID in parent controller: ${parentController.addedChildrenIdList[selectedIndex]}");
+      print("[UpdatingChildrenMealData] Calling addChildrenService.addOrUpdateChild()");
 
-    isSuccess.value = await addChildrenService.addOrUpdateChild(
-        parentsAddChildren, parentsAddChild.childImageUrl);
-    isLoading.value = false;
+      isSuccess.value = await addChildrenService.addOrUpdateChild(
+          parentsAddChildren, parentsAddChild.childImageUrl);
+      
+      print("[UpdatingChildrenMealData] addOrUpdateChild result: ${isSuccess.value}");
+      
+      if (isSuccess.value) {
+        print("[UpdatingChildrenMealData] Child added successfully");
+        parentController.isChildrenAddedSuccessfully[selectedIndex] = true;
+        Get.until(
+            (route) => route.settings.name == Routes.PARENTS_CHILDREN_DETAILS);
 
-    if (isSuccess.value) {
-      print(
-          " Index out of range :  ,,,, value ${parentController.isChildrenAddedSuccessfully.length}");
-      parentController.isChildrenAddedSuccessfully[selectedIndex] = true;
-      // parentController.updateLastChildStatus(true);
-      // parentController.isChildrenAddedSuccessfully[index] = true; // or false
-      Get.until(
-          (route) => route.settings.name == Routes.PARENTS_CHILDREN_DETAILS);
-
-      Get.snackbar("Success", "Child added successfully!");
-    } else {
-      Get.snackbar("Error", "Failed to add child. Please try again.");
+        Get.snackbar("Success", "Child added successfully!");
+      } else {
+        print("[UpdatingChildrenMealData] ERROR: Failed to add child");
+        Get.snackbar("Error", "Failed to add child. Please try again.");
+      }
+    } catch (e) {
+      print("[UpdatingChildrenMealData] EXCEPTION: Error adding child: $e");
+      print("[UpdatingChildrenMealData] Stack trace: ${StackTrace.current}");
+      Get.snackbar("Error", "An unexpected error occurred: ${e.toString()}");
+    } finally {
+      isLoading.value = false;
+      print("[UpdatingChildrenMealData] addChildren() completed");
     }
-    isLoading.value = false;
   }
   // ============  Update  children data ============
 
   Future<void> updateChildren() async {
+    print("[UpdatingChildrenMealData] Starting updateChildren() method");
     final FirebaseAuth auth = FirebaseAuth.instance;
     final User? user = auth.currentUser;
-    print("user id is ${user!.uid}");
-    print("user id is ${parentController.allChildrenSameSchool.value}");
-    print(
-        "parentController.cafeteriaNameList[0] id is ${parentsAddChild.cafeteriaName}");
+    
+    if (user == null) {
+      print("[UpdatingChildrenMealData] ERROR: No authenticated user found");
+      Get.snackbar("Error", "You are not logged in. Please login again.");
+      return;
+    }
+    
+    print("[UpdatingChildrenMealData] User ID: ${user.uid}");
+    print("[UpdatingChildrenMealData] All children same school: ${parentController.allChildrenSameSchool.value}");
+    print("[UpdatingChildrenMealData] Cafeteria name: ${cafeModel[0].cafeteriaName}");
+    print("[UpdatingChildrenMealData] Selected meal data count: ${selectedMealData.length}");
+    print("[UpdatingChildrenMealData] Selected classroom delivery: ${selectedClassRoomDeliveryOption.value}");
+    
     var isSuccess = false.obs;
     ParentsChildrenEditController pChildEditController =
         Get.find<ParentsChildrenEditController>();
+        
+    print("[UpdatingChildrenMealData] Edit controller found");
+    print("[UpdatingChildrenMealData] Child ID from edit controller: ${pChildEditController.childData.id}");
+    print("[UpdatingChildrenMealData] Child name: ${parentsAddChild.childName}");
+    
     isLoading.value = true;
-    print(
-        "parentController Edit img  ${pChildEditController.selectedImage.value?.path ?? pChildEditController.imageUrl.value}");
+    
+    try {
+      print("[UpdatingChildrenMealData] Selected image path: ${pChildEditController.selectedImage.value?.path ?? 'No new image'}");
+      print("[UpdatingChildrenMealData] Current image URL: ${pChildEditController.imageUrl.value}");
 
-    ParentsAddChildren editChildrenData = ParentsAddChildren(
-      id: pChildEditController.childData.id,
-      parentId: user.uid,
-      classroomDelivery: selectedClassRoomDeliveryOption.value,
-      numberOfChildren: pChildEditController.childData.numberOfChildren,
-      allChildrenAreInSameSchool: parentController.allChildrenSameSchool.value,
-      childId: pChildEditController.childData.childId,
-      childName: parentsAddChild.childName,
-      date: DateTime.now().toIso8601String(),
-      childSchoolID: parentsAddChild.childSchoolID,
-      childImageUrl: pChildEditController.selectedImage.value?.path ??
-          pChildEditController.imageUrl.value,
-      schoolName: parentsAddChild.schoolName,
-      cafeteriaName: cafeModel[0].cafeteriaName,
-      selectedMealMenuData:
-          selectedMealData.isNotEmpty ? selectedMealData : null,
-    );
-    // // print(" Index out of range :  ,,,, value ${parentsAddChildren.childImageUrl}");
-    //
-    isSuccess.value = await addChildrenService.updateChildren(
-        user.uid,
-        pChildEditController.childData.id!,
-        editChildrenData,
-        pChildEditController.selectedImage.value?.path ??
-            pChildEditController.imageUrl.value);
-    isLoading.value = false;
-
-    if (isSuccess.value) {
-      print(" Index out of range :  ,,,, value ${editChildrenData.schoolName}");
-
-      // parentController.updateLastChildStatus(true);
-      Get.offNamed(Routes.LANDING_PAGE);
-
-      Get.snackbar("Success", "Child added successfully!");
-    } else {
-      Get.snackbar("Error", "Failed to add child. Please try again.");
+      ParentsAddChildren editChildrenData = ParentsAddChildren(
+        id: pChildEditController.childData.id,
+        parentId: user.uid,
+        classroomDelivery: selectedClassRoomDeliveryOption.value,
+        numberOfChildren: pChildEditController.childData.numberOfChildren,
+        allChildrenAreInSameSchool: parentController.allChildrenSameSchool.value,
+        childId: pChildEditController.childData.childId,
+        childName: parentsAddChild.childName,
+        date: DateTime.now().toIso8601String(),
+        childSchoolID: parentsAddChild.childSchoolID,
+        childImageUrl: pChildEditController.selectedImage.value?.path ??
+            pChildEditController.imageUrl.value,
+        schoolName: parentsAddChild.schoolName,
+        cafeteriaName: cafeModel[0].cafeteriaName,
+        selectedMealMenuData:
+            selectedMealData.isNotEmpty ? selectedMealData : null,
+      );
+      
+      print("[UpdatingChildrenMealData] Child data prepared for Firestore update:");
+      print("[UpdatingChildrenMealData] Document ID: ${editChildrenData.id}");
+      print("[UpdatingChildrenMealData] Child ID: ${editChildrenData.childId}");
+      print("[UpdatingChildrenMealData] Child name: ${editChildrenData.childName}");
+      print("[UpdatingChildrenMealData] School name: ${editChildrenData.schoolName}");
+      print("[UpdatingChildrenMealData] School ID: ${editChildrenData.childSchoolID}");
+      print("[UpdatingChildrenMealData] Classroom delivery: ${editChildrenData.classroomDelivery}");
+      print("[UpdatingChildrenMealData] Date: ${editChildrenData.date}");
+      
+      if (selectedMealData.isNotEmpty) {
+        for (int i = 0; i < selectedMealData.length; i++) {
+          print("[UpdatingChildrenMealData] Selected meal #${i+1}:");
+          print("[UpdatingChildrenMealData]   - Name: ${selectedMealData[i].mealName}");
+          print("[UpdatingChildrenMealData]   - Price: ${selectedMealData[i].mealPrice}");
+          print("[UpdatingChildrenMealData]   - Schedule: ${selectedMealData[i].scheduleStatement}");
+        }
+      } else {
+        print("[UpdatingChildrenMealData] No meals selected for update");
+      }
+      
+      print("[UpdatingChildrenMealData] Calling addChildrenService.updateChildren()");
+      
+      isSuccess.value = await addChildrenService.updateChildren(
+          user.uid,
+          pChildEditController.childData.id!,
+          editChildrenData,
+          pChildEditController.selectedImage.value?.path ??
+              pChildEditController.imageUrl.value);
+      
+      print("[UpdatingChildrenMealData] updateChildren result: ${isSuccess.value}");
+      
+      if (isSuccess.value) {
+        print("[UpdatingChildrenMealData] Child updated successfully");
+        print("[UpdatingChildrenMealData] Navigating to landing page");
+        Get.offNamed(Routes.LANDING_PAGE);
+        Get.snackbar("Success", "Child updated successfully!");
+      } else {
+        print("[UpdatingChildrenMealData] ERROR: Failed to update child");
+        Get.snackbar("Error", "Failed to update child. Please try again.");
+      }
+    } catch (e) {
+      print("[UpdatingChildrenMealData] EXCEPTION: Error updating child: $e");
+      print("[UpdatingChildrenMealData] Stack trace: ${StackTrace.current}");
+      Get.snackbar("Error", "An unexpected error occurred: ${e.toString()}");
+    } finally {
+      isLoading.value = false;
+      print("[UpdatingChildrenMealData] updateChildren() completed");
     }
-    isLoading.value = false;
   }
 
   // Update the selected option

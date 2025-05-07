@@ -30,7 +30,7 @@ class AddStaffService extends BaseService {
     }
 
     // Save Staff Data to Firestore
-    print("📌 Service: Saving staff data to Firestore");
+    print("📌 Service: Saving staff data to Firestore ${staff}");
     await staffDocRef.set(staff.toMap());
     print("✅ Service: Staff data saved successfully");
   }
@@ -60,6 +60,12 @@ class AddStaffService extends BaseService {
   // Check if phone number already exists
   Future<bool> isPhoneNumberExists(String phoneNumber) async {
     return await isDocumentExists("staffData", "staffPhone", phoneNumber);
+  }
+
+  // Check if email already exists
+  Future<bool> isEmailExists(String email) async {
+    print("[AddStaffScreen] Service: Checking if email exists: $email");
+    return await isDocumentExists("staffData", "staffEmail", email);
   }
 
   Future<void> editStaffData(

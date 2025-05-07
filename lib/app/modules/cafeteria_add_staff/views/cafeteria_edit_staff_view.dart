@@ -16,7 +16,8 @@ import '../controllers/cafeteria_add_staff_controller.dart';
 class CafeteriaEditStaffView extends GetView<CafeteriaEditStaffController> {
   final StaffModel staffModel;
 
-  CafeteriaEditStaffView({super.key}) : staffModel = Get.arguments?['staffModelL'] ?? StaffModel();
+  CafeteriaEditStaffView({super.key})
+      : staffModel = Get.arguments?['staffModelL'] ?? StaffModel();
 
   @override
   Widget build(BuildContext context) {
@@ -24,7 +25,7 @@ class CafeteriaEditStaffView extends GetView<CafeteriaEditStaffController> {
     // controller.setStaffData(staffModel);
 
     return GestureDetector(
-      onTap: (){
+      onTap: () {
         FocusScope.of(context).unfocus();
       },
       child: Scaffold(
@@ -64,14 +65,19 @@ class CafeteriaEditStaffView extends GetView<CafeteriaEditStaffController> {
                         ),
                       ),
                     ),
-                    Text(
-                      "Update Profile",
-                      style: AppTextStyles.MetropolisBold.copyWith(
-                        fontSize: 18,
-                        color: const Color(0xFF434343),
+                    Expanded(
+                      child: Center(
+                        child: Text(
+                          "Update Profile",
+                          style: AppTextStyles.MetropolisBold.copyWith(
+                            fontSize: 18,
+                            color: const Color(0xFF434343),
+                          ),
+                        ),
                       ),
                     ),
-                    const SizedBox(),
+                    // Empty container with same width as back button for balance
+                    SizedBox(width: 35),
                   ],
                 ),
                 const SizedBox(height: 35),
@@ -108,13 +114,17 @@ class CafeteriaEditStaffView extends GetView<CafeteriaEditStaffController> {
                                           fit: BoxFit.cover,
                                           width: double.infinity,
                                           height: 127,
-                                          loadingBuilder: (context, child, loadingProgress) {
-                                            if (loadingProgress == null) return child;
+                                          loadingBuilder: (context, child,
+                                              loadingProgress) {
+                                            if (loadingProgress == null)
+                                              return child;
                                             return const Center(
-                                              child: CircularProgressIndicator(),
+                                              child:
+                                                  CircularProgressIndicator(),
                                             );
                                           },
-                                          errorBuilder: (context, error, stackTrace) {
+                                          errorBuilder:
+                                              (context, error, stackTrace) {
                                             return _buildPlaceholder();
                                           },
                                         ),

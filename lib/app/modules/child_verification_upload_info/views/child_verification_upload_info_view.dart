@@ -154,7 +154,7 @@ class ChildVerificationUploadInfoView extends StatelessWidget {
                       ),
                     ),
                   ),
-                  
+
                   // Add student name below image
                   const SizedBox(height: 8),
                   Center(
@@ -339,12 +339,16 @@ class ChildVerificationUploadInfoView extends StatelessWidget {
                                               ),
                                               const SizedBox(height: 4),
                                               // Display meal time if available
-                                              if (meal.schedule != null && 
-                                                  meal.schedule!.availableAt != null && 
-                                                  meal.schedule!.availableAt!.isNotEmpty)
+                                              if (meal.schedule != null &&
+                                                  meal.schedule!.availableAt !=
+                                                      null &&
+                                                  meal.schedule!.availableAt!
+                                                      .isNotEmpty)
                                                 Text(
                                                   'Time: ${meal.schedule!.availableAt!.join(", ")}',
-                                                  style: AppTextStyles.MetropolisRegular.copyWith(
+                                                  style: AppTextStyles
+                                                          .MetropolisRegular
+                                                      .copyWith(
                                                     fontSize: 12,
                                                     color: Colors.grey[700],
                                                   ),
@@ -359,85 +363,138 @@ class ChildVerificationUploadInfoView extends StatelessWidget {
                                                       const Color(0xFFFC6011),
                                                 ),
                                               ),
-                                              
+
                                               // Add preparation button
                                               const SizedBox(height: 8),
                                               Align(
-                                                alignment: Alignment.centerRight,
+                                                alignment:
+                                                    Alignment.centerRight,
                                                 child: GestureDetector(
                                                   onTap: () async {
                                                     // Check if current time is within the allowed preparation window
-                                                    bool isWithinTimeWindow = false;
+                                                    bool isWithinTimeWindow =
+                                                        false;
                                                     String timeMessage = "";
-                                                    
-                                                    if (meal.schedule != null && 
-                                                        meal.schedule!.availableAt != null && 
-                                                        meal.schedule!.availableAt!.isNotEmpty) {
-                                                      
-                                                      final now = DateTime.now();
-                                                      final currentHour = now.hour;
-                                                      
+
+                                                    if (meal.schedule != null &&
+                                                        meal.schedule!
+                                                                .availableAt !=
+                                                            null &&
+                                                        meal
+                                                            .schedule!
+                                                            .availableAt!
+                                                            .isNotEmpty) {
+                                                      final now =
+                                                          DateTime.now();
+                                                      final currentHour =
+                                                          now.hour;
+
                                                       // Check each available time
-                                                      for (String timeStr in meal.schedule!.availableAt!) {
+                                                      for (String timeStr
+                                                          in meal.schedule!
+                                                              .availableAt!) {
                                                         int scheduledHour = 0;
-                                                        
+
                                                         // Parse the time string (e.g., "9am", "2pm")
-                                                        if (timeStr.contains('am')) {
-                                                          scheduledHour = int.parse(timeStr.replaceAll('am', ''));
+                                                        if (timeStr
+                                                            .contains('am')) {
+                                                          scheduledHour =
+                                                              int.parse(timeStr
+                                                                  .replaceAll(
+                                                                      'am',
+                                                                      ''));
                                                           // Handle 12am as 0 hour
-                                                          if (scheduledHour == 12) scheduledHour = 0;
-                                                        } else if (timeStr.contains('pm')) {
-                                                          scheduledHour = int.parse(timeStr.replaceAll('pm', ''));
+                                                          if (scheduledHour ==
+                                                              12)
+                                                            scheduledHour = 0;
+                                                        } else if (timeStr
+                                                            .contains('pm')) {
+                                                          scheduledHour =
+                                                              int.parse(timeStr
+                                                                  .replaceAll(
+                                                                      'pm',
+                                                                      ''));
                                                           // Add 12 for PM times, except 12pm
-                                                          if (scheduledHour != 12) scheduledHour += 12;
+                                                          if (scheduledHour !=
+                                                              12)
+                                                            scheduledHour += 12;
                                                         }
-                                                        
+                                                        //todo change it to 1 hour
                                                         // Check if current time is within ±1 hour window
-                                                        if (currentHour >= scheduledHour - 1 && 
-                                                            currentHour <= scheduledHour + 1) {
-                                                          isWithinTimeWindow = true;
+                                                        if (currentHour >=
+                                                                scheduledHour -
+                                                                    1 &&
+                                                            currentHour <=
+                                                                scheduledHour +
+                                                                    1) {
+                                                          isWithinTimeWindow =
+                                                              true;
                                                           break;
                                                         }
                                                       }
-                                                      
+
                                                       if (!isWithinTimeWindow) {
-                                                        timeMessage = "This meal can only be prepared within 1 hour of its scheduled time.";
+                                                        timeMessage =
+                                                            "This meal can only be prepared within 1 hour of its scheduled time.";
                                                       }
                                                     } else {
                                                       // If no schedule is defined, allow preparation at any time
                                                       isWithinTimeWindow = true;
                                                     }
-                                                    
+
                                                     if (isWithinTimeWindow) {
-                                                      final parentId = controller.childrenList.first.parentId;
+                                                      final parentId =
+                                                          controller
+                                                              .childrenList
+                                                              .first
+                                                              .parentId;
                                                       if (parentId != null) {
-                                                        await controller.fetchChildParentWallet(parentId, meal);
+                                                        await controller
+                                                            .fetchChildParentWallet(
+                                                                parentId, meal);
                                                       } else {
-                                                        Get.snackbar('Error', 'Parent ID not found');
+                                                        Get.snackbar('Error',
+                                                            'Parent ID not found');
                                                       }
                                                     } else {
                                                       Get.snackbar(
-                                                        'Outside Preparation Window', 
+                                                        'Outside Preparation Window',
                                                         timeMessage,
-                                                        backgroundColor: Colors.orange,
+                                                        backgroundColor:
+                                                            Colors.orange,
                                                         colorText: Colors.white,
-                                                        duration: const Duration(seconds: 3),
+                                                        duration:
+                                                            const Duration(
+                                                                seconds: 3),
                                                       );
                                                     }
                                                   },
                                                   child: Container(
-                                                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                                                    padding: const EdgeInsets
+                                                        .symmetric(
+                                                        horizontal: 12,
+                                                        vertical: 6),
                                                     decoration: BoxDecoration(
-                                                      gradient: const LinearGradient(
-                                                        colors: [Color(0xFFFC6011), Color(0xFFFF8D41)],
-                                                        begin: Alignment.centerLeft,
-                                                        end: Alignment.centerRight,
+                                                      gradient:
+                                                          const LinearGradient(
+                                                        colors: [
+                                                          Color(0xFFFC6011),
+                                                          Color(0xFFFF8D41)
+                                                        ],
+                                                        begin: Alignment
+                                                            .centerLeft,
+                                                        end: Alignment
+                                                            .centerRight,
                                                       ),
-                                                      borderRadius: BorderRadius.circular(15),
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                              15),
                                                     ),
                                                     child: Text(
                                                       'Start Preparation',
-                                                      style: AppTextStyles.MetropolisRegular.copyWith(
+                                                      style: AppTextStyles
+                                                              .MetropolisRegular
+                                                          .copyWith(
                                                         fontSize: 12,
                                                         color: Colors.white,
                                                       ),

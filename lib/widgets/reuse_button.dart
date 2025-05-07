@@ -71,7 +71,7 @@ class CustomButton extends StatelessWidget {
             //     : null, // No shadow when no background color
 
             image: DecorationImage(
-                image: AssetImage(AppImages.baseButton), fit: BoxFit.cover),
+                image: AssetImage(AppImages.baseButton), fit: BoxFit.contain),
           ),
           child: Material(
               color: Colors.transparent,
@@ -154,7 +154,7 @@ class CustomButton1 extends StatelessWidget {
 
             image: DecorationImage(
               image: AssetImage(AppImages.baseButton),
-              fit: BoxFit.cover,
+              fit: BoxFit.contain,
             ),
 
             // color: isBackColor ? buttonColor : Colors.transparent,
