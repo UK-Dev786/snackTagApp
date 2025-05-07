@@ -158,7 +158,7 @@ class _StripeOnboardingViewState extends State<StripeOnboardingView> {
         'Your Stripe account has been set up successfully!',
         duration: const Duration(seconds: 3),
         snackPosition: SnackPosition.TOP,
-        backgroundColor: Colors.green[100],
+        backgroundColor: Color(0xFFCCFD00),
         colorText: Colors.green[800],
       );
       developer.log('Showed success snackbar', name: 'StripeWebView');

@@ -71,7 +71,7 @@ class CustomButton extends StatelessWidget {
             //     : null, // No shadow when no background color
 
             image: DecorationImage(
-                image: AssetImage(AppImages.baseButton), fit: BoxFit.contain),
+                image: AssetImage(AppImages.baseButton), fit: BoxFit.fitWidth),
           ),
           child: Material(
               color: Colors.transparent,
@@ -128,13 +128,13 @@ class CustomButton1 extends StatelessWidget {
     super.key,
     required this.text,
     required this.onPressed,
-    this.height = 56.0,
+    this.height = 60.0,
     this.isForcedTextColor = false,
     this.forcedTextColor = AppColors.blackColor,
     this.width = double.infinity,
     this.buttonColor = AppColors.baseColor, // Now a single color
     this.borderRadius = 8.0,
-    this.padding = const EdgeInsets.symmetric(horizontal: 16.0),
+    this.padding = const EdgeInsets.symmetric(horizontal: 12.0),
     this.fontSize = 16.0,
     required this.isLoading,
     this.isBackColor = true,
@@ -151,7 +151,6 @@ class CustomButton1 extends StatelessWidget {
           height: height,
           decoration: BoxDecoration(
             // Use solid color instead of gradient
-
             image: DecorationImage(
               image: AssetImage(AppImages.baseButton),
               fit: BoxFit.contain,

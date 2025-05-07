@@ -238,13 +238,13 @@ import 'package:get/get.dart';
 import 'package:snacktag/app/modules/staff_meal_selection/controllers/staff_meal_selection_controller.dart';
 import 'package:snacktag/app/routes/app_pages.dart';
 import 'package:snacktag/config/app_colors.dart';
+import 'package:snacktag/config/app_images.dart';
 import 'package:snacktag/config/app_text_style.dart';
 import 'package:snacktag/models/cefeteria_admin/meal_model.dart';
 import 'package:snacktag/widgets/Custom_search_textfield.dart';
 import 'package:snacktag/widgets/custom_textfeild.dart';
 
 import 'package:snacktag/widgets/reuse_button.dart';
-
 
 class StaffMealSelectionView extends GetView<StaffMealSelectionController> {
   const StaffMealSelectionView({super.key});
@@ -256,7 +256,7 @@ class StaffMealSelectionView extends GetView<StaffMealSelectionController> {
       backgroundColor: Colors.white, // Set the background color to white
 
       body: GestureDetector(
-        onTap:(){
+        onTap: () {
           FocusScope.of(context).unfocus();
         },
         child: SizedBox(
@@ -264,7 +264,7 @@ class StaffMealSelectionView extends GetView<StaffMealSelectionController> {
           // color: Colors.red,
           child: Stack(
             children: [
-            ListView(
+              ListView(
                 // mainAxisSize: MainAxisSize.min,
                 children: [
                   Padding(
@@ -276,18 +276,68 @@ class StaffMealSelectionView extends GetView<StaffMealSelectionController> {
                           height: 70,
                         ),
 
-                        // Settings Title
-                        Text(
-                          'SELECT MEAL', // Title text
-                          style: AppTextStyles.MetropolisMedium.copyWith(
-                            fontSize: 18,
-                            color: const Color(0xFF434343),
+                        Image.asset(
+                          AppImages.authImg,
+                          width: 85,
+                          height: 95,
+                        ),
+
+                        SizedBox(
+                          height: 50,
+                        ),
+                        Center(
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 20, vertical: 10),
+                            constraints: BoxConstraints(
+                              maxWidth: MediaQuery.of(context).size.width *
+                                  0.8, // 80% of screen width
+                            ),
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(15),
+                              color: AppColors.whiteColor,
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withOpacity(0.1),
+                                  blurRadius: 6,
+                                  offset: const Offset(0, 3),
+                                ),
+                              ],
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize
+                                  .min, // Make row take minimum space needed
+                              children: [
+                                Image.asset(
+                                  'assets/images/school_building_unfilled.png',
+                                  width: 30,
+                                  height: 30,
+                                ),
+                                SizedBox(
+                                  width: 20,
+                                ),
+                                Flexible(
+                                  child: Obx(() => Text(
+                                        controller.schoolName.value,
+                                        style: AppTextStyles.MetropolisMedium
+                                            .copyWith(
+                                          fontSize: 18,
+                                          color: const Color(0xFF434343),
+                                        ),
+                                        overflow: TextOverflow
+                                            .ellipsis, // Handle text overflow
+                                      )),
+                                ),
+                              ],
+                            ),
                           ),
                         ),
-                        const SizedBox(height: 42), // Spacing between title and list
-                        _buildSearchField(controller.searchTextController),
-                        const SizedBox(height: 30),
-                        _buildText(),
+                        // /Users/user/Documents/Projects/Buzzware tech/snackTagApp/merged/assets/images/school_building_unfilled.png
+                        // const SizedBox(
+                        //     height: 42), // Spacing between title and list
+                        // _buildSearchField(controller.searchTextController),
+                        // const SizedBox(height: 30),
+                        // _buildText(),
                         const SizedBox(height: 32),
 
                         _buildMenuList(),
@@ -345,89 +395,78 @@ class StaffMealSelectionView extends GetView<StaffMealSelectionController> {
   Widget _buildMenuList() {
     return Obx(() => controller.isLoading.value
         ? const Center(child: CircularProgressIndicator())
-        :controller.isDataFound.value == true?Text(
-      'Data Not Found', // Replace with dynamic text
-      style: AppTextStyles.PoppinsBold.copyWith(
-        fontSize: 14,
-        color: AppColors.blackColor,
-      ),
-    ):controller.meals.value.isEmpty?Text(
-      'Meal Not Available', // Replace with dynamic text
-      style: AppTextStyles.PoppinsBold.copyWith(
-        fontSize: 14,
-        color: AppColors.blackColor,
-      ),
-    ):
-    // GridView.builder(
-    //             shrinkWrap: true,
-    //             physics: const NeverScrollableScrollPhysics(),
-    //             gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-    //               crossAxisCount: 3,
-    //               mainAxisSpacing: 16,
-    //               crossAxisSpacing: 8,
-    //               childAspectRatio: 100 / 170,
-    //             ),
-    //             itemCount: controller.searchText.value.isEmpty
-    //                 ? controller.meals.length
-    //                 : controller.filteredMeals.length,
-    //             itemBuilder: (context, index) {
-    //               return _buildMenuItem(
-    //                 controller.searchText.value.isEmpty
-    //                     ? controller.meals[index]
-    //                     : controller.filteredMeals[index],
-    //               );
-    //             },
-    //           )
-    GridView.builder(
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 3,
-        mainAxisSpacing: 16,
-        crossAxisSpacing: 8,
-        childAspectRatio: 100 / 170,
-      ),
-      itemCount: controller.filteredMeals.length,
-      itemBuilder: (context, index) {
-        return _buildMenuItem(
-            controller.filteredMeals[index]
-        );
-      },
-    )
-    );
+        : controller.isDataFound.value == true
+            ? Text(
+                'Data Not Found', // Replace with dynamic text
+                style: AppTextStyles.PoppinsBold.copyWith(
+                  fontSize: 14,
+                  color: AppColors.blackColor,
+                ),
+              )
+            : controller.meals.value.isEmpty
+                ? Text(
+                    'Meal Not Available', // Replace with dynamic text
+                    style: AppTextStyles.PoppinsBold.copyWith(
+                      fontSize: 14,
+                      color: AppColors.blackColor,
+                    ),
+                  )
+                :
+                // GridView.builder(
+                //             shrinkWrap: true,
+                //             physics: const NeverScrollableScrollPhysics(),
+                //             gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                //               crossAxisCount: 3,
+                //               mainAxisSpacing: 16,
+                //               crossAxisSpacing: 8,
+                //               childAspectRatio: 100 / 170,
+                //             ),
+                //             itemCount: controller.searchText.value.isEmpty
+                //                 ? controller.meals.length
+                //                 : controller.filteredMeals.length,
+                //             itemBuilder: (context, index) {
+                //               return _buildMenuItem(
+                //                 controller.searchText.value.isEmpty
+                //                     ? controller.meals[index]
+                //                     : controller.filteredMeals[index],
+                //               );
+                //             },
+                //           )
+                GridView.builder(
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    gridDelegate:
+                        const SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: 3,
+                      mainAxisSpacing: 16,
+                      crossAxisSpacing: 8,
+                      childAspectRatio: 100 / 170,
+                    ),
+                    itemCount: controller.filteredMeals.length,
+                    itemBuilder: (context, index) {
+                      return _buildMenuItem(controller.filteredMeals[index]);
+                    },
+                  ));
   }
 
   Widget _buildMenuItem(
-      MealModel meal,
-
-      ) {
+    MealModel meal,
+  ) {
     final controller = Get.find<StaffMealSelectionController>();
 
-    // ✅ Ensure every meal has a switch controller
+    // Ensure every meal has a switch controller
     if (!controller.switchControllers.containsKey(meal.id)) {
-      controller.switchControllers[meal.id!] = ValueNotifier<bool>(meal.availability == 'available');
+      controller.switchControllers[meal.id!] =
+          ValueNotifier<bool>(meal.availability == 'available');
     }
 
-    // final _controller = ValueNotifier<bool>(meal.availability == 'available');
-
     final switchController = controller.switchControllers[meal.id]!;
-    // print("Switch Value is :${_controller}");
-
-    // ✅ Debugging prints
 
     return Container(
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(12),
         color: Colors.white,
-        // boxShadow: [
-        //   BoxShadow(
-        //     color: Colors.black.withOpacity(0.1), // Shadow color with opacity
-        //     spreadRadius: 1,  // How much the shadow spreads
-        //     blurRadius: 3,    // How blurry the shadow is
-        //     offset: Offset(0, 3), // X and Y offset (moves shadow downwards)
-        //   ),
-        // ],
-            ),
+      ),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(12),
         child: Column(
@@ -436,26 +475,27 @@ class StaffMealSelectionView extends GetView<StaffMealSelectionController> {
             // Image from Firestore
             meal.imageUrl != null && meal.imageUrl!.isNotEmpty
                 ? Image.network(
-              meal.imageUrl!,
-              width: double.infinity,
-              height: 100,
-              fit: BoxFit.cover,
-              errorBuilder: (context, error, stackTrace) {
-                return Image.asset(
-                  'assets/images/gravy.png',
-                  width: double.infinity,
-                  fit: BoxFit.cover,
-                );
-              },
-            )
+                    meal.imageUrl!,
+                    width: double.infinity,
+                    height: 100,
+                    fit: BoxFit.cover,
+                    errorBuilder: (context, error, stackTrace) {
+                      return Image.asset(
+                        'assets/images/gravy.png',
+                        width: double.infinity,
+                        fit: BoxFit.cover,
+                      );
+                    },
+                  )
                 : Image.asset(
-              'assets/images/gravy.png',
-              width: double.infinity,
-              fit: BoxFit.cover,
-            ),
+                    'assets/images/gravy.png',
+                    width: double.infinity,
+                    fit: BoxFit.cover,
+                  ),
 
             Padding(
-              padding: const EdgeInsets.symmetric(vertical: 4.0, horizontal: 2.0),
+              padding:
+                  const EdgeInsets.symmetric(vertical: 4.0, horizontal: 2.0),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -472,18 +512,6 @@ class StaffMealSelectionView extends GetView<StaffMealSelectionController> {
                           overflow: TextOverflow.ellipsis,
                         ),
                       ),
-                      // GestureDetector(
-                      //   onTap: () {
-                      //     if (meal.id != null) {
-                      //       controller.deleteMeal(meal.id!);
-                      //     }
-                      //   },
-                      //   child: Image.asset(
-                      //     'assets/icon/delete.png',
-                      //     width: 15,
-                      //     height: 15,
-                      //   ),
-                      // )
                     ],
                   ),
                   const SizedBox(height: 4),
@@ -501,69 +529,43 @@ class StaffMealSelectionView extends GetView<StaffMealSelectionController> {
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 2.0),
               child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                mainAxisAlignment: MainAxisAlignment.end,
                 children: [
-                  // ✅ Advanced Switch with ValueNotifier
-                  ValueListenableBuilder<bool>(
-                    valueListenable: switchController,
-                    builder: (context, value, child) {
-                      return AdvancedSwitch(
-                        controller: switchController,
-                        activeColor: Colors.green,
-                        height: 12,
-                        width: 25,
-                        onChanged: (newValue) {
-                          controller.updateMeal(meal.id!, newValue);
+                  // Row for switch and availability text
+                  Row(
+                    children: [
+                      // Advanced Switch with ValueNotifier
+                      ValueListenableBuilder<bool>(
+                        valueListenable: switchController,
+                        builder: (context, value, child) {
+                          return AdvancedSwitch(
+                            controller: switchController,
+                            initialValue: meal.availability == 'available',
+                            activeColor: const Color(0xFFCCFD00),
+                            height: 12,
+                            width: 25,
+                            onChanged: (newValue) {
+                              controller.updateMeal(meal.id!, newValue);
+                            },
+                          );
                         },
-                      );
-                    },
+                      ),
+                      const SizedBox(width: 4),
+                      // Availability text
+                      // ValueListenableBuilder<bool>(
+                      //   valueListenable: switchController,
+                      //   builder: (context, value, child) {
+                      //     return Text(
+                      //       value ? 'Available' : 'Unavailable',
+                      //       style: AppTextStyles.PoppinsRegular.copyWith(
+                      //         fontSize: 7,
+                      //         color: value ? const Color(0xFFCCFD00) : Colors.red,
+                      //       ),
+                      //     );
+                      //   },
+                      // ),
+                    ],
                   ),
-                  // AdvancedSwitch(
-                  //   controller: _controller,
-                  //   activeColor: Colors.green,
-                  //   height: 12,
-                  //   width: 25,
-                  //   onChanged: (value) {
-                  //     if (meal.id != null) {
-                  //       controller.updateMeal(
-                  //           meal.id!, {'availability': value ? 'available' : 'unavailable'});
-                  //     }
-                  //   },
-                  // ),
-                  // GestureDetector(
-                  //   onTap: () {
-                  //     Get.toNamed(
-                  //       Routes.CAFETERIA_MEAL_DETAILS,
-                  //       arguments: meal, // Pass MealModel as argument
-                  //     );
-                  //   },
-                  //   child: Container(
-                  //     decoration: BoxDecoration(
-                  //       color: Colors.white,
-                  //       border: Border.all(
-                  //         color: const Color(0xFFEFEFEF),
-                  //         width: 1,
-                  //       ),
-                  //       boxShadow: [
-                  //         BoxShadow(
-                  //           color: const Color(0xFF707070).withOpacity(0.1),
-                  //           spreadRadius: 1,
-                  //           blurRadius: 1,
-                  //           offset: const Offset(0, 1),
-                  //         ),
-                  //       ],
-                  //       borderRadius: BorderRadius.circular(32),
-                  //     ),
-                  //     padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
-                  //     child: Text(
-                  //       'Edit',
-                  //       style: AppTextStyles.PoppinsRegular.copyWith(
-                  //         fontSize: 7,
-                  //         color: const Color(0xFFFFAA00),
-                  //       ),
-                  //     ),
-                  //   ),
-                  // )
                 ],
               ),
             ),

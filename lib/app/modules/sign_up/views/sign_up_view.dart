@@ -237,7 +237,7 @@ class SignUpView extends GetView<SignUpController> {
                       size: 20, // Size of the checkbox
                       border: Border.all(
                         color: confirm.value
-                            ? Colors.green
+                            ? Color(0xFFCCFD00)
                             : Colors.grey, // Dynamic border color
                       ),
                       isChecked: confirm.value, // Checkbox state

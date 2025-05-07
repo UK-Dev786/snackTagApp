@@ -25,7 +25,8 @@ class CustomPasswordFieldWidget extends StatefulWidget {
   });
 
   @override
-  _CustomPasswordFieldWidgetState createState() => _CustomPasswordFieldWidgetState();
+  _CustomPasswordFieldWidgetState createState() =>
+      _CustomPasswordFieldWidgetState();
 }
 
 class _CustomPasswordFieldWidgetState extends State<CustomPasswordFieldWidget> {
@@ -40,7 +41,7 @@ class _CustomPasswordFieldWidgetState extends State<CustomPasswordFieldWidget> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 56,
+      height: 60,
       width: double.infinity,
       padding: const EdgeInsets.only(left: 30, right: 10),
       decoration: BoxDecoration(
@@ -86,16 +87,16 @@ class _CustomPasswordFieldWidgetState extends State<CustomPasswordFieldWidget> {
                 focusedBorder: InputBorder.none,
                 suffixIcon: widget.isVisible != null
                     ? IconButton(
-                  icon: Icon(
-                    _isObscure ? Icons.visibility_off : Icons.visibility,
-                    color: Colors.grey,
-                  ),
-                  onPressed: () {
-                    setState(() {
-                      _isObscure = !_isObscure;
-                    });
-                  },
-                )
+                        icon: Icon(
+                          _isObscure ? Icons.visibility_off : Icons.visibility,
+                          color: Colors.grey,
+                        ),
+                        onPressed: () {
+                          setState(() {
+                            _isObscure = !_isObscure;
+                          });
+                        },
+                      )
                     : null,
               ),
             ),

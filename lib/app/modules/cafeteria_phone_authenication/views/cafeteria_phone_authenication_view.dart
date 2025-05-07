@@ -22,7 +22,7 @@ class CafeteriaPhoneAuthenicationView
         child: Column(
           children: [
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16.0),
+              padding: const EdgeInsets.symmetric(horizontal: 30.0),
               child: Column(
                 children: [
                   const SizedBox(height: 200),
@@ -54,7 +54,7 @@ class CafeteriaPhoneAuthenicationView
                   const SizedBox(height: 60),
                   // Phone number field
                   Container(
-                    height: 56,
+                    height: 60,
                     width: double.infinity,
                     padding: const EdgeInsets.only(
                       left: 20,
@@ -116,6 +116,8 @@ class CafeteriaPhoneAuthenicationView
             Obx(
               () => CustomButton1(
                 text: 'CONTINUE AS CAFETERIA OWNER',
+                // width: MediaQuery.of(context).size.width *,
+                height: 60,
                 onPressed: () async =>
                     await controller.authenticatePhoneNumber(true),
                 isLoading: controller.isLoading.value,

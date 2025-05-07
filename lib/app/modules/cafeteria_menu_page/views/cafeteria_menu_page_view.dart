@@ -282,7 +282,7 @@ class CafeteriaMenuPageView extends GetView<CafeteriaMenuPageController> {
                     builder: (context, value, child) {
                       return AdvancedSwitch(
                         controller: switchController,
-                        activeColor: Colors.green,
+                        activeColor: Color(0xFFCCFD00),
                         height: 12,
                         width: 25,
                         onChanged: (newValue) {

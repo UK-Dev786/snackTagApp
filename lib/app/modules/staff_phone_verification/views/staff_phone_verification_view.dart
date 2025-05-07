@@ -24,7 +24,7 @@ class StaffPhoneAuthenticationView extends StatelessWidget {
         child: Column(
           children: [
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16.0),
+              padding: const EdgeInsets.symmetric(horizontal: 30.0),
               child: Column(
                 children: [
                   const SizedBox(height: 200),
@@ -60,7 +60,7 @@ class StaffPhoneAuthenticationView extends StatelessWidget {
 
                   // Phone number field
                   Container(
-                    height: 56,
+                    height: 60,
                     width: double.infinity,
                     padding: const EdgeInsets.only(left: 20),
                     decoration: BoxDecoration(
@@ -113,7 +113,7 @@ class StaffPhoneAuthenticationView extends StatelessWidget {
                   //   keyboardType: TextInputType.phone,
                   //   controller: controller.phoneController,
                   // ),
-                  const SizedBox(height: 20),
+                  const SizedBox(height: 10),
                   CustomPasswordFieldWidget(
                     hintText: "Password",
                     controller: controller.passwordController,
@@ -132,6 +132,7 @@ class StaffPhoneAuthenticationView extends StatelessWidget {
             Obx(
               () => CustomButton1(
                 text: 'CONTINUE',
+                height: 60,
                 onPressed: () async => controller.staffLogin(),
                 isLoading: controller.isLoading.value,
               ),
