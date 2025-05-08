@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:snacktag/config/app_images.dart';
 import 'package:snacktag/config/app_text_style.dart';
 import 'package:snacktag/widgets/custom_shedule_dialog.dart';
 
@@ -40,13 +41,20 @@ class CafeteriaMealDetailsView extends GetView<CafeteriaMealDetailsController> {
                     ],
                   ),
                   child: Center(
-                    child: Image.asset("assets/icon/back.png",
-                        height: 15, width: 10),
+                    child: Image.asset(AppImages.back, height: 15, width: 10),
                   ),
                 ),
               ),
             ),
-            const SizedBox(height: 20),
+            const SizedBox(height: 25),
+            Opacity(
+              opacity: 0.5,
+              child: Image.asset(
+                AppImages.authImg,
+                height: 80,
+              ),
+            ),
+            const SizedBox(height: 35),
             Align(
               alignment: Alignment.center,
               child: Text(

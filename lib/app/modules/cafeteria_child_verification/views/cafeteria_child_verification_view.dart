@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:snacktag/app/modules/cafeteria_child_verification_home/controllers/cafeteria_child_verification_home_controller.dart';
 import 'package:snacktag/app/routes/app_pages.dart';
-// // import 'package:snacktag/app/routes/app_routes.dart';
 import 'package:snacktag/config/app_colors.dart';
 import 'package:snacktag/config/app_images.dart';
 import 'package:snacktag/config/app_text_style.dart';
@@ -29,50 +28,46 @@ class CafeteriaChildVerificationView extends StatelessWidget {
           backgroundColor: AppColors.whiteColor,
           body: SingleChildScrollView(
             child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20.0),
+              padding: const EdgeInsets.symmetric(horizontal: 10.0),
               child: GetBuilder<CafeteriaChildVerificationController>(
-                init: CafeteriaChildVerificationController(),
-                builder: (childVerificationController) {
-                  return Column(
-                    children: [
-                      const SizedBox(height: 160),
-
-                      // Add auth image at the top
-                      Center(
-                        child: Image.asset(
+                  init: CafeteriaChildVerificationController(),
+                  builder: (childVerificationController) {
+                    return Column(
+                      children: [
+                        const SizedBox(
+                            height: 120), // Padding to push content down
+                        Image.asset(
                           AppImages.authImg,
-                          width: 100,
-                          height: 100,
+                          height: 95,
+                          width: 83,
                         ),
-                      ),
 
-                      const SizedBox(height: 45),
-
-                      // Heading text
-                      Text(
-                        'IDENTIFICATION',
-                        style: AppTextStyles.MetropolisMedium.copyWith(
-                          fontSize: 18,
-                          color: const Color(0xFF434343),
+                        const SizedBox(height: 35),
+                        // Heading text
+                        Text(
+                          'IDENTIFICATION',
+                          style: AppTextStyles.MetropolisMedium.copyWith(
+                            fontSize: 18,
+                            color: const Color(0xFF434343),
+                          ),
                         ),
-                      ),
 
-                      const SizedBox(height: 10),
+                        const SizedBox(
+                            height: 20), // Space between heading and text field
 
-                      Text(
-                        'Please Enter Child ID',
-                        textAlign: TextAlign.center,
-                        style: AppTextStyles.MetropolisRegular.copyWith(
-                          fontSize: 13,
-                          color: const Color(0xFF858585),
+                        Text(
+                          'Enter Children School Id',
+                          textAlign: TextAlign.center,
+                          style: AppTextStyles.MetropolisRegular.copyWith(
+                            fontSize: 13,
+                            color: const Color(0xFF858585),
+                          ),
                         ),
-                      ),
 
-                      const SizedBox(height: 60),
+                        const SizedBox(
+                            height: 60), // Padding to push content down
 
-                      Padding(
-                        padding: const EdgeInsets.only(left: 10.0, right: 10),
-                        child: SimpleTextFieldWithOutSuffixWidget(
+                        SimpleTextFieldWithOutSuffixWidget(
                           hintText: 'Child School ID',
                           controller:
                               childVerificationController.schoolIdController,
@@ -80,61 +75,64 @@ class CafeteriaChildVerificationView extends StatelessWidget {
                           onChanged: (value) =>
                               childVerificationController.validateSchoolId(),
                         ),
-                      ),
 
-                      // Error message
-                      Obx(() => Visibility(
-                            visible: childVerificationController
-                                .errorMessage.value.isNotEmpty,
-                            child: Padding(
-                              padding: const EdgeInsets.only(top: 8.0),
-                              child: Text(
-                                childVerificationController.errorMessage.value,
-                                style: AppTextStyles.MetropolisRegular.copyWith(
-                                  fontSize: 12,
-                                  color: Colors.red,
+                        // Error message
+                        Obx(() => Visibility(
+                              visible: childVerificationController
+                                  .errorMessage.value.isNotEmpty,
+                              child: Padding(
+                                padding: const EdgeInsets.only(top: 8.0),
+                                child: Text(
+                                  childVerificationController
+                                      .errorMessage.value,
+                                  style:
+                                      AppTextStyles.MetropolisRegular.copyWith(
+                                    fontSize: 12,
+                                    color: Colors.red,
+                                  ),
                                 ),
                               ),
-                            ),
-                          )),
+                            )),
 
-                      const SizedBox(height: 20),
+                        const SizedBox(height: 20),
 
-                      Obx(() => CustomButton1(
-                            text: 'IDENTIFY',
-                            onPressed: () async {
-                              // Unfocus before starting async operation
+                        Obx(() => CustomButton1(
+                              text: 'IDENTIFY',
+                              onPressed: () async {
+                                // Unfocus before starting async operation
 
-                              if (childVerificationController.isValid.value) {
-                                bool success = await childVerificationController
-                                    .fetchCafateriaChildren();
-                                if (success) {
-                                  Get.toNamed(
-                                    Routes.CHILD_VERIFICATION_UPLOAD_INFO,
-                                    arguments: {
-                                      'childrenList':
-                                          childVerificationController
-                                              .childrenList,
-                                    },
-                                  );
+                                if (childVerificationController.isValid.value) {
+                                  bool success =
+                                      await childVerificationController
+                                          .fetchCafateriaChildren();
+                                  if (success) {
+                                    Get.toNamed(
+                                      Routes.CHILD_VERIFICATION_UPLOAD_INFO,
+                                      arguments: {
+                                        'childrenList':
+                                            childVerificationController
+                                                .childrenList,
+                                      },
+                                    );
+                                  }
+                                } else {
+                                  childVerificationController.verifyChildId();
                                 }
-                              } else {
-                                childVerificationController.verifyChildId();
-                              }
-                            },
-                            isLoading:
-                                childVerificationController.isLoading.value,
-                            height: 60.0, // Set button height to 60
-                            fontSize: 18.0,
-                            padding:
-                                const EdgeInsets.symmetric(horizontal: 4.0),
-                          )),
+                              },
+                              isLoading:
+                                  childVerificationController.isLoading.value,
+                              height: 60.0,
+                              borderRadius: 12.0,
+                              fontSize: 18.0,
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 4.0),
+                            )),
 
-                      const SizedBox(height: 20),
-                    ],
-                  );
-                },
-              ),
+                        const SizedBox(
+                            height: 20), // Space between button and footer text
+                      ],
+                    );
+                  }),
             ),
           ),
         ),

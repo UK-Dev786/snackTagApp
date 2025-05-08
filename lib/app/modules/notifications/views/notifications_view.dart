@@ -20,9 +20,7 @@ class NotificationsView extends GetView<NotificationsController> {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             const SizedBox(height: 70),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
+            
                 Text(
                   'NOTIFICATIONS', // Title text (fixed typo)
                   style: AppTextStyles.MetropolisMedium.copyWith(
@@ -30,16 +28,6 @@ class NotificationsView extends GetView<NotificationsController> {
                     color: const Color(0xFF434343),
                   ),
                 ),
-                // const SizedBox(width: 10),
-                // // Refresh button
-                // IconButton(
-                //   icon: const Icon(Icons.refresh, color: Color(0xFF434343)),
-                //   onPressed: () {
-                //     controller.refreshNotifications();
-                //   },
-                // ),
-              ],
-            ),
             Expanded(
               child: Obx(() {
                 if (controller.isLoading.value) {

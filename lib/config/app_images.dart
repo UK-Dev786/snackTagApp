@@ -22,6 +22,7 @@ class AppImages {
   static const crossIcon = 'assets/images/crossIcon.png';
 
   static const aboutMeal = 'assets/icon/aboutMeal.png';
+  static const back = 'assets/icon/back.png';
 
   // Gender-specific avatars
   static const maleAvatar = 'assets/images/maleAvatar.png';
