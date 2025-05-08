@@ -5,6 +5,7 @@ import 'package:get/get.dart';
 import 'package:snacktag/app/modules/parent_children_edit/controller/parent_children_edit_controller.dart';
 import 'package:snacktag/app/modules/parent_children_edit/view/parent_children_edit_VIEW.dart';
 import 'package:snacktag/app/modules/parents_children_details/controllers/parents_children_details_controller.dart';
+import 'package:snacktag/app/modules/parents_children_details/views/parents_children_details_view.dart';
 import 'package:snacktag/app/routes/app_pages.dart';
 import 'package:snacktag/config/app_colors.dart';
 import 'package:snacktag/config/app_text_style.dart';
@@ -213,11 +214,11 @@ class CafeteriaView extends GetView<CafeteriaController> {
                                   final ParentsAddChildren parentsAddChildren =
                                       ParentsAddChildren(
                                     childName: parentController
-                                        .nameControllers[index].text,
+                                        .nameControllers[selectedIndex].text,
                                     childSchoolID: parentController
                                         .idControllers[index].text,
-                                    childImageUrl:
-                                        parentController.images[index]!.path,
+                                    childImageUrl: parentController
+                                        .images[selectedIndex]!.path,
                                     schoolName: parentController
                                                 .allChildrenSameSchool.value ==
                                             'Yes'

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:snacktag/app/modules/parents_children_details/controllers/parents_children_details_controller.dart';
+import 'package:snacktag/app/modules/parents_children_details/views/parents_children_details_view.dart';
 import 'package:snacktag/app/routes/app_pages.dart';
 import 'package:snacktag/config/app_colors.dart';
 import 'package:snacktag/config/app_text_style.dart';
@@ -9,7 +10,7 @@ import 'package:snacktag/widgets/custom_textfeild.dart';
 class SchoolSelectorDialog extends StatefulWidget {
   final List<String> schoolsList;
   final bool isEdit;
-
+  // final int selectedIndex;
   const SchoolSelectorDialog(
       {super.key, required this.schoolsList, this.isEdit = false});
 
