@@ -80,43 +80,7 @@ class CafeteriaAddStaffController extends GetxController {
     print(
         "[AddStaffScreen] Staff data to be added: Name=$staffName, Email=$staffEmail, Phone=$staffPhone");
 
-    // Validate input data before saving
-    if (staffName.isEmpty) {
-      print("[AddStaffScreen] Validation failed: Empty staff name");
-      Get.snackbar("Validation Error", "Staff name is required");
-      return;
-    }
-
-    if (staffEmail.isEmpty) {
-      print("[AddStaffScreen] Validation failed: Empty email");
-      Get.snackbar("Validation Error", "Email is required");
-      return;
-    }
-
-    if (staffPhone.isEmpty) {
-      print("[AddStaffScreen] Validation failed: Empty phone number");
-      Get.snackbar("Validation Error", "Phone number is required");
-      return;
-    }
-
-    if (staffPassword.isEmpty) {
-      print("[AddStaffScreen] Validation failed: Empty password");
-      Get.snackbar("Validation Error", "Password is required");
-      return;
-    }
-
-    if (!(Validator.isValidEmail(staffEmail))) {
-      print("[AddStaffScreen] Validation failed: Invalid email format");
-      Get.snackbar("Validation Error", "Please Enter Valid Email");
-      return;
-    }
-
-    if (staffPassword.length < 6) {
-      print("[AddStaffScreen] Validation failed: Password too short");
-      Get.snackbar(
-          "Validation Error", "Password must be at least 6 characters");
-      return;
-    }
+    // Validation is now handled in the button's onPressed handler
 
     isLoading.value = true;
     try {
@@ -126,7 +90,7 @@ class CafeteriaAddStaffController extends GetxController {
 
         // Check if phone number exists
         bool phoneExists =
-            await _addStaffService.isPhoneNumberExists(phoneController.text);
+            await _addStaffService.isPhoneNumberExists(staffPhone);
         print("[AddStaffScreen] Phone number exists check: $phoneExists");
 
         if (phoneExists) {
@@ -153,7 +117,12 @@ class CafeteriaAddStaffController extends GetxController {
           return;
         }
 
+        // Generate a unique ID for the staff
+        String staffId =
+            FirebaseFirestore.instance.collection("staffData").doc().id;
+
         StaffModel newModel = StaffModel(
+          id: staffId, // Assign the generated ID
           staffPassword: staffPassword,
           staffEmail: staffEmail,
           staffName: staffName,
@@ -170,6 +139,10 @@ class CafeteriaAddStaffController extends GetxController {
             .then((result) {
           print(
               "[AddStaffScreen] Staff added successfully with ID: ${newModel.id}");
+
+          // Create a user document for this staff member to enable login
+          _createUserDocumentForStaff(newModel);
+
           Get.back();
           Get.offNamed(Routes.CAFETERIA_STAFF_LIST);
 
@@ -196,6 +169,33 @@ class CafeteriaAddStaffController extends GetxController {
       Get.snackbar("Error", "Failed to save Staff. Please try again.");
     } finally {
       isLoading.value = false;
+    }
+  }
+
+  // Helper method to create a user document for staff to enable login
+  Future<void> _createUserDocumentForStaff(StaffModel staff) async {
+    try {
+      print(
+          "[AddStaffScreen] Creating user document for staff: ${staff.staffName}");
+
+      // Create a document in the users collection for this staff
+      await FirebaseFirestore.instance.collection('users').doc(staff.id).set({
+        'userId': staff.id,
+        'role': 'staff',
+        'isStaff': true,
+        'staffName': staff.staffName,
+        'staffEmail': staff.staffEmail,
+        'staffPhone': staff.staffPhone,
+        'cafeteriaAdminId': staff.userId, // Link to the cafeteria admin
+        'createdAt': FieldValue.serverTimestamp(),
+      }, SetOptions(merge: true));
+
+      print(
+          "[AddStaffScreen] User document created successfully for staff ID: ${staff.id}");
+    } catch (e) {
+      print(
+          "[AddStaffScreen] ERROR: Failed to create user document for staff: $e");
+      // Don't throw here, as we don't want to fail the entire operation
     }
   }
 

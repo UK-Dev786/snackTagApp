@@ -9,18 +9,15 @@ class AddStaffService extends BaseService {
       StaffModel staff, File? imageFile, String userId) async {
     print("📌 Service: Adding staff for user ID: $userId");
 
-    // Create a reference to the new staff document in the user's staffData subcollection
-    DocumentReference staffDocRef = FirebaseFirestore.instance
-        .collection("users")
-        .doc(userId)
+    // Use the ID already assigned in the controller
+    String docId = staff.id ?? FirebaseFirestore.instance
         .collection("staffData")
-        .doc();
-
-    // Assign the generated ID to the staff model
-    String docId = staffDocRef.id;
+        .doc().id;
+    
+    // Ensure the ID is set
     staff.id = docId;
 
-    print("📌 Service: Generated staff document ID: $docId");
+    print("📌 Service: Using staff document ID: $docId");
 
     // Upload image if available
     if (imageFile != null) {
@@ -30,8 +27,12 @@ class AddStaffService extends BaseService {
     }
 
     // Save Staff Data to Firestore
-    print("📌 Service: Saving staff data to Firestore ${staff}");
-    await staffDocRef.set(staff.toMap());
+    print("📌 Service: Saving staff data to Firestore ${staff.toMap()}");
+    await FirebaseFirestore.instance
+        .collection("staffData")
+        .doc(docId)
+        .set(staff.toMap());
+    
     print("✅ Service: Staff data saved successfully");
   }
 

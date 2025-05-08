@@ -246,8 +246,37 @@ class CafeteriaAddStaffView extends GetView<CafeteriaAddStaffController> {
                         () => CustomButton1(
                             text: 'Continue',
                             onPressed: () async {
+                              if (controller.nameController.text.isEmpty) {
+                                Get.snackbar("Validation Error", "Staff name is required");
+                                return;
+                              }
+                              
+                              if (controller.emailController.text.isEmpty) {
+                                Get.snackbar("Validation Error", "Email is required");
+                                return;
+                              }
+                              
+                              if (controller.phoneController.text.isEmpty) {
+                                Get.snackbar("Validation Error", "Phone number is required");
+                                return;
+                              }
+                              
+                              if (controller.passwordController.text.isEmpty) {
+                                Get.snackbar("Validation Error", "Password is required");
+                                return;
+                              }
+                              
+                              if (!(Validator.isValidEmail(controller.emailController.text))) {
+                                Get.snackbar("Validation Error", "Please Enter Valid Email");
+                                return;
+                              }
+                              
+                              if (controller.passwordController.text.length < 6) {
+                                Get.snackbar("Validation Error", "Password must be at least 6 characters");
+                                return;
+                              }
+                              
                               await controller.addStaffData();
-                              // addStaffController.updateSelectedIndex(0);
                             },
                             isLoading: controller.isLoading.value),
                       )
