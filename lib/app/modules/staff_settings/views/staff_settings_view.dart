@@ -17,6 +17,7 @@ class StaffSettingsView extends GetView<StaffSettingsController> {
     final List<String> settings = [
       "Profile",
       "Upcoming",
+      "History",
       "Privacy Policy",
       "Terms & Conditions",
       "Sign Out",
@@ -59,8 +60,10 @@ class StaffSettingsView extends GetView<StaffSettingsController> {
                         UserPreferences preference = UserPreferences();
                         preference.removeStaffDataPreference();
                       } else if (index == 1) {
-
                         controller.updateSelectedIndex(2);
+                      } else if (index == 2) {
+                        // Navigate to Staff History
+                        Get.toNamed(Routes.STAFF_HISTORY);
                       }
                       //else if (index == 3) {
                       //   Get.toNamed('/terms');

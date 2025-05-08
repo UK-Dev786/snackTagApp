@@ -174,9 +174,11 @@ class StaffOrderPreparingController extends GetxController {
           }
         }
 
-        // Mark the order as delivered
+        // Mark the order as delivered - pass staff ID if available
         bool success = await _preparationService.markOrderAsDelivered(
-            orderId, staffData.value!.staffName!);
+            orderId, 
+            staffData.value!.staffName!,
+            staffData.value!.staffPhone ?? '');  // Pass staff ID if available
 
         if (success) {
           // Send notification to parent about order delivery

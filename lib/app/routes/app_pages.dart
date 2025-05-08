@@ -11,6 +11,8 @@ import 'package:snacktag/app/modules/parent_children_edit/view/parent_children_e
 import 'package:snacktag/app/modules/parent_upcoming_order_detail/binding/parent_upcoming_order_detail_binding.dart';
 import 'package:snacktag/app/modules/parents_profile/binding/parent_profile_binding.dart';
 import 'package:snacktag/app/modules/parents_profile/view/parent_profile_view.dart';
+import 'package:snacktag/app/modules/staff_order_history/bindings/staff_order_history_binding.dart';
+import 'package:snacktag/app/modules/staff_order_history/views/staff_order_history_view.dart';
 import 'package:snacktag/app/modules/staff_setting_profile/bindings/staff_setting_profile_binding.dart';
 import 'package:snacktag/app/modules/staff_setting_profile/views/staff_setting_profile_view.dart';
 
@@ -494,6 +496,12 @@ class AppPages {
           url: args['url'],
         );
       },
+    ),
+    GetPage(
+      name: _Paths.STAFF_ORDER_HISTORY,
+      page: () => const StaffOrderHistoryView(),
+      binding: StaffOrderHistoryBinding(),
+      transition: Transition.fadeIn,
     ),
   ];
 }

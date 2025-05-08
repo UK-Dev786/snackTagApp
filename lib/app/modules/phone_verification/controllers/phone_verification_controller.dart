@@ -7,6 +7,7 @@ import 'package:snacktag/services/authentication_service.dart';
 import 'package:snacktag/services/parent_authentication-service.dart';
 import 'package:snacktag/services/parents/parenents_services.dart';
 import 'package:snacktag/widgets/custom_snackbar.dart';
+// // import 'package:snacktag/app/routes/app_routes.dart';
 
 import '../../../../config/app_const.dart';
 
@@ -14,14 +15,16 @@ class PhoneVerificationController extends GetxController {
   final otpController = ''.obs; // Observable for OTP
   final isLoading = false.obs;
 
-  final ParentAuthenticationService _authService = ParentAuthenticationService();
+  final ParentAuthenticationService _authService =
+      ParentAuthenticationService();
   final ParentsServices _parentsService = ParentsServices();
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final FirebaseAuth _auth = FirebaseAuth.instance;
 
   final String phoneNumber;
   final String verificationId;
-  PhoneVerificationController({required this.phoneNumber, required this.verificationId});
+  PhoneVerificationController(
+      {required this.phoneNumber, required this.verificationId});
   @override
   void onInit() {
     super.onInit();
@@ -41,10 +44,10 @@ class PhoneVerificationController extends GetxController {
       isLoading.value = true;
 
       // Call the service for OTP verification
-      final result = await _authService.verifyOTP(verificationId, otpController.value);
+      final result =
+          await _authService.verifyOTP(verificationId, otpController.value);
 
       if (result.success) {
-
         final user = UserModel(
           phoneNumber: phoneNumber,
           role: 'parents',
@@ -55,8 +58,10 @@ class PhoneVerificationController extends GetxController {
         final id = currentUser?.uid;
 
         // Fetch user document from Firestore
-        DocumentSnapshot<Map<String, dynamic>> userDoc =
-        await _firestore.collection(CollectionKey.USER_COLLECTION).doc(id).get();
+        DocumentSnapshot<Map<String, dynamic>> userDoc = await _firestore
+            .collection(CollectionKey.USER_COLLECTION)
+            .doc(id)
+            .get();
         final parentName = userDoc.data()?['parentsName'] as String?;
         print('Current User Id : $id');
         print('Current parent name  : $parentName');
@@ -102,12 +107,14 @@ class PhoneVerificationController extends GetxController {
 
 // FOR CHECK THE PARENTS HAVE CHILDREN OR NOT
   Future<bool> doesParentHaveChildren(String parentId) async {
-    QuerySnapshot<Map<String, dynamic>> querySnapshot = await FirebaseFirestore.instance
-        .collection("parentsChildren") // Collection Name
-        .where("parentId", isEqualTo: parentId) // Filter by parentId
-        .limit(1) // Optimize query to check only one document
-        .get();
+    QuerySnapshot<Map<String, dynamic>> querySnapshot =
+        await FirebaseFirestore.instance
+            .collection("parentsChildren") // Collection Name
+            .where("parentId", isEqualTo: parentId) // Filter by parentId
+            .limit(1) // Optimize query to check only one document
+            .get();
 
-    return querySnapshot.docs.isEmpty; // Returns true if at least one document exists
+    return querySnapshot
+        .docs.isEmpty; // Returns true if at least one document exists
   }
 }

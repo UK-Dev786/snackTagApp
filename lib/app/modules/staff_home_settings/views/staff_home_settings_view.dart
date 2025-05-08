@@ -55,6 +55,12 @@ class StaffHomeSettingsView extends GetView<StaffHomeSettingsController> {
                       Get.toNamed(Routes.STAFF_HISTORY_CALENDER);
                     },
                   ),
+                  CafeteriaSettingWidget(
+                    labelName: "History",
+                    onTap: () {
+                      Get.toNamed(Routes.STAFF_HISTORY);
+                    },
+                  ),
                   // CafeteriaSettingWidget(
                   //   labelName: "Privacy Policy",
                   //   onTap: () {

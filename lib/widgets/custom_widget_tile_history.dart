@@ -238,13 +238,17 @@ class GradientButton extends StatelessWidget {
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(50), // Rounded corners
           gradient: const LinearGradient(
-            colors: [AppColors.gradientStartColor, AppColors.gradientEndColor], // Gradient colors
+            colors: [
+              AppColors.gradientStartColor,
+              AppColors.gradientEndColor
+            ], // Gradient colors
             begin: Alignment.centerLeft,
             end: Alignment.centerRight,
           ),
           boxShadow: [
             BoxShadow(
-              color: AppColors.gradientStartColor.withOpacity(0.3), // Shadow color
+              color:
+                  AppColors.gradientStartColor.withOpacity(0.3), // Shadow color
               blurRadius: 8,
               offset: const Offset(0, 4), // Shadow position
             ),

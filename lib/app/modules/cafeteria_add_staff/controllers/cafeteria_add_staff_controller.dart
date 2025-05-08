@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:snacktag/app/routes/app_pages.dart';
+// // import 'package:snacktag/app/routes/app_routes.dart';
 import 'package:snacktag/config/validation.dart';
 import 'package:snacktag/models/cefeteria_admin/staff_model.dart';
 import 'package:snacktag/services/Shared_preference/preferences.dart';
@@ -57,13 +58,14 @@ class CafeteriaAddStaffController extends GetxController {
     // Get current user ID directly from Firebase Auth
     final FirebaseAuth auth = FirebaseAuth.instance;
     final User? currentUser = auth.currentUser;
-    
+
     if (currentUser == null) {
-      print("[AddStaffScreen] ERROR: No authenticated user found in Firebase Auth");
+      print(
+          "[AddStaffScreen] ERROR: No authenticated user found in Firebase Auth");
       Get.snackbar("Error", "You are not logged in. Please login again.");
       return;
     }
-    
+
     String userId = currentUser.uid;
     print("[AddStaffScreen] Firebase Auth current user ID: $userId");
 
@@ -75,7 +77,8 @@ class CafeteriaAddStaffController extends GetxController {
     String staffPhone = phoneController.text.trim();
     String staffPassword = passwordController.text.trim();
 
-    print("[AddStaffScreen] Staff data to be added: Name=$staffName, Email=$staffEmail, Phone=$staffPhone");
+    print(
+        "[AddStaffScreen] Staff data to be added: Name=$staffName, Email=$staffEmail, Phone=$staffPhone");
 
     // Validate input data before saving
     if (staffName.isEmpty) {
@@ -83,19 +86,19 @@ class CafeteriaAddStaffController extends GetxController {
       Get.snackbar("Validation Error", "Staff name is required");
       return;
     }
-    
+
     if (staffEmail.isEmpty) {
       print("[AddStaffScreen] Validation failed: Empty email");
       Get.snackbar("Validation Error", "Email is required");
       return;
     }
-    
+
     if (staffPhone.isEmpty) {
       print("[AddStaffScreen] Validation failed: Empty phone number");
       Get.snackbar("Validation Error", "Phone number is required");
       return;
     }
-    
+
     if (staffPassword.isEmpty) {
       print("[AddStaffScreen] Validation failed: Empty password");
       Get.snackbar("Validation Error", "Password is required");
@@ -107,10 +110,11 @@ class CafeteriaAddStaffController extends GetxController {
       Get.snackbar("Validation Error", "Please Enter Valid Email");
       return;
     }
-    
+
     if (staffPassword.length < 6) {
       print("[AddStaffScreen] Validation failed: Password too short");
-      Get.snackbar("Validation Error", "Password must be at least 6 characters");
+      Get.snackbar(
+          "Validation Error", "Password must be at least 6 characters");
       return;
     }
 
@@ -134,11 +138,11 @@ class CafeteriaAddStaffController extends GetxController {
           isLoading.value = false;
           return;
         }
-        
+
         // Check if email exists (optional additional validation)
         bool emailExists = await _addStaffService.isEmailExists(staffEmail);
         print("[AddStaffScreen] Email exists check: $emailExists");
-        
+
         if (emailExists) {
           print("[AddStaffScreen] Email already registered");
           Get.snackbar(
@@ -164,7 +168,8 @@ class CafeteriaAddStaffController extends GetxController {
         await _addStaffService
             .addStaff(newModel, selectedImage.value, userId)
             .then((result) {
-          print("[AddStaffScreen] Staff added successfully with ID: ${newModel.id}");
+          print(
+              "[AddStaffScreen] Staff added successfully with ID: ${newModel.id}");
           Get.back();
           Get.offNamed(Routes.CAFETERIA_STAFF_LIST);
 

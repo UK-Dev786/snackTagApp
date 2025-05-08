@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:get/get_core/src/get_main.dart';
 import 'package:snacktag/app/modules/parents_add_wallet/controllers/parents_add_wallet_controller.dart';
 import 'package:snacktag/app/modules/parents_home/controllers/parents_home_controller.dart';
+// import 'package:snacktag/app/routes/app_routes.dart';t';
 import 'package:snacktag/config/app_colors.dart';
 import 'package:snacktag/config/app_text_style.dart';
 import 'package:snacktag/models/parents_models/add_children.dart';
@@ -77,13 +78,13 @@ class WalletBalanceCard extends StatelessWidget {
                     ),
                   ],
                 ),
-                child:  ClipOval(
-                        child: Image.asset(
-                          'assets/images/profile_emoji.png',
-                          width: double.infinity,
-                          fit: BoxFit.cover,
-                        ),
-                      ),
+                child: ClipOval(
+                  child: Image.asset(
+                    'assets/images/profile_emoji.png',
+                    width: double.infinity,
+                    fit: BoxFit.cover,
+                  ),
+                ),
               ),
             ],
           ),
@@ -315,13 +316,17 @@ class GradientButton extends StatelessWidget {
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(50), // Rounded corners
           gradient: const LinearGradient(
-            colors: [AppColors.gradientStartColor, AppColors.gradientEndColor], // Gradient colors
+            colors: [
+              AppColors.gradientStartColor,
+              AppColors.gradientEndColor
+            ], // Gradient colors
             begin: Alignment.centerLeft,
             end: Alignment.centerRight,
           ),
           boxShadow: [
             BoxShadow(
-              color: AppColors.gradientStartColor.withOpacity(0.3), // Shadow color
+              color:
+                  AppColors.gradientStartColor.withOpacity(0.3), // Shadow color
               blurRadius: 8,
               offset: const Offset(0, 4), // Shadow position
             ),

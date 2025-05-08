@@ -6,7 +6,8 @@ import 'package:snacktag/services/Shared_preference/preferences.dart';
 import 'package:snacktag/services/staff_services/staff_order_preparation_service.dart';
 
 class StaffHistoryListController extends GetxController {
-  final StaffOrderPreparationService _preparationService = StaffOrderPreparationService();
+  final StaffOrderPreparationService _preparationService =
+      StaffOrderPreparationService();
   final UserPreferences _preferences = UserPreferences();
   //TODO: Implement StaffHistoryListController
 
@@ -15,7 +16,8 @@ class StaffHistoryListController extends GetxController {
   final Rx<StaffModel?> staffData = Rx<StaffModel?>(null);
   final Rx<UserModel?> cafeteriaData = Rx<UserModel?>(null);
   final RxString cafeteriaName = ''.obs;
-  final RxList<ParentsAddChildren> deliveredOrdersList = <ParentsAddChildren>[].obs;
+  final RxList<ParentsAddChildren> deliveredOrdersList =
+      <ParentsAddChildren>[].obs;
 
   @override
   void onInit() {
@@ -36,7 +38,8 @@ class StaffHistoryListController extends GetxController {
         // Fetch cafeteria data using staff's userId
         if (staffModel.userId != null) {
           try {
-            UserModel? cafeteria = await _preparationService.getCafeteriaData(staffModel.userId!);
+            UserModel? cafeteria =
+                await _preparationService.getCafeteriaData(staffModel.userId!);
             if (cafeteria != null) {
               cafeteriaData.value = cafeteria;
               cafeteriaName.value = cafeteria.cafeteriaName ?? '';
@@ -44,7 +47,9 @@ class StaffHistoryListController extends GetxController {
 
               // Only start listening to orders if we have a cafeteria name
               if (cafeteriaName.value.isNotEmpty) {
-                _listenToOrders();
+                // Get current month's orders by default
+                final now = DateTime.now();
+                fetchDeliveredOrdersForMonth(now.year, now.month);
               } else {
                 print("⚠️ No cafeteria name found in cafeteria data");
                 Get.snackbar(
@@ -121,4 +126,47 @@ class StaffHistoryListController extends GetxController {
   }
 
   void increment() => count.value++;
+
+  // Add this method to filter orders by month
+  void fetchDeliveredOrdersForMonth(int year, int month) {
+    isLoading.value = true;
+
+    // Calculate start and end dates for the month
+    final startDate = DateTime(year, month, 1);
+    final endDate = DateTime(year, month + 1, 0); // Last day of the month
+
+    // Format dates for Firestore query
+    final startDateStr = startDate.toIso8601String();
+    final endDateStr = endDate.toIso8601String();
+
+    if (cafeteriaName.value.isEmpty) {
+      isLoading.value = false;
+      return;
+    }
+
+    _preparationService
+        .getDeliveredOrdersForDateRange(
+            cafeteriaName.value, startDateStr, endDateStr)
+        .then((orders) {
+      // Filter to only include delivered orders
+      final deliveredOrders = orders.where((order) => 
+        order.status == 'Delivered' && 
+        order.delivered == true
+      ).toList();
+      
+      deliveredOrdersList.assignAll(deliveredOrders);
+      update(['staffOrderDeliveredId']);
+      print(
+          "📋 Updated delivered orders list for $month/$year: ${deliveredOrders.length} orders");
+      isLoading.value = false;
+    }).catchError((error) {
+      print("❌ Error fetching orders for month: $error");
+      Get.snackbar(
+        'Error',
+        'Failed to load orders for the selected month',
+        snackPosition: SnackPosition.TOP,
+      );
+      isLoading.value = false;
+    });
+  }
 }

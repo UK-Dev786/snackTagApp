@@ -78,7 +78,8 @@ class StaffOrderPreparationService {
   }
 
   // Method to mark order as delivered
-  Future<bool> markOrderAsDelivered(String orderId, String deliveredBy) async {
+  Future<bool> markOrderAsDelivered(
+      String orderId, String deliveredBy, String staffId) async {
     try {
       await _firestore.collection('orderPreparation').doc(orderId).update({
         'delivered': true,
@@ -86,6 +87,7 @@ class StaffOrderPreparationService {
         'orderDeliveredTime': DateTime.now().toIso8601String(),
         'startPreparation': false,
         'orderDeliveredBy': deliveredBy,
+        staffId: staffId,
       });
       print("✅ Order marked as delivered: $orderId");
       return true;
@@ -333,6 +335,44 @@ class StaffOrderPreparationService {
       }
     } catch (e) {
       print("❌ Error updating child monthly expenditures: $e");
+    }
+  }
+
+  // Method to get delivered orders for a specific date range
+  Future<List<ParentsAddChildren>> getDeliveredOrdersForDateRange(
+      String cafeteriaName, String startDateStr, String endDateStr) async {
+    try {
+      print(
+          "📅 Fetching delivered orders from $startDateStr to $endDateStr for cafeteria: $cafeteriaName");
+
+      QuerySnapshot<Map<String, dynamic>> snapshot = await _firestore
+          .collection('orderPreparation')
+          .where('cafeteriaName', isEqualTo: cafeteriaName)
+          .where('status',
+              isEqualTo: 'Delivered') // Only get orders with status 'Delivered'
+          .where('delivered',
+              isEqualTo: true) // Only get orders marked as delivered
+          .where('orderDeliveredTime', isGreaterThanOrEqualTo: startDateStr)
+          .where('orderDeliveredTime', isLessThanOrEqualTo: endDateStr)
+          .orderBy('orderDeliveredTime', descending: true)
+          .get();
+
+      print(
+          "📦 Fetched ${snapshot.docs.length} delivered orders for date range");
+
+      List<ParentsAddChildren> orders = [];
+      for (var doc in snapshot.docs) {
+        try {
+          orders.add(ParentsAddChildren.fromJson(doc.data()));
+        } catch (e) {
+          print("❌ Error parsing order data: $e");
+        }
+      }
+
+      return orders;
+    } catch (e) {
+      print("❌ Error fetching delivered orders for date range: $e");
+      return [];
     }
   }
 }

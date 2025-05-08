@@ -68,36 +68,44 @@ class ChildVerificationUploadInfoController extends GetxController {
     print("staff name is ${staffModel?.staffName}");
   }
 
-  Future<void> fetchChildParentWallet(String parentId, meal) async {
+  Future<void> fetchChildParentWallet(
+      String parentId, ParentSelectedMeals meal) async {
     try {
       isLoading.value = true;
 
-      // Get the parent ID from the selected child
+      // First check if this specific meal has already been prepared today
+      final childId = childrenList.first.childId;
+      if (childId != null && childId.isNotEmpty) {
+        final alreadyPrepared = await isMealAlreadyPreparedToday(childId, meal);
 
-      if (parentId.isEmpty) {
-        Get.snackbar('Error', 'Parent ID not found');
-        return;
+        if (alreadyPrepared) {
+          Get.snackbar(
+            'Already Prepared',
+            'This meal has already been prepared today. You cannot prepare the same meal twice in a day.',
+            snackPosition: SnackPosition.TOP,
+            backgroundColor: Colors.orange,
+            colorText: Colors.white,
+            duration: const Duration(seconds: 3),
+          );
+          isLoading.value = false;
+          return;
+        }
       }
-      print("parent id is bbb  $parentId");
 
-      // Fetch the wallet data
-      final wallet = await _walletService.fetchChildParentWallet(parentId);
+      // Continue with the existing wallet balance check and preparation
+      walletData.value = await _walletService.fetchChildParentWallet(parentId);
 
-      if (wallet == null) {
-        Get.snackbar('Error', 'Parent wallet not found');
-        return;
+      if (walletData.value != null) {
+        await checkWalletBalance(meal, parentId);
+      } else {
+        Get.snackbar('Error', 'Wallet not found');
       }
 
-      walletData.value = wallet;
-      print(
-          "Query completed. Number of documents found: ${walletData.value!.amount}");
-      checkWalletBalance(meal, parentId);
-      // Start preparation process here
-      // Add your preparation logic
-    } catch (e) {
-      Get.snackbar('Error', 'Failed to fetch wallet: $e');
-    } finally {
       isLoading.value = false;
+    } catch (e) {
+      isLoading.value = false;
+      print("Error fetching wallet: $e");
+      Get.snackbar('Error', 'Failed to fetch wallet data');
     }
   }
 
@@ -178,69 +186,12 @@ class ChildVerificationUploadInfoController extends GetxController {
     }
   }
 
-  Future<void> checkWalletBalance(meal, String parentId) async {
+  Future<void> checkWalletBalance(
+      ParentSelectedMeals meal, String parentId) async {
     if (walletData.value == null || childrenList.isEmpty) {
       print("No wallet data or children data available");
       return;
     }
-
-    // First check if an order has already been prepared for this child today
-    try {
-      final childId = childrenList.first.childId;
-      if (childId != null && childId.isNotEmpty) {
-        final alreadyPrepared =
-            await _walletService.isOrderAlreadyPreparedToday(childId, meal);
-
-        if (alreadyPrepared) {
-          Get.snackbar(
-            'Already Prepared',
-            'This order has already been prepared today. You cannot prepare the same order twice in a day.',
-            snackPosition: SnackPosition.TOP,
-            backgroundColor: Colors.orange,
-            colorText: Colors.white,
-            duration: const Duration(seconds: 3),
-          );
-          return;
-        }
-      }
-    } catch (e) {
-      print("Error checking for existing preparation: $e");
-      // Continue with the process even if the check fails
-    }
-
-    // Check if the order is scheduled for today
-    // if (!isOrderForToday(childrenList.first)) {
-    //   // Get the scheduled days for the snackbar message
-    //   List<String> scheduledDays = [];
-    //   for (var meal in childrenList.first.selectedMealMenuData!) {
-    //     // if (meal.scheduledDayNames != null &&
-    //     //     meal.scheduledDayNames!.isNotEmpty) {
-    //     //   scheduledDays.addAll(meal.scheduledDayNames!);
-    //     // }
-    //   }
-    //
-    //   // Remove duplicates
-    //   scheduledDays = scheduledDays.toSet().toList();
-    //
-    //   // Show snackbar with the scheduled days
-    //   Get.snackbar(
-    //     'Wrong Day',
-    //     'This order is not scheduled for today (${DateTime.now().weekday == 7 ? 'Sunday' : [
-    //         'Monday',
-    //         'Tuesday',
-    //         'Wednesday',
-    //         'Thursday',
-    //         'Friday',
-    //         'Saturday',
-    //         'Sunday'
-    //       ][DateTime.now().weekday - 1]}). Please check the order details.',
-    //     snackPosition: SnackPosition.TOP,
-    //     backgroundColor: Colors.orange,
-    //     colorText: Colors.white,
-    //     duration: const Duration(seconds: 5),
-    //   );
-    //   return;
-    // }
 
     double walletAmount = walletData.value!.amount;
     double mealPrice = double.parse(meal.mealPrice!);
@@ -291,7 +242,8 @@ class ChildVerificationUploadInfoController extends GetxController {
     }
   }
 
-  Future<void> startPreparationOrder(ParentsAddChildren child, meal) async {
+  Future<void> startPreparationOrder(
+      ParentsAddChildren child, ParentSelectedMeals meal) async {
     try {
       isLoading.value = true;
 
@@ -515,6 +467,57 @@ class ChildVerificationUploadInfoController extends GetxController {
     }
 
     return mealStatuses[mealKey]?.value ?? 'Ready for Preparation';
+  }
+
+  // Method to check if an order has already been prepared for this meal today
+  Future<bool> isMealAlreadyPreparedToday(
+      String childId, ParentSelectedMeals meal) async {
+    try {
+      // Get today's date at midnight (start of the day)
+      final now = DateTime.now();
+      final startOfDay = DateTime(now.year, now.month, now.day);
+      final endOfDay = startOfDay.add(const Duration(days: 1));
+
+      // Convert to ISO string format for Firestore query
+      final startOfDayStr = startOfDay.toIso8601String();
+      final endOfDayStr = endOfDay.toIso8601String();
+
+      print(
+          "Checking for orders between $startOfDayStr and $endOfDayStr for meal: ${meal.mealName}");
+
+      // Query for any orders prepared today for this child
+      final querySnapshot = await FirebaseFirestore.instance
+          .collection('orderPreparation')
+          .where('childId', isEqualTo: childId)
+          .where('orderPreparationDate', isGreaterThanOrEqualTo: startOfDayStr)
+          .where('orderPreparationDate', isLessThan: endOfDayStr)
+          .get();
+
+      // Check if any of the orders contain this specific meal
+      bool mealAlreadyPrepared = false;
+
+      for (var doc in querySnapshot.docs) {
+        final data = doc.data();
+        final selectedMeals = data['selectedMealMenuData'] as List<dynamic>?;
+
+        if (selectedMeals != null) {
+          for (var mealData in selectedMeals) {
+            if (mealData['mealName'] == meal.mealName) {
+              mealAlreadyPrepared = true;
+              print("Found existing preparation for meal: ${meal.mealName}");
+              break;
+            }
+          }
+        }
+
+        if (mealAlreadyPrepared) break;
+      }
+
+      return mealAlreadyPrepared;
+    } catch (e) {
+      print("Error checking if meal already prepared: $e");
+      return false; // Default to false if there's an error
+    }
   }
 
   @override
