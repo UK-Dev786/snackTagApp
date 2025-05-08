@@ -96,8 +96,8 @@ class CafeteriaView extends GetView<CafeteriaController> {
                     _buildSearchField(controller.searchTextController),
 
                     // _buildSearchField(textController),
-                    const SizedBox(height: 36),
-                    _buildText(),
+                    // const SizedBox(height: 20),
+                    // _buildText(),
                     _buildCafeteriaList(context),
                     const SizedBox(height: 12),
                   ],
@@ -138,8 +138,6 @@ class CafeteriaView extends GetView<CafeteriaController> {
                     itemCount: controller
                         .filteredCafeteriaL.length, // 3 items in the list
                     itemBuilder: (context, index) {
-                      print("is Edit value is cafeteris screen is $isEdit}");
-
                       return Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 15),
                         child: GestureDetector(
@@ -156,8 +154,8 @@ class CafeteriaView extends GetView<CafeteriaController> {
                                         .nameControllers.text,
                                     childSchoolID:
                                         parentEditController.idControllers.text,
-                                    childImageUrl: parentEditController
-                                        .imageUrl.value,
+                                    childImageUrl:
+                                        parentEditController.imageUrl.value,
                                     schoolName: parentEditController
                                         .schoolNameController.text,
                                     id: parentEditController.childData.id,
@@ -181,11 +179,10 @@ class CafeteriaView extends GetView<CafeteriaController> {
                                               .cafeteriaLogo!,
                                     ),
                                   );
-                            print(
-                                "child jjj  hhh Name: ${parentEditController
-                                        .selectedImage.value?.path ?? parentEditController.imageUrl.value}");
+                                  print(
+                                      "child jjj  hhh Name: ${parentEditController.selectedImage.value?.path ?? parentEditController.imageUrl.value}");
 
-                            Get.toNamed(
+                                  Get.toNamed(
                                     Routes.MENU_PAGE,
                                     arguments: {
                                       "cafeId": controller
@@ -193,8 +190,9 @@ class CafeteriaView extends GetView<CafeteriaController> {
                                       "childData": parentsAddChildren,
                                       "cafeData": cafeModel,
                                       "imageFile": File(parentEditController
-                                          .selectedImage.value?.path ?? parentEditController.imageUrl.value
-                                          ), // Passing the image file
+                                              .selectedImage.value?.path ??
+                                          parentEditController.imageUrl
+                                              .value), // Passing the image file
                                     },
                                   );
                                 }
@@ -266,8 +264,8 @@ class CafeteriaView extends GetView<CafeteriaController> {
                                   //     arguments:{ controller.filteredCafeteriaL[index].userID,cafeModel});
                                 },
                           child: Container(
-                            height:
-                                127, // Adjusted height to fit all content comfortably
+                            // height:
+                            // 100, // Adjusted height to fit all content comfortably
                             margin: const EdgeInsets.only(bottom: 16),
                             padding: const EdgeInsets.all(12),
                             decoration: BoxDecoration(
@@ -285,7 +283,7 @@ class CafeteriaView extends GetView<CafeteriaController> {
                               ],
                             ),
                             child: Row(
-                              crossAxisAlignment: CrossAxisAlignment.start,
+                              crossAxisAlignment: CrossAxisAlignment.center,
                               children: [
                                 // Image on the left
                                 ClipRRect(
@@ -304,8 +302,8 @@ class CafeteriaView extends GetView<CafeteriaController> {
                                       : Image.network(
                                           controller.filteredCafeteriaL[index]
                                               .cafeteriaLogo!, // Replace with actual image path
-                                          width: 100,
-                                          height: 100,
+                                          width: 60,
+                                          height: 60,
                                           fit: BoxFit.cover,
                                           loadingBuilder: (context, child,
                                               loadingProgress) {
@@ -326,8 +324,8 @@ class CafeteriaView extends GetView<CafeteriaController> {
                                           errorBuilder:
                                               (context, error, stackTrace) {
                                             return const SizedBox(
-                                                width: 100,
-                                                height: 100,
+                                                width: 60,
+                                                height: 60,
                                                 child: Icon(
                                                   Icons
                                                       .image_not_supported_outlined,
@@ -340,57 +338,21 @@ class CafeteriaView extends GetView<CafeteriaController> {
                                 const SizedBox(width: 16),
 
                                 // Right section: Text Information and Divider
-                                Expanded(
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      // Cafeteria Name and Call Icon
-                                      Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.spaceBetween,
-                                        children: [
-                                          Expanded(
-                                            child: Text(
-                                              controller
-                                                      .filteredCafeteriaL[index]
-                                                      .cafeteriaName ??
-                                                  "", // Replace with dynamic data
-                                              style: AppTextStyles
-                                                  .MetropolisMedium.copyWith(
-                                                fontSize: 14,
-                                                color: Colors.black,
-                                              ),
-                                              overflow: TextOverflow
-                                                  .ellipsis, // Handle long names
-                                            ),
-                                          ),
-                                          const SizedBox(width: 8),
-                                          // Call Icon
-                                          Image.asset(
-                                            'assets/icon/call.png', // Replace with actual call image path
-                                            width: 10,
-                                            height: 10,
-                                            fit: BoxFit.contain,
-                                          ),
-                                        ],
-                                      ),
-                                      const SizedBox(height: 8),
-
-                                      // Collage/School Name
-                                      Text(
-                                        controller.filteredCafeteriaL[index]
-                                            .schoolName!, // Replace with dynamic data
-                                        style: AppTextStyles.MetropolisRegular
-                                            .copyWith(
-                                          fontSize: 12,
-                                          color: const Color(0xFF858585),
-                                        ),
-                                      ),
-                                      const Spacer(),
-                                    ],
+                                Center(
+                                  child: Text(
+                                    controller.filteredCafeteriaL[index]
+                                            .cafeteriaName ??
+                                        "", // Replace with dynamic data
+                                    style:
+                                        AppTextStyles.MetropolisMedium.copyWith(
+                                      fontSize: 14,
+                                      color: Colors.black,
+                                    ),
+                                    overflow: TextOverflow
+                                        .ellipsis, // Handle long names
                                   ),
                                 ),
+                                // const SizedBox(height: 8),
                               ],
                             ),
                           ),

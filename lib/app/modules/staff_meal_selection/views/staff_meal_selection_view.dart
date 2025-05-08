@@ -310,22 +310,23 @@ class StaffMealSelectionView extends GetView<StaffMealSelectionController> {
                               children: [
                                 Image.asset(
                                   'assets/images/school_building_unfilled.png',
-                                  width: 30,
-                                  height: 30,
+                                  width: 30, // Reduced from 40
+                                  height: 30, // Reduced from 40
                                 ),
-                                SizedBox(
-                                  width: 20,
+                                const SizedBox(
+                                  width: 10, // Reduced from 20
                                 ),
                                 Flexible(
                                   child: Obx(() => Text(
                                         controller.schoolName.value,
                                         style: AppTextStyles.MetropolisMedium
                                             .copyWith(
-                                          fontSize: 18,
+                                          fontSize: 16, // Reduced from 18
                                           color: const Color(0xFF434343),
                                         ),
                                         overflow: TextOverflow
                                             .ellipsis, // Handle text overflow
+                                        maxLines: 1, // Ensure single line
                                       )),
                                 ),
                               ],

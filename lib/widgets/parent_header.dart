@@ -17,12 +17,13 @@ class ParentsHeader extends StatelessWidget {
     return Scaffold(
       body: Container(
         width: double.infinity,
-        decoration: BoxDecoration(
-          image: DecorationImage(
-            image: AssetImage(AppImages.baseBg),
-            fit: BoxFit.cover,
-          ),
-        ),
+        color: AppColors.gradientEndColor,
+        // decoration: BoxDecoration(
+        //   image: DecorationImage(
+        //     image: AssetImage(AppImages.baseBg),
+        //     fit: BoxFit.contain,
+        //   ),
+        // ),
         child: Column(
           mainAxisSize: MainAxisSize.min, // Use minimum vertical space
           children: [
@@ -187,44 +188,40 @@ class ParentsHeader extends StatelessWidget {
               ],
             ),
 
-            SizedBox(height: 15),
+            SizedBox(height: 8),
             // Parent image with circular container
             Container(
               width: 100,
               height: 100,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: Colors.white,
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.1),
-                    blurRadius: 4,
-                    offset: const Offset(0, 2),
-                  ),
-                ],
-              ),
-              child: Padding(
-                padding: const EdgeInsets.all(5.0), // 5px padding
-                child: ClipOval(
-                  child: Obx(
-                    () => parentController.parentProfileImage.value != null &&
-                            parentController
-                                .parentProfileImage.value!.isNotEmpty
-                        ? Image.network(
-                            parentController.parentProfileImage.value!,
-                            fit: BoxFit.cover,
-                            errorBuilder: (context, error, stackTrace) {
-                              return Image.asset(
-                                AppImages.profile,
-                                fit: BoxFit.cover,
-                              );
-                            },
-                          )
-                        : Image.asset(
-                            AppImages.profile,
-                            fit: BoxFit.cover,
-                          ),
-                  ),
+              // decoration: BoxDecoration(
+              //   shape: BoxShape.circle,
+              //   color: Colors.white,
+              //   boxShadow: [
+              //     BoxShadow(
+              //       color: Colors.black.withOpacity(0.1),
+              //       blurRadius: 4,
+              //       offset: const Offset(0, 2),
+              //     ),
+              //   ],
+              // ),
+              child: ClipOval(
+                child: Obx(
+                  () => parentController.parentProfileImage.value != null &&
+                          parentController.parentProfileImage.value!.isNotEmpty
+                      ? Image.network(
+                          parentController.parentProfileImage.value!,
+                          fit: BoxFit.cover,
+                          errorBuilder: (context, error, stackTrace) {
+                            return Image.asset(
+                              AppImages.profile,
+                              fit: BoxFit.cover,
+                            );
+                          },
+                        )
+                      : Image.asset(
+                          AppImages.profile,
+                          fit: BoxFit.cover,
+                        ),
                 ),
               ),
             ),
@@ -234,13 +231,13 @@ class ParentsHeader extends StatelessWidget {
                 style: AppTextStyles.MetropolisRegular.copyWith(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
-                    color: AppColors.blackColor))),
+                    color: AppColors.darkBlueColor))),
             // Child images horizontal list
             Padding(
               padding: const EdgeInsets.only(
-                  top: 20.0, left: 20, right: 20, bottom: 10),
-              child: SizedBox(
-                height: 70, // Reduced height
+                  top: 12.0, left: 20, right: 20, bottom: 10),
+              child: Container(
+                height: 80, // Reduced height
                 child: Obx(
                   () => parentController.childrenList.isEmpty
                       ? Center(
@@ -260,68 +257,52 @@ class ParentsHeader extends StatelessWidget {
                             return Padding(
                               padding:
                                   const EdgeInsets.symmetric(horizontal: 12.0),
-                              child: SizedBox(
-                                width: 55, // Reduced width
-                                child: Column(
-                                  mainAxisSize:
-                                      MainAxisSize.min, // Use minimum space
-                                  children: [
-                                    Container(
-                                      width: 55, // Reduced size
-                                      height: 55, // Reduced size
-                                      decoration: BoxDecoration(
-                                        shape: BoxShape.circle,
-                                        color: Colors.white,
-                                        boxShadow: [
-                                          BoxShadow(
-                                            color:
-                                                Colors.black.withOpacity(0.1),
-                                            blurRadius: 4,
-                                            offset: const Offset(0, 2),
-                                          ),
-                                        ],
-                                      ),
-                                      child: Padding(
-                                        padding: const EdgeInsets.all(
-                                            3.0), // 5px padding
-                                        child: ClipOval(
-                                          child: child.childImageUrl != null &&
-                                                  child
-                                                      .childImageUrl!.isNotEmpty
-                                              ? Image.network(
-                                                  child.childImageUrl!,
-                                                  fit: BoxFit.cover,
-                                                  errorBuilder: (context, error,
-                                                      stackTrace) {
-                                                    return Image.asset(
-                                                      AppImages.profile,
-                                                      fit: BoxFit.cover,
-                                                    );
-                                                  },
-                                                )
-                                              : Image.asset(
-                                                  AppImages.profile,
-                                                  fit: BoxFit.cover,
-                                                ),
+                              child: Column(
+                                mainAxisSize:
+                                    MainAxisSize.min, // Use minimum space
+                                children: [
+                                  Container(
+                                    width: 55, // Reduced size
+                                    height: 55, // Reduced size
+                                    decoration: BoxDecoration(
+                                      shape: BoxShape.circle,
+                                      color: Colors.white,
+                                      boxShadow: [
+                                        BoxShadow(
+                                          color: Colors.black.withOpacity(0.1),
+                                          blurRadius: 4,
+                                          offset: const Offset(0, 2),
                                         ),
+                                      ],
+                                    ),
+                                    child: Padding(
+                                      padding: const EdgeInsets.all(3.0),
+                                      child: Image.asset(
+                                        child.childGender?.toLowerCase() ==
+                                                'female'
+                                            ? AppImages.femaleAvatar
+                                            : AppImages.maleAvatar,
+                                        fit: BoxFit.contain,
                                       ),
                                     ),
-                                    const SizedBox(height: 4),
-                                    // Text with constrained height and overflow handling
-                                    Text(
-                                      child.childName ?? 'Child',
-                                      style: AppTextStyles.MetropolisRegular
-                                          .copyWith(
-                                        fontWeight: FontWeight.w500,
-                                        fontSize: 8,
-                                        color: AppColors.blackColor,
-                                      ),
-                                      textAlign: TextAlign.center,
-                                      overflow: TextOverflow.ellipsis,
-                                      maxLines: 1,
+                                  ),
+                                  SizedBox(
+                                    height: 3,
+                                  ),
+                                  // Text with constrained height and overflow handling
+                                  Text(
+                                    child.childName ?? 'Child',
+                                    style: AppTextStyles.MetropolisRegular
+                                        .copyWith(
+                                      fontWeight: FontWeight.w500,
+                                      fontSize: 12,
+                                      color: AppColors.blackColor,
                                     ),
-                                  ],
-                                ),
+                                    textAlign: TextAlign.center,
+                                    overflow: TextOverflow.ellipsis,
+                                    // maxLines: 1,
+                                  ),
+                                ],
                               ),
                             );
                           },

@@ -55,54 +55,60 @@ class PhoneAuthenticationView extends GetView<PhoneAuthenticationController> {
                 const SizedBox(height: 60),
 
                 // Phone number field
-                Container(
-                  height: 56,
-                  width: double.infinity,
-                  padding: const EdgeInsets.only(
-                    left: 20,
-                  ),
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(100),
-                    color: AppColors.whiteColor,
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withOpacity(0.2),
-                        blurRadius: 6,
-                        offset: const Offset(0, 3),
-                      ),
-                    ],
-                  ),
-                  child: Row(
-                    children: [
-                      Expanded(
-                        child: IntlPhoneField(
-                          decoration: InputDecoration(
-                            labelText: 'Mobile No',
-                            labelStyle:
-                                AppTextStyles.MetropolisRegular.copyWith(
-                              color: const Color(0xFFB6B7B7),
-                              fontSize: 12,
-                            ),
-                            floatingLabelBehavior: FloatingLabelBehavior.auto,
-                            border: InputBorder.none,
-                            counterText: '',
-                            enabledBorder: InputBorder.none,
-                            focusedBorder: InputBorder.none,
-                          ),
-                          initialCountryCode: 'PK',
-                          onChanged: (phone) {
-                            controller.phoneController.text =
-                                phone.completeNumber;
-                          },
-                          autovalidateMode: AutovalidateMode.disabled,
+                Padding(
+                  padding: const EdgeInsets.only(left: 10, right: 10),
+                  // padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 10.0),
+                  // padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 10.0),
+                  // padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 10.0),(8.0),
+                  child: Container(
+                    height: 60,
+                    width: double.infinity,
+                    padding: const EdgeInsets.only(
+                      left: 20,
+                    ),
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(100),
+                      color: AppColors.whiteColor,
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.2),
+                          blurRadius: 6,
+                          offset: const Offset(0, 3),
                         ),
-                      ),
-                      Image.asset(
-                        AppImages.callButton,
-                        height: 70,
-                        width: 70,
-                      ),
-                    ],
+                      ],
+                    ),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: IntlPhoneField(
+                            decoration: InputDecoration(
+                              labelText: 'Mobile No',
+                              labelStyle:
+                                  AppTextStyles.MetropolisRegular.copyWith(
+                                color: const Color(0xFFB6B7B7),
+                                fontSize: 12,
+                              ),
+                              floatingLabelBehavior: FloatingLabelBehavior.auto,
+                              border: InputBorder.none,
+                              counterText: '',
+                              enabledBorder: InputBorder.none,
+                              focusedBorder: InputBorder.none,
+                            ),
+                            initialCountryCode: 'PK',
+                            onChanged: (phone) {
+                              controller.phoneController.text =
+                                  phone.completeNumber;
+                            },
+                            autovalidateMode: AutovalidateMode.disabled,
+                          ),
+                        ),
+                        Image.asset(
+                          AppImages.callButton,
+                          height: 70,
+                          width: 70,
+                        ),
+                      ],
+                    ),
                   ),
                 ),
 

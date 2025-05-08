@@ -13,6 +13,7 @@ class ParentsAddChildren {
   String? childName;
   String? childSchoolID;
   String? childImageUrl;
+  String? childGender; // Added gender field
 
   String? schoolName;
   String? cafeteriaName;
@@ -41,6 +42,7 @@ class ParentsAddChildren {
     this.childName,
     this.childSchoolID,
     this.childImageUrl,
+    this.childGender, // Added to constructor
     this.schoolName,
     this.cafeteriaName,
     this.date,
@@ -68,6 +70,7 @@ class ParentsAddChildren {
       childName: json['childName'],
       childSchoolID: json['childSchoolID'],
       childImageUrl: json['childImageUrl'],
+      childGender: json['childGender'], // Added to fromJson
       schoolName: json['schoolName'],
       cafeteriaName: json['cafeteriaName'],
       date: json['date'],
@@ -100,6 +103,7 @@ class ParentsAddChildren {
       'childName': childName,
       'childSchoolID': childSchoolID,
       'childImageUrl': childImageUrl,
+      'childGender': childGender, // Added to toJson
       'schoolName': schoolName,
       'cafeteriaName': cafeteriaName,
       'date': date ?? DateTime.now().toIso8601String(),

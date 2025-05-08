@@ -5,6 +5,7 @@ import 'dart:ui';
 class AppColors {
   static const Color hintText = Color(0xFF858585);
   static const Color blackColor = Color(0xFF000000);
+  static const Color darkBlueColor = Color(0xFF0E3954);
   static const Color whiteColor = Color(0xFFFFFFFF);
   static const Color secondaryText = Color(0xFF707070);
   static const Color borderColor = Color(0xFFF2F2F2);
