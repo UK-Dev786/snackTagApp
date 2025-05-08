@@ -79,6 +79,7 @@ abstract class Routes {
   static const STAFF_SETTING_PROFILE = _Paths.STAFF_SETTING_PROFILE;
   static const STRIPE_ONBOARDING = _Paths.STRIPE_ONBOARDING;
   static const STAFF_ORDER_HISTORY = _Paths.STAFF_ORDER_HISTORY;
+  static const STAFF_ORDER_DETAILS = _Paths.STAFF_ORDER_DETAILS;
 }
 
 abstract class _Paths {
@@ -153,4 +154,5 @@ abstract class _Paths {
   static const STAFF_SETTING_PROFILE = '/staff-setting-profile';
   static const STRIPE_ONBOARDING = '/stripe-onboarding';
   static const STAFF_ORDER_HISTORY = '/staff-order-history';
+  static const STAFF_ORDER_DETAILS = '/staff-order-details';
 }

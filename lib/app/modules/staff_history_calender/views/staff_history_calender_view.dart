@@ -12,18 +12,18 @@ import 'package:intl/intl.dart';
 
 import '../controllers/staff_history_calender_controller.dart';
 
-class StaffHistoryCalenderView extends StatelessWidget{
+class StaffHistoryCalenderView extends StatelessWidget {
   const StaffHistoryCalenderView({super.key});
   @override
   Widget build(BuildContext context) {
     final controller = Get.find<StaffHomeSettingsController>();
     return Scaffold(
       backgroundColor: Colors.white,
-      body:  GetBuilder<StaffHistoryCalenderController>(
+      body: GetBuilder<StaffHistoryCalenderController>(
           init: StaffHistoryCalenderController(),
           id: staffHistorySelectDataId,
           builder: (staffHistoryController) {
-            if(staffHistoryController.isLoading.value){
+            if (staffHistoryController.isLoading.value) {
               return const Center(child: CircularProgressIndicator());
             }
             // if (staffHistoryController.upComingMealOrderList.isEmpty) {
@@ -48,234 +48,313 @@ class StaffHistoryCalenderView extends StatelessWidget{
             //     ),
             //   );
             // }
-          return Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Padding(
-                padding: const EdgeInsets.only(left: 20, top: 35),
-                child: GestureDetector(
-                  onTap: () {
-                    // controller.updateSelectedIndex(0);
-                  Get.back();
-                  },
-                  child: Align(
-                    alignment: Alignment.topLeft,
-                    child: Container(
-                      height: 35,
-                      width: 35,
-                      margin: const EdgeInsets.only(
-                          top: 16), // Add some margin if needed
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.grey.withOpacity(0.2),
-                            blurRadius: 4,
-                            spreadRadius: 2,
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.only(left: 20, top: 35),
+                  child: GestureDetector(
+                    onTap: () {
+                      // controller.updateSelectedIndex(0);
+                      Get.back();
+                    },
+                    child: Align(
+                      alignment: Alignment.topLeft,
+                      child: Container(
+                        height: 35,
+                        width: 35,
+                        margin: const EdgeInsets.only(
+                            top: 16), // Add some margin if needed
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.grey.withOpacity(0.2),
+                              blurRadius: 4,
+                              spreadRadius: 2,
+                            ),
+                          ],
+                          color: Colors
+                              .white, // Background color for the container
+                        ),
+                        child: Center(
+                          child: Image.asset(
+                            "assets/icon/back.png",
+                            height: 15, // Set the height to 15
+                            width: 10, // Set the width to 15
                           ),
-                        ],
-                        color: Colors.white, // Background color for the container
-                      ),
-                      child: Center(
-                        child: Image.asset(
-                          "assets/icon/back.png",
-                          height: 15, // Set the height to 15
-                          width: 10, // Set the width to 15
                         ),
                       ),
                     ),
                   ),
                 ),
-              ),
 
-              Center(
-                child: Text(
-                  'Upcoming',
-                  style: AppTextStyles.MetropolisBold.copyWith(
-                    fontSize: 18,
-                    color: const Color(0xFF434343),
+                Center(
+                  child: Text(
+                    'Upcoming',
+                    style: AppTextStyles.MetropolisBold.copyWith(
+                      fontSize: 18,
+                      color: const Color(0xFF434343),
+                    ),
                   ),
                 ),
-              ),
 
-              TableCalendar(
-                firstDay: DateTime.utc(2020, 1, 1),
-                lastDay: DateTime.utc(2030, 12, 31),
-                focusedDay: DateTime.now(), // Current visible month
-                calendarBuilders: CalendarBuilders(
-                  defaultBuilder: (context, day, focusedDay) {
-                    String hasMealToday = staffHistoryController.checkIfDateHasMeal(day); // Pass day
+                TableCalendar(
+                  firstDay: DateTime.utc(2020, 1, 1),
+                  lastDay: DateTime.utc(2030, 12, 31),
+                  focusedDay: DateTime.now(), // Current visible month
+                  calendarBuilders: CalendarBuilders(
+                    defaultBuilder: (context, day, focusedDay) {
+                      String hasMealToday = staffHistoryController
+                          .checkIfDateHasMeal(day); // Pass day
 
-                    return Center(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Text(
-                            '${day.day}',
-                            style: AppTextStyles.RobotoRegular.copyWith(
-                              fontSize: 13,
-                              color: const Color(0xFF2E2E2E),
-                            ),
-                          ),
-                          if (hasMealToday.isNotEmpty)
-                            Container(
-                              width: 5,
-                              height: 5,
-                              decoration: const BoxDecoration(
-                                color: AppColors.gradientEndColor,
-                                shape: BoxShape.circle,
+                      return Center(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text(
+                              '${day.day}',
+                              style: AppTextStyles.RobotoRegular.copyWith(
+                                fontSize: 13,
+                                color: const Color(0xFF2E2E2E),
                               ),
                             ),
-                        ],
-                      ),
-                    );
-                  },
-                  todayBuilder: (context, day, focusedDay) {
-                    return Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Container(
-                          padding: const EdgeInsets.symmetric(vertical: 6.0, horizontal: 10.0),
-                          decoration: BoxDecoration(
-                            gradient: const LinearGradient(
-                              colors: [AppColors.gradientEndColor, AppColors.gradientStartColor],
-                              begin: Alignment.topRight,
-                              end: Alignment.bottomLeft,
-                            ),
-                            borderRadius: BorderRadius.circular(8.0), // Rounded corners
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.grey.withOpacity(0.2),
-                                blurRadius: 2,
-                                spreadRadius: 1,
-                                offset: const Offset(0, 3),
-                              ),
-                            ],
-                          ),
-                          child: Column(
-                            children: [
-                              Text(
-                                '${day.day}', // Display the day number
-                                style: AppTextStyles.RobotoBold.copyWith(
-                                  fontSize: 16,
-                                  color: Colors.white,
+                            if (hasMealToday.isNotEmpty)
+                              Container(
+                                width: 5,
+                                height: 5,
+                                decoration: const BoxDecoration(
+                                  color: AppColors.gradientEndColor,
+                                  shape: BoxShape.circle,
                                 ),
                               ),
-                              Text(
-                                  [
-                                    'SUN',
-                                    'MON',
-                                    'TUE',
-                                    'WED',
-                                    'THU',
-                                    'FRI',
-                                    'SAT'
-                                  ][day.weekday % 7], // Display weekday
-                                  style: AppTextStyles.RobotoLight.copyWith(
-                                    fontSize: 12,
-                                    color: Colors.white,
-                                  )),
-                            ],
-                          ),
+                          ],
                         ),
-                      ],
-                    );
-                  },
-                ),
-                calendarStyle: CalendarStyle(
-                  todayTextStyle: const TextStyle(color: Colors.transparent), // Hide default styling
-                  outsideDaysVisible: false,
-                  defaultTextStyle: AppTextStyles.RobotoRegular.copyWith(
-                    fontSize: 13,
-                    color: const Color(0xFF2E2E2E),
-                  ),
-                  weekendTextStyle: AppTextStyles.RobotoRegular.copyWith(
-                    fontSize: 13,
-                    color: const Color(0xFF2E2E2E),
-                  ),
-                ),
-                headerStyle: HeaderStyle(
-                  headerPadding: const EdgeInsets.symmetric(vertical: 16.0, horizontal: 16.0),
-                  formatButtonVisible: false,
-                  titleCentered: false,
-                  titleTextStyle: AppTextStyles.RobotoRegular.copyWith(
-                    fontSize: 18,
-                    color: const Color(0xFF2E2E2E),
-                  ),
-                  leftChevronVisible: false,
-                  rightChevronVisible: false,
-                ),
-
-                daysOfWeekStyle: DaysOfWeekStyle(
-                  weekdayStyle: AppTextStyles.RobotoRegular.copyWith(
-                    fontSize: 11,
-                    color: const Color(0xFFBFBFBF),
-                  ),
-                  weekendStyle: AppTextStyles.RobotoRegular.copyWith(
-                    fontSize: 11,
-                    color: const Color(0xFFBFBFBF),
-                  ),
-                  dowTextFormatter: (date, locale) {
-                    return ["S", "M", "T", "W", "T", "F", "S"][date.weekday % 7];
-                  },
-                ),
-              ),
-
-              const Padding(
-                padding: EdgeInsets.symmetric(horizontal: 16),
-                child: Divider(
-                  color: Color(0xFFEEEEEE),
-                  thickness: 1,
-                  height: 1,
-                ),
-              ),
-
-              Padding(
-                padding: const EdgeInsets.only(
-                  left: 16,
-                  top: 8,
-                ),
-                child: Text(
-                  'Upcoming',
-                  style: AppTextStyles.RobotoRegular.copyWith(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w500,
-                    color: const Color(0xFFBFBFBF),
-                  ),
-                ),
-              ),
-
-              // Upcoming Orders Section
-              Expanded(
-                  child: ListView.builder(
-                    itemCount: staffHistoryController.upComingMealOrderList.length, // Hardcoded number of items
-                    padding: const EdgeInsets.only(top: 0),
-                    itemBuilder: (context, index) {
-                      return _buildOrderCard(
-                          context,
-                          // historyController,
-                          staffHistoryController,
-                          staffHistoryController
-                              .upComingMealOrderList[index]); // Call the method to build each order card
+                      );
                     },
-                  )),
-            ],
-          );
-        }
-      ),
+                    todayBuilder: (context, day, focusedDay) {
+                      return Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                                vertical: 6.0, horizontal: 10.0),
+                            decoration: BoxDecoration(
+                              gradient: const LinearGradient(
+                                colors: [
+                                  AppColors.gradientEndColor,
+                                  AppColors.gradientStartColor
+                                ],
+                                begin: Alignment.topRight,
+                                end: Alignment.bottomLeft,
+                              ),
+                              borderRadius:
+                                  BorderRadius.circular(8.0), // Rounded corners
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.grey.withOpacity(0.2),
+                                  blurRadius: 2,
+                                  spreadRadius: 1,
+                                  offset: const Offset(0, 3),
+                                ),
+                              ],
+                            ),
+                            child: Column(
+                              children: [
+                                Text(
+                                  '${day.day}', // Display the day number
+                                  style: AppTextStyles.RobotoBold.copyWith(
+                                    fontSize: 16,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                                Text(
+                                    [
+                                      'SUN',
+                                      'MON',
+                                      'TUE',
+                                      'WED',
+                                      'THU',
+                                      'FRI',
+                                      'SAT'
+                                    ][day.weekday % 7], // Display weekday
+                                    style: AppTextStyles.RobotoLight.copyWith(
+                                      fontSize: 12,
+                                      color: Colors.white,
+                                    )),
+                              ],
+                            ),
+                          ),
+                        ],
+                      );
+                    },
+                  ),
+                  calendarStyle: CalendarStyle(
+                    todayTextStyle: const TextStyle(
+                        color: Colors.transparent), // Hide default styling
+                    outsideDaysVisible: false,
+                    defaultTextStyle: AppTextStyles.RobotoRegular.copyWith(
+                      fontSize: 13,
+                      color: const Color(0xFF2E2E2E),
+                    ),
+                    weekendTextStyle: AppTextStyles.RobotoRegular.copyWith(
+                      fontSize: 13,
+                      color: const Color(0xFF2E2E2E),
+                    ),
+                  ),
+                  headerStyle: HeaderStyle(
+                    headerPadding: const EdgeInsets.symmetric(
+                        vertical: 16.0, horizontal: 16.0),
+                    formatButtonVisible: false,
+                    titleCentered: false,
+                    titleTextStyle: AppTextStyles.RobotoRegular.copyWith(
+                      fontSize: 18,
+                      color: const Color(0xFF2E2E2E),
+                    ),
+                    leftChevronVisible: false,
+                    rightChevronVisible: false,
+                  ),
+
+                  daysOfWeekStyle: DaysOfWeekStyle(
+                    weekdayStyle: AppTextStyles.RobotoRegular.copyWith(
+                      fontSize: 11,
+                      color: const Color(0xFFBFBFBF),
+                    ),
+                    weekendStyle: AppTextStyles.RobotoRegular.copyWith(
+                      fontSize: 11,
+                      color: const Color(0xFFBFBFBF),
+                    ),
+                    dowTextFormatter: (date, locale) {
+                      return [
+                        "S",
+                        "M",
+                        "T",
+                        "W",
+                        "T",
+                        "F",
+                        "S"
+                      ][date.weekday % 7];
+                    },
+                  ),
+                ),
+
+                const Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 16),
+                  child: Divider(
+                    color: Color(0xFFEEEEEE),
+                    thickness: 1,
+                    height: 1,
+                  ),
+                ),
+
+                Padding(
+                  padding: const EdgeInsets.only(
+                    left: 16,
+                    top: 8,
+                  ),
+                  child: Text(
+                    'Upcoming',
+                    style: AppTextStyles.RobotoRegular.copyWith(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w500,
+                      color: const Color(0xFFBFBFBF),
+                    ),
+                  ),
+                ),
+
+                // Test button for Order Details Screen
+                Padding(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  child: ElevatedButton(
+                    onPressed: () {
+                      Get.toNamed(Routes.STAFF_ORDER_DETAILS);
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFFCCFF00),
+                      foregroundColor: Colors.black,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                    ),
+                    child: Text(
+                      'View Order Details',
+                      style: AppTextStyles.MetropolisBold.copyWith(
+                        fontSize: 14,
+                      ),
+                    ),
+                  ),
+                ),
+
+                // Upcoming Orders Section
+                Expanded(
+                    child: ListView.builder(
+                  itemCount: staffHistoryController.upComingMealOrderList
+                      .length, // Hardcoded number of items
+                  padding: const EdgeInsets.only(top: 0),
+                  itemBuilder: (context, index) {
+                    return _buildOrderCard(
+                        context,
+                        // historyController,
+                        staffHistoryController,
+                        staffHistoryController.upComingMealOrderList[
+                            index]); // Call the method to build each order card
+                  },
+                )),
+              ],
+            );
+          }),
     );
   }
 }
 
-Widget _buildOrderCard(BuildContext context,
-    StaffHistoryCalenderController cafateriaHSDCont, UpcomingMealOrder upcomingOrderCount) {
+Widget _buildOrderCard(
+    BuildContext context,
+    StaffHistoryCalenderController cafateriaHSDCont,
+    UpcomingMealOrder upcomingOrderCount) {
   return GestureDetector(
     onTap: () {
       print("List of student IDs: ${upcomingOrderCount.studentIds}");
-      Get.toNamed(Routes.STAFF_HISTORY_DETAIL, arguments: {
-        "orderStudentIds": upcomingOrderCount.studentIds,
-      });
-      // historyController.updateSelectedIndex(1);
+
+      // Show dialog to choose between different screens
+      Get.dialog(
+        AlertDialog(
+          title: Text(
+            'Choose View',
+            style: AppTextStyles.MetropolisBold.copyWith(fontSize: 18),
+          ),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              ElevatedButton(
+                onPressed: () {
+                  Get.back(); // Close dialog
+                  Get.toNamed(Routes.STAFF_HISTORY_DETAIL, arguments: {
+                    "orderStudentIds": upcomingOrderCount.studentIds,
+                  });
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.blue,
+                  foregroundColor: Colors.white,
+                ),
+                child: Text('Standard View'),
+              ),
+              SizedBox(height: 10),
+              ElevatedButton(
+                onPressed: () {
+                  Get.back(); // Close dialog
+                  Get.toNamed(Routes.STAFF_ORDER_DETAILS);
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFFCCFF00),
+                  foregroundColor: Colors.black,
+                ),
+                child: Text('Order Details View'),
+              ),
+            ],
+          ),
+        ),
+      );
     },
     child: Container(
       height: 72, // Fixed height for each item
@@ -319,36 +398,42 @@ Widget _buildOrderCard(BuildContext context,
               children: [
                 // Left side image (50x50) and Name + Subtitle
                 Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
+                  padding: const EdgeInsets.symmetric(
+                      vertical: 8.0, horizontal: 16.0),
                   child: Container(
                       width: 43, // Adjust width for more rectangular shape
                       height: 43, // Adjust height for more rectangular shape
                       decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(8.0), // Optional: for rounded corners
+                        borderRadius: BorderRadius.circular(
+                            8.0), // Optional: for rounded corners
                       ),
-                      child: upcomingOrderCount.image != null && upcomingOrderCount.image!.isNotEmpty
+                      child: upcomingOrderCount.image != null &&
+                              upcomingOrderCount.image!.isNotEmpty
                           ? ClipRRect(
-                        borderRadius: BorderRadius.circular(8.0),
-                        child: Image.network(
-                          upcomingOrderCount.image!,
-                          fit: BoxFit.cover,
-                          width: double.infinity,
-                          height: 127,
-                          loadingBuilder: (context, child, loadingProgress) {
-                            if (loadingProgress == null) return child;
-                            return const Center(child: CircularProgressIndicator());
-                          },
-                          errorBuilder: (context, error, stackTrace) {
-                            return const Icon(
-                              Icons.error_outline_outlined,
-                              size: 20,
-                            ); //_buildPlaceholder();
-                          },
-                        ),
-                      )
-                          : const Icon(Icons.no_meals_sharp, size: 20) //_buildPlaceholder();
+                              borderRadius: BorderRadius.circular(8.0),
+                              child: Image.network(
+                                upcomingOrderCount.image!,
+                                fit: BoxFit.cover,
+                                width: double.infinity,
+                                height: 127,
+                                loadingBuilder:
+                                    (context, child, loadingProgress) {
+                                  if (loadingProgress == null) return child;
+                                  return const Center(
+                                      child: CircularProgressIndicator());
+                                },
+                                errorBuilder: (context, error, stackTrace) {
+                                  return const Icon(
+                                    Icons.error_outline_outlined,
+                                    size: 20,
+                                  ); //_buildPlaceholder();
+                                },
+                              ),
+                            )
+                          : const Icon(Icons.no_meals_sharp,
+                              size: 20) //_buildPlaceholder();
 
-                  ),
+                      ),
                 ),
 
                 const SizedBox(width: 8),

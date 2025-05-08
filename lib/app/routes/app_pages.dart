@@ -132,6 +132,8 @@ import '../modules/cafeteria_setting_history/views/cafeteria_setting_history_vie
 import '../modules/parent_upcoming_order_detail/view/parent_upcoming_order_detail_view.dart';
 import '../modules/setting_parent_profile/bindings/setting_parent_profile_binding.dart';
 import '../modules/setting_parent_profile/views/setting_parent_profile_view.dart';
+import '../modules/staff_order_details/bindings/staff_order_details_binding.dart';
+import '../modules/staff_order_details/views/staff_order_details_view.dart';
 import '../modules/stripe_onboarding/view/stripe_onboarding_view.dart';
 
 part 'app_routes.dart';
@@ -501,6 +503,12 @@ class AppPages {
       name: _Paths.STAFF_ORDER_HISTORY,
       page: () => const StaffOrderHistoryView(),
       binding: StaffOrderHistoryBinding(),
+      transition: Transition.fadeIn,
+    ),
+    GetPage(
+      name: _Paths.STAFF_ORDER_DETAILS,
+      page: () => const StaffOrderDetailsView(),
+      binding: StaffOrderDetailsBinding(),
       transition: Transition.fadeIn,
     ),
   ];

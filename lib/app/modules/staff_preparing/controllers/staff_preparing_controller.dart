@@ -433,8 +433,8 @@ class StaffOrderPreparingController extends GetxController {
 
       await _notificationService.sendNotification(
         userId: parentId,
-        title: 'Order Delivered',
-        body: 'The order for $childName has been delivered by $staffName',
+        title: '$childName',
+        body: 'received ${getMealTimeFromOrder(orderDetails)} meal',
         type: 'order_delivered',
         data: {
           'orderId': orderId,
@@ -449,6 +449,18 @@ class StaffOrderPreparingController extends GetxController {
       print('Parent: Error sending order delivery notification: $e');
       // Don't rethrow to prevent disrupting the main flow
     }
+  }
+
+  // Helper method to get meal time from order
+  String getMealTimeFromOrder(ParentsAddChildren? orderDetails) {
+    if (orderDetails?.selectedMealMenuData != null &&
+        orderDetails!.selectedMealMenuData!.isNotEmpty &&
+        orderDetails.selectedMealMenuData![0].schedule?.availableAt != null &&
+        orderDetails
+            .selectedMealMenuData![0].schedule!.availableAt!.isNotEmpty) {
+      return orderDetails.selectedMealMenuData![0].schedule!.availableAt![0];
+    }
+    return "scheduled";
   }
 
   @override
