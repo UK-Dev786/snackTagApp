@@ -176,9 +176,9 @@ class StaffOrderPreparingController extends GetxController {
 
         // Mark the order as delivered - pass staff ID if available
         bool success = await _preparationService.markOrderAsDelivered(
-            orderId, 
+            orderId,
             staffData.value!.staffName!,
-            staffData.value!.staffPhone ?? '');  // Pass staff ID if available
+            staffData.value!.staffPhone ?? ''); // Pass staff ID if available
 
         if (success) {
           // Send notification to parent about order delivery
@@ -423,6 +423,14 @@ class StaffOrderPreparingController extends GetxController {
     required String orderId,
   }) async {
     try {
+      // Get the child image URL from the order details
+      ParentsAddChildren? orderDetails =
+          await _preparationService.getOrderDetails(orderId);
+      String? childImageUrl = orderDetails?.childImageUrl;
+
+      print(
+          "Parent: Sending order delivered notification with childImageUrl: $childImageUrl");
+
       await _notificationService.sendNotification(
         userId: parentId,
         title: 'Order Delivered',
@@ -432,11 +440,13 @@ class StaffOrderPreparingController extends GetxController {
           'orderId': orderId,
           'deliveredBy': staffName,
           'notificationType': 'order_delivered',
+          'childImageUrl':
+              childImageUrl, // Include child image URL in notification data
         },
       );
-      print("Order delivery notification sent to parent: $parentId");
+      print("Parent: Order delivery notification sent to parent: $parentId");
     } catch (e) {
-      print('Error sending order delivery notification: $e');
+      print('Parent: Error sending order delivery notification: $e');
       // Don't rethrow to prevent disrupting the main flow
     }
   }

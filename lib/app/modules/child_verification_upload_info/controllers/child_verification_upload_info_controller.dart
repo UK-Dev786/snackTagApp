@@ -338,6 +338,15 @@ class ChildVerificationUploadInfoController extends GetxController {
     required String orderPrepId,
   }) async {
     try {
+      // Get the child image URL from the child data
+      String? childImageUrl;
+      if (childrenList.isNotEmpty) {
+        childImageUrl = childrenList.first.childImageUrl;
+      }
+
+      print(
+          "Parent: Sending order prepared notification with childImageUrl: $childImageUrl");
+
       await _notificationService.sendNotification(
         userId: parentId,
         title: 'Order Preparation Started',
@@ -347,11 +356,13 @@ class ChildVerificationUploadInfoController extends GetxController {
           'orderId': orderPrepId,
           'preparedBy': staffName,
           'notificationType': 'order_prepared',
+          'childImageUrl':
+              childImageUrl, // Include child image URL in notification data
         },
       );
-      print("Order preparation notification sent to parent: $parentId");
+      print("Parent: Order preparation notification sent to parent: $parentId");
     } catch (e) {
-      print('Error sending order preparation notification: $e');
+      print('Parent: Error sending order preparation notification: $e');
     }
   }
 

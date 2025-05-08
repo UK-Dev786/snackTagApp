@@ -74,134 +74,6 @@ class NotificationsView extends GetView<NotificationsController> {
         ),
       ),
     );
-    //   return Scaffold(
-    //       backgroundColor: Colors.white,
-    //       body: Padding(
-    //           padding: const EdgeInsets.symmetric(horizontal: 4),
-    //           child: Column(
-    //               crossAxisAlignment: CrossAxisAlignment.center,
-    //               children: [
-    //                 const SizedBox(
-    //                   height: 70,
-    //                 ),
-    //
-    //                 // Settings Title
-    //                 Text(
-    //                   'NOFITICATIONS', // Title text
-    //                   style: AppTextStyles.MetropolisMedium.copyWith(
-    //                     fontSize: 18,
-    //                     color: const Color(0xFF434343),
-    //                   ),
-    //                 ),
-    //
-    //                 Expanded(
-    //                   child: ListView.builder(
-    //                     itemCount: controller.notifications.length,
-    //                     itemBuilder: (context, index) {
-    //                       final chat = controller.notifications[index];
-    //                       return Column(
-    //                         children: [
-    //                           Padding(
-    //                             padding:
-    //                             const EdgeInsets.symmetric(horizontal: 16),
-    //                             child: Container(
-    //                               height: 80,
-    //                               decoration: BoxDecoration(
-    //                                 color: Colors.white,
-    //                                 borderRadius: BorderRadius.circular(8),
-    //                               ),
-    //                               child: Row(
-    //                                 children: [
-    //                                   // Avatar
-    //                                   // ClipRRect(
-    //                                   //   borderRadius: BorderRadius.circular(35),
-    //                                   //   child: Image.asset(
-    //                                   //     chat.imageUrl,
-    //                                   //     width: 70,
-    //                                   //     height: 70,
-    //                                   //     fit: BoxFit.cover,
-    //                                   //   ),
-    //                                   // ),
-    //                                   const SizedBox(width: 12),
-    //                                   // Chat Details
-    //                                   Expanded(
-    //                                     child: Column(
-    //                                       crossAxisAlignment:
-    //                                       CrossAxisAlignment.start,
-    //                                       children: [
-    //                                         // Title and Date Row
-    //                                         const SizedBox(
-    //                                           height: 10,
-    //                                         ),
-    //                                         Row(
-    //                                           mainAxisAlignment:
-    //                                           MainAxisAlignment.spaceBetween,
-    //                                           children: [
-    //                                             Text(
-    //                                               chat.title,
-    //                                               style: AppTextStyles.EuropaBold
-    //                                                   .copyWith(
-    //                                                 color: const Color(0xFF334856),
-    //                                                 fontSize: 15,
-    //                                               ),
-    //                                             ),
-    //                                             Text(
-    //                                               _formatTimestamp(chat.timestamp),
-    //                                               style: AppTextStyles.EuropaLight
-    //                                                   .copyWith(
-    //                                                 color: const Color(0xFF798186),
-    //                                                 fontSize: 12,
-    //                                               ),
-    //                                             ),
-    //                                           ],
-    //                                         ),
-    //
-    //                                         Text(
-    //                                           chat.body,
-    //                                           style: AppTextStyles.EuropaLight
-    //                                               .copyWith(
-    //                                               color: const Color(0xFF6E8CA0),
-    //                                               fontSize: 14),
-    //                                           maxLines: 2,
-    //                                           overflow: TextOverflow.ellipsis,
-    //                                         ),
-    //                                       ],
-    //                                     ),
-    //                                   ),
-    //                                 ],
-    //                               ),
-    //                             ),
-    //                           ),
-    //                           const Padding(
-    //                             padding: EdgeInsets.symmetric(horizontal: 16),
-    //                             child: Divider(
-    //                               color: Color(0xFFEEEEEE),
-    //                               thickness: 1,
-    //                             ),
-    //                           )
-    //                         ],
-    //                       );
-    //                     },
-    //                   ),
-    //                 )
-    //               ])));
-    // }
-    // String _formatTimestamp(DateTime timestamp) {
-    //   final now = DateTime.now();
-    //   final difference = now.difference(timestamp);
-    //
-    //   if (difference.inDays > 7) {
-    //     return DateFormat('MMM d').format(timestamp);
-    //   } else if (difference.inDays > 0) {
-    //     return '${difference.inDays}d ago';
-    //   } else if (difference.inHours > 0) {
-    //     return '${difference.inHours}h ago';
-    //   } else if (difference.inMinutes > 0) {
-    //     return '${difference.inMinutes}m ago';
-    //   } else {
-    //     return 'Just now';
-    //   }
-    // }
   }
 
   // Helper method to filter out duplicate notifications
@@ -223,21 +95,6 @@ class NotificationsView extends GetView<NotificationsController> {
     return uniqueMap.values.toList()
       ..sort((a, b) => b.timestamp.compareTo(a.timestamp));
   }
-
-// class ChatItem {
-//   final String name;
-//   final String message;
-//   final String timestamp;
-//   final String imageUrl;
-//
-//   ChatItem({
-//     required this.name,
-//     required this.message,
-//     required this.timestamp,
-//     required this.imageUrl,
-//   });
-//
-// }
 }
 
 class NotificationItem extends StatelessWidget {
@@ -266,25 +123,6 @@ class NotificationItem extends StatelessWidget {
               ),
               child: Row(
                 children: [
-                  // if (notification.imageUrl != null)
-                  //   ClipRRect(
-                  //     borderRadius: BorderRadius.circular(35),
-                  //     child: Image.network(
-                  //       notification.imageUrl!,
-                  //       width: 70,
-                  //       height: 70,
-                  //       fit: BoxFit.cover,
-                  //       errorBuilder: (context, error, stackTrace) {
-                  //         return Container(
-                  //           width: 70,
-                  //           height: 70,
-                  //           color: Colors.grey[300],
-                  //           child: Icon(Icons.notifications),
-                  //         );
-                  //       },
-                  //     ),
-                  //   )
-                  // else
                   Container(
                     width: 50,
                     height: 50,
@@ -292,7 +130,25 @@ class NotificationItem extends StatelessWidget {
                       color: Colors.grey[300],
                       borderRadius: BorderRadius.circular(35),
                     ),
-                    child: Icon(Icons.notifications),
+                    child: notification.data.containsKey('childImageUrl') &&
+                            notification.data['childImageUrl'] != null &&
+                            notification.data['childImageUrl']
+                                .toString()
+                                .isNotEmpty
+                        ? ClipOval(
+                            child: Image.network(
+                              notification.data['childImageUrl'],
+                              width: 50,
+                              height: 50,
+                              fit: BoxFit.cover,
+                              errorBuilder: (context, error, stackTrace) {
+                                print(
+                                    "Parent: Error loading child image: $error");
+                                return const Icon(Icons.notifications);
+                              },
+                            ),
+                          )
+                        : const Icon(Icons.notifications),
                   ),
                   const SizedBox(width: 12),
                   Expanded(

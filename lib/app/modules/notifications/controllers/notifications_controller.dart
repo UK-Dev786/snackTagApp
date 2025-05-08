@@ -367,7 +367,11 @@ class NotificationsController extends GetxController {
     required String orderId,
     required String childName,
     required String preparedBy,
+    String? childImageUrl,
   }) async {
+    print(
+        "Parent: Sending order prepared notification with childImageUrl: $childImageUrl");
+
     final notification = NotificationModel(
       id: '', // Firestore will generate this
       userId: parentId,
@@ -377,13 +381,17 @@ class NotificationsController extends GetxController {
       data: {
         'orderId': orderId,
         'preparedBy': preparedBy,
+        'childImageUrl':
+            childImageUrl, // Include child image URL in notification data
       },
       timestamp: DateTime.now(),
     );
 
     try {
       await _notificationService.saveNotification(notification);
+      print("Parent: Order prepared notification sent successfully");
     } catch (e) {
+      print("Parent: Failed to send order prepared notification: $e");
       errorMessage.value = 'Failed to send notification: $e';
     }
   }
@@ -394,7 +402,11 @@ class NotificationsController extends GetxController {
     required String orderId,
     required String childName,
     required String deliveredBy,
+    String? childImageUrl,
   }) async {
+    print(
+        "Parent: Sending order delivered notification with childImageUrl: $childImageUrl");
+
     final notification = NotificationModel(
       id: '', // Firestore will generate this
       userId: parentId,
@@ -404,13 +416,17 @@ class NotificationsController extends GetxController {
       data: {
         'orderId': orderId,
         'deliveredBy': deliveredBy,
+        'childImageUrl':
+            childImageUrl, // Include child image URL in notification data
       },
       timestamp: DateTime.now(),
     );
 
     try {
       await _notificationService.saveNotification(notification);
+      print("Parent: Order delivered notification sent successfully");
     } catch (e) {
+      print("Parent: Failed to send order delivered notification: $e");
       errorMessage.value = 'Failed to send notification: $e';
     }
   }
