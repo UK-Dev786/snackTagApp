@@ -20,14 +20,13 @@ class NotificationsView extends GetView<NotificationsController> {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             const SizedBox(height: 70),
-            
-                Text(
-                  'NOTIFICATIONS', // Title text (fixed typo)
-                  style: AppTextStyles.MetropolisMedium.copyWith(
-                    fontSize: 18,
-                    color: const Color(0xFF434343),
-                  ),
-                ),
+            Text(
+              'NOTIFICATIONS', // Title text (fixed typo)
+              style: AppTextStyles.MetropolisMedium.copyWith(
+                fontSize: 18,
+                color: const Color(0xFF434343),
+              ),
+            ),
             Expanded(
               child: Obx(() {
                 if (controller.isLoading.value) {
@@ -61,10 +60,10 @@ class NotificationsView extends GetView<NotificationsController> {
                       },
                       child: NotificationItem(
                         notification: notification,
-                        onTap: () {
-                          // Use the controller's method to handle notification tap
-                          controller.handleNotificationTap(notification);
-                        },
+                        // onTap: () {
+                        //   // Use the controller's method to handle notification tap
+                        //   controller.handleNotificationTap(notification);
+                        // },
                       ),
                     );
                   },
@@ -243,11 +242,9 @@ class NotificationsView extends GetView<NotificationsController> {
 
 class NotificationItem extends StatelessWidget {
   final NotificationModel notification;
-  final VoidCallback onTap;
 
   const NotificationItem({
     required this.notification,
-    required this.onTap,
     Key? key,
   }) : super(key: key);
 
@@ -256,7 +253,6 @@ class NotificationItem extends StatelessWidget {
     return Column(
       children: [
         InkWell(
-          onTap: onTap,
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16),
             child: Container(
