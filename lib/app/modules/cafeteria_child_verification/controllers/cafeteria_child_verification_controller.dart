@@ -105,6 +105,7 @@ class CafeteriaChildVerificationController extends GetxController {
 
   void verifyChildId() {
     String value = schoolIdController.text.trim();
+    
     validateSchoolId();
 
     if (!isValid.value) {

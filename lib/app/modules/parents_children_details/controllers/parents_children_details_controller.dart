@@ -130,6 +130,8 @@ class ParentsChildrenDetailsController extends GetxController {
 
   RxList<String> schoolNamesList = <String>[].obs;
   RxList<String> addedChildrenIdList = <String>[].obs;
+  RxList<String> genders = <String>[].obs;
+
   // FETCHING CHILDREN DATA AGAINST PARENTS
   var childrenList = <ParentsAddChildren>[].obs;
   var isLoading = false.obs;
@@ -137,19 +139,12 @@ class ParentsChildrenDetailsController extends GetxController {
   @override
   void onInit() {
     super.onInit();
-
+    
     fetchChildren();
-
     fetchSchoolNames();
 
-    // ever(allChildrenSameSchool, (selectedValue) {
-    //   if (selectedValue == 'Yes') {
-    //     deleteChildrenByParentId();
-    //     clear();
-    //   } else if (selectedValue == 'No') {
-    //     print("selectedValue is NO: $selectedValue");
-    //   }
-    // });
+    // Initialize genders list with 'Male' as default for all potential children
+    genders.assignAll(List.generate(5, (_) => 'Male'));
   }
 
   // DELETE THE CHILDREN AGAINST PARENTS
@@ -293,14 +288,7 @@ class ParentsChildrenDetailsController extends GetxController {
     String addedChildId = '';
 
     File? imageFile; // Nullable File object
-    // Add listener to the new ID controller
     final int currentIndex = idControllers.length;
-    // idController.addListener(() {
-    //   if (allChildrenSameSchool.value == 'Yes') {
-    //     String newValue = idController.text;
-    //     syncSchoolIds(newValue, currentIndex);
-    //   }
-    // });
 
     nameControllers.add(nameController);
     idControllers.add(idController);
@@ -308,6 +296,11 @@ class ParentsChildrenDetailsController extends GetxController {
     cafeteriaNameList.add(cafeteriaNameController);
     addedChildrenIdList.add(addedChildId);
     isChildrenAddedSuccessfully.add(false);
+    
+    // Make sure we have a gender for the new child (default to 'Male')
+    if (genders.length <= numberOfChildren.value) {
+      genders.add('Male');
+    }
 
     // Add image file if it's not null
     if (imageFile != null) {
@@ -349,6 +342,7 @@ class ParentsChildrenDetailsController extends GetxController {
   }
 
   void clear() {
+    // Clear text controllers
     for (var controller in nameControllers) {
       controller.clear();
     }
@@ -358,12 +352,32 @@ class ParentsChildrenDetailsController extends GetxController {
     for (var controller in schoolNameControllerList) {
       controller.clear();
     }
-
-    addedChildrenIdList.value = [];
+    
+    // Clear school name controller
+    schoolNameController.clear();
+    
+    // Reset number of children to 0
     numberOfChildren.value = 0;
+    
+    // Clear lists
+    nameControllers.clear();
+    idControllers.clear();
+    schoolNameControllerList.clear();
+    cafeteriaNameList.clear();
+    addedChildrenIdList.clear();
     isChildrenAddedSuccessfully.clear();
-    schoolNameController.text = '';
     images.clear();
+    
+    // Reset school option
+    allChildrenSameSchool.value = 'No';
+    isYesSelected.value = false;
+    
+    // Reset genders list
+    genders.clear();
+    genders.assignAll(List.generate(5, (_) => 'Male'));
+    
+    // Print confirmation
+    print("All data cleared successfully");
   }
 
   @override
@@ -432,5 +446,13 @@ class ParentsChildrenDetailsController extends GetxController {
         );
       },
     );
+  }
+
+  void setGender(int index, String gender) {
+    if (index < genders.length) {
+      genders[index] = gender;
+      update();
+      print("Gender set to $gender for child at index $index");
+    }
   }
 }

@@ -85,7 +85,7 @@ class ParentsAddChildren {
           ? (json['selectedMealMenuData'] as List)
               .map((meal) => ParentSelectedMeals.fromMap(meal))
               .toList()
-          : [],
+          : null,
       monthlyExpenditures: (json['monthlyExpenditures'] ?? 0.0).toDouble(),
     );
   }

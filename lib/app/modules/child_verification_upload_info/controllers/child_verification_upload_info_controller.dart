@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:snacktag/app/modules/staff_history/controllers/staff_history_controller.dart';
@@ -6,9 +7,12 @@ import 'package:snacktag/app/routes/app_pages.dart';
 import 'package:snacktag/models/cefeteria_admin/staff_model.dart';
 import 'package:snacktag/models/parents_models/add_children.dart';
 import 'package:snacktag/models/parents_models/parent_add_wallet_model.dart';
+import 'package:snacktag/models/parents_models/parent_selected_meals.dart';
 import 'package:snacktag/services/Shared_preference/preferences.dart';
 import 'package:snacktag/services/notifications_service/notifications_service.dart';
 import 'package:snacktag/services/staff_services/child_verification_wallet_service.dart';
+import 'package:intl/intl.dart';
+import 'dart:async';
 
 class ChildVerificationUploadInfoController extends GetxController {
   final ChildVerificationWalletService _walletService =
@@ -20,6 +24,9 @@ class ChildVerificationUploadInfoController extends GetxController {
   late final StaffHistoryController historyController;
   final UserPreferences preferences = UserPreferences();
   StaffModel? staffModel;
+  // Add this property to track meal statuses
+  final mealStatuses = <String, RxString>{}.obs;
+
   @override
   void onInit() {
     super.onInit();
@@ -44,6 +51,16 @@ class ChildVerificationUploadInfoController extends GetxController {
     } else {
       print("No arguments received or invalid format");
     }
+
+    // Start checking meal statuses periodically
+    Timer.periodic(const Duration(seconds: 10), (timer) {
+      if (childrenList.isNotEmpty &&
+          childrenList.first.selectedMealMenuData != null) {
+        for (var meal in childrenList.first.selectedMealMenuData!) {
+          checkMealStatus(meal);
+        }
+      }
+    });
   }
 
   void getStaffData() async {
@@ -384,6 +401,120 @@ class ChildVerificationUploadInfoController extends GetxController {
     } catch (e) {
       print('Error sending order preparation notification: $e');
     }
+  }
+
+  // Method to check and update meal status
+  Future<void> checkMealStatus(ParentSelectedMeals meal) async {
+    try {
+      if (childrenList.isEmpty || meal.mealName == null) return;
+
+      final childId = childrenList.first.childId;
+      if (childId == null) return;
+
+      // Format today's date
+      final today = DateTime.now();
+      final formattedToday = DateFormat('dd-MM-yyyy').format(today);
+
+      // Create a unique key for this meal
+      final mealKey = '${meal.mealName}_${formattedToday}';
+
+      // Initialize status if not already set
+      if (!mealStatuses.containsKey(mealKey)) {
+        mealStatuses[mealKey] = 'Ready for Preparation'.obs;
+      }
+
+      print("Checking status for meal: ${meal.mealName} on $formattedToday");
+
+      // Query Firestore to check if this meal is in preparation or delivered
+      // Use a more inclusive query that doesn't filter by date to ensure we catch all orders
+      final querySnapshot = await FirebaseFirestore.instance
+          .collection('orderPreparation')
+          .where('childId', isEqualTo: childId)
+          .get();
+
+      print(
+          "Found ${querySnapshot.docs.length} order documents for child $childId");
+
+      bool foundMeal = false;
+
+      if (querySnapshot.docs.isNotEmpty) {
+        for (var doc in querySnapshot.docs) {
+          final data = doc.data();
+          print("Checking order document: ${doc.id}");
+          print(
+              "Order status: ${data['status']}, delivered: ${data['delivered']}");
+
+          final selectedMeals = data['selectedMealMenuData'] as List<dynamic>?;
+
+          if (selectedMeals != null) {
+            print("Order has ${selectedMeals.length} meals");
+
+            for (var mealData in selectedMeals) {
+              print(
+                  "Checking meal: ${mealData['mealName']} against ${meal.mealName}");
+
+              if (mealData['mealName'] == meal.mealName) {
+                foundMeal = true;
+                print("Found matching meal in order ${doc.id}");
+
+                // Check order preparation date to ensure it's for today
+                String? orderDate = data['orderPreparationDate'];
+                if (orderDate != null) {
+                  try {
+                    DateTime orderDateTime = DateTime.parse(orderDate);
+                    String formattedOrderDate =
+                        DateFormat('dd-MM-yyyy').format(orderDateTime);
+
+                    print(
+                        "Order date: $formattedOrderDate, Today: $formattedToday");
+
+                    // Only update status if the order is for today
+                    if (formattedOrderDate == formattedToday) {
+                      if (data['delivered'] == true) {
+                        print("Setting status to Delivered");
+                        mealStatuses[mealKey]?.value = 'Delivered';
+                      } else if (data['startPreparation'] == true) {
+                        print("Setting status to In Preparation");
+                        mealStatuses[mealKey]?.value = 'In Preparation';
+                      }
+                      return; // Exit after finding a matching order for today
+                    } else {
+                      print("Order is not for today, continuing search");
+                    }
+                  } catch (e) {
+                    print("Error parsing order date: $e");
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+
+      // If we get here and no matching order was found for today, it's ready for preparation
+      if (!foundMeal) {
+        print(
+            "No matching order found for ${meal.mealName} today, setting status to Ready for Preparation");
+        mealStatuses[mealKey]?.value = 'Ready for Preparation';
+      }
+    } catch (e) {
+      print("Error checking meal status: $e");
+    }
+  }
+
+  // Method to get the current status of a meal
+  String getMealStatus(ParentSelectedMeals meal) {
+    final today = DateTime.now();
+    final formattedToday = DateFormat('dd-MM-yyyy').format(today);
+    final mealKey = '${meal.mealName}_${formattedToday}';
+
+    // Check status immediately if not already done
+    if (!mealStatuses.containsKey(mealKey)) {
+      mealStatuses[mealKey] = 'Ready for Preparation'.obs;
+      checkMealStatus(meal);
+    }
+
+    return mealStatuses[mealKey]?.value ?? 'Ready for Preparation';
   }
 
   @override

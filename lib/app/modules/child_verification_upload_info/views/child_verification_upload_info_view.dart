@@ -64,105 +64,146 @@ class ChildVerificationUploadInfoView extends StatelessWidget {
                     ),
                   ),
 
-                  // Settings Title
+                  // Auth Image at the top
                   Center(
-                    child: Text(
-                      'UPLOAD INFO', // Title text
-                      style: AppTextStyles.MetropolisMedium.copyWith(
-                        fontSize: 18,
-                        color: const Color(0xFF434343),
+                    child: Padding(
+                      padding: const EdgeInsets.only(top: 10),
+                      child: Image.asset(
+                        'assets/images/authImg.png', // Use the auth image
+                        width: 100,
+                        height: 100,
                       ),
                     ),
                   ),
-                  const SizedBox(height: 32), // Spacing between title and list
-                  // Row with month/year and calendar icon
+
+                  // Remove the "UPLOAD INFO" title
+                  const SizedBox(height: 32),
+
+                  // Child info row with image and name
                   Padding(
-                    padding:
-                        const EdgeInsets.symmetric(vertical: 2, horizontal: 16),
-                    child: RichText(
-                      text: TextSpan(
-                        children: [
-                          TextSpan(
-                            text: DateFormat('MMMM ').format(DateTime.now()),
-                            style: AppTextStyles.RobotoLight.copyWith(
-                              fontSize: 18,
-                              color: const Color(0xFF2E2E2E),
-                            ),
-                          ),
-                          TextSpan(
-                            text: '${DateTime.now().year}',
-                            style: AppTextStyles.RobotoBold.copyWith(
-                              fontSize: 18,
-                              color: const Color(0xFF2E2E2E),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    // Hardcoded subtitle
-                  ),
-
-                  const SizedBox(height: 5), // Spacing between date and image
-
-                  // Center circular image
-                  Center(
+                    padding: const EdgeInsets.symmetric(horizontal: 20),
                     child: Container(
-                      width: 125,
-                      height: 125,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: Colors.white,
-                        border: Border.all(
-                          color: Colors.white, // White border color
-                          width: 3, // Border width
-                        ),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withOpacity(
-                                0.25), // Shadow color with transparency
-                            blurRadius: 8, // Spread of the shadow
-                            offset: const Offset(
-                                0, 4), // Position of the shadow (x, y)
+                      margin: const EdgeInsets.only(bottom: 20),
+                      padding: const EdgeInsets.symmetric(
+                          vertical: 12, horizontal: 0),
+                      // decoration: BoxDecoration(
+                      //   color: Colors.white,
+                      //   borderRadius: BorderRadius.circular(12),
+                      //   boxShadow: [
+                      //     BoxShadow(
+                      //       color: Colors.grey.withOpacity(0.2),
+                      //       spreadRadius: 1,
+                      //       blurRadius: 4,
+                      //       offset: const Offset(0, 2),
+                      //     ),
+                      //   ],
+                      // ),
+                      child: Row(
+                        children: [
+                          // Child image (left)
+                          Container(
+                            width: 80,
+                            height: 80,
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              color: Colors.white,
+                              border: Border.all(
+                                color: Colors.white,
+                                width: 2,
+                              ),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withOpacity(0.1),
+                                  blurRadius: 4,
+                                  spreadRadius: 1,
+                                  offset: const Offset(0, 2),
+                                ),
+                              ],
+                            ),
+                            child: ClipOval(
+                              child: controller.childrenList.first
+                                              .childImageUrl !=
+                                          null &&
+                                      controller.childrenList.first
+                                          .childImageUrl!.isNotEmpty
+                                  ? Image.network(
+                                      controller
+                                          .childrenList.first.childImageUrl!,
+                                      fit: BoxFit.cover,
+                                      width: double.infinity,
+                                      height: double.infinity,
+                                      loadingBuilder:
+                                          (context, child, loadingProgress) {
+                                        if (loadingProgress == null)
+                                          return child;
+                                        return const Center(
+                                            child: CircularProgressIndicator());
+                                      },
+                                      errorBuilder:
+                                          (context, error, stackTrace) {
+                                        final gender = controller
+                                                .childrenList.first.childGender
+                                                ?.toLowerCase() ??
+                                            '';
+                                        return Image.asset(
+                                          gender == 'female'
+                                              ? 'assets/images/femaleAvatar.png'
+                                              : 'assets/images/maleAatar.png',
+                                          fit: BoxFit.cover,
+                                        );
+                                      },
+                                    )
+                                  : controller.childrenList.isNotEmpty &&
+                                          controller.childrenList.first
+                                                  .childGender !=
+                                              null
+                                      ? Image.asset(
+                                          controller.childrenList.first
+                                                      .childGender!
+                                                      .toLowerCase() ==
+                                                  'female'
+                                              ? 'assets/images/femaleAvatar.png'
+                                              : 'assets/images/maleAvatar.png',
+                                          fit: BoxFit.cover,
+                                        )
+                                      : Image.asset(
+                                          'assets/images/profile_emoji.png',
+                                          fit: BoxFit.cover,
+                                        ),
+                            ),
+                          ),
+                          SizedBox(
+                            width: 10,
+                          ),
+                          Center(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                Text(
+                                  controller.childrenList.first.childName ??
+                                      "Student",
+                                  style:
+                                      AppTextStyles.MetropolisMedium.copyWith(
+                                    fontSize: 16,
+                                    color: const Color(0xFF434343),
+                                  ),
+                                  textAlign: TextAlign.center,
+                                ),
+                                const SizedBox(height: 4),
+                                Text(
+                                  controller.childrenList.first.childSchoolID ??
+                                      "ID: N/A",
+                                  style:
+                                      AppTextStyles.MetropolisRegular.copyWith(
+                                    fontSize: 14,
+                                    color: const Color(0xFF858585),
+                                  ),
+                                  textAlign: TextAlign.center,
+                                ),
+                              ],
+                            ),
                           ),
                         ],
-                      ),
-                      child: ClipOval(
-                        child: controller
-                                .childrenList.first.childImageUrl!.isNotEmpty
-                            ? Image.network(
-                                controller.childrenList.first.childImageUrl!,
-                                fit: BoxFit.cover,
-                                width: double.infinity,
-                                height: 127,
-                                loadingBuilder:
-                                    (context, child, loadingProgress) {
-                                  if (loadingProgress == null) return child;
-                                  return const Center(
-                                      child: CircularProgressIndicator());
-                                },
-                                errorBuilder: (context, error, stackTrace) {
-                                  return const Icon(
-                                      Icons.error_outline_outlined,
-                                      size: 20); //_buildPlaceholder();
-                                },
-                              )
-                            : Image.asset(
-                                // 'assets/images/userimg.png', // Replace with the actual image URL
-                                'assets/images/profile_emoji.png', // Replace with the actual image URL
-                                fit: BoxFit.cover,
-                              ),
-                      ),
-                    ),
-                  ),
-
-                  // Add student name below image
-                  const SizedBox(height: 8),
-                  Center(
-                    child: Text(
-                      controller.childrenList.first.childName ?? "Student",
-                      style: AppTextStyles.MetropolisMedium.copyWith(
-                        fontSize: 16,
-                        color: const Color(0xFF434343),
                       ),
                     ),
                   ),
@@ -178,7 +219,7 @@ class ChildVerificationUploadInfoView extends StatelessWidget {
                         Padding(
                           padding: const EdgeInsets.only(bottom: 12),
                           child: Text(
-                            'Today\'s Meals ($currentDayName)',
+                            'Today\'s Meals',
                             style: AppTextStyles.MetropolisMedium.copyWith(
                               fontSize: 16,
                               color: const Color(0xFF434343),
@@ -198,23 +239,27 @@ class ChildVerificationUploadInfoView extends StatelessWidget {
                                 ? controller
                                     .childrenList.first.selectedMealMenuData!
                                     .where((meal) {
-                                    if (meal.schedule == null ||
-                                        meal.schedule!.repeatOn == null ||
-                                        meal.schedule!.repeatOn!.isEmpty) {
+                                    // Skip meals with no schedule or scheduled dates
+                                    if (meal.scheduledDates == null ||
+                                        meal.scheduledDates!.isEmpty) {
                                       return false;
                                     }
 
-                                    return meal.schedule!.repeatOn!.any((day) {
-                                      // Check if day is a number (index) or a string (day name)
-                                      try {
-                                        final dayIndex = int.parse(day);
-                                        return dayIndex == currentDayOfWeek;
-                                      } catch (e) {
-                                        // If not a number, compare day names
-                                        return day.trim().toLowerCase() ==
-                                            currentDayName.toLowerCase();
-                                      }
-                                    });
+                                    // Format today's date in the same format as scheduledDates (dd-MM-yyyy)
+                                    final today = DateTime.now();
+                                    final formattedToday =
+                                        DateFormat('dd-MM-yyyy').format(today);
+
+                                    // Check if today's date exists in the scheduledDates list
+                                    bool isTodayScheduled = meal.scheduledDates!
+                                        .contains(formattedToday);
+
+                                    if (isTodayScheduled) {
+                                      print(
+                                          "Meal ${meal.mealName} is scheduled for today ($formattedToday)");
+                                    }
+
+                                    return isTodayScheduled;
                                   }).toList()
                                 : [];
 
@@ -252,19 +297,19 @@ class ChildVerificationUploadInfoView extends StatelessWidget {
                               itemBuilder: (context, index) {
                                 final meal = todayMeals[index];
                                 return Container(
-                                  margin: const EdgeInsets.only(bottom: 12),
-                                  decoration: BoxDecoration(
-                                    color: Colors.white,
-                                    borderRadius: BorderRadius.circular(12),
-                                    boxShadow: [
-                                      BoxShadow(
-                                        color: Colors.grey.withOpacity(0.2),
-                                        spreadRadius: 1,
-                                        blurRadius: 4,
-                                        offset: const Offset(0, 2),
-                                      ),
-                                    ],
-                                  ),
+                                  margin: const EdgeInsets.only(bottom: 10),
+                                  // decoration: BoxDecoration(
+                                  //   color: Colors.white,
+                                  //   borderRadius: BorderRadius.circular(12),
+                                  //   boxShadow: [
+                                  //     BoxShadow(
+                                  //       color: Colors.grey.withOpacity(0.2),
+                                  //       spreadRadius: 1,
+                                  //       blurRadius: 4,
+                                  //       offset: const Offset(0, 2),
+                                  //     ),
+                                  //   ],
+                                  // ),
                                   child: Row(
                                     children: [
                                       // Meal image
@@ -272,13 +317,15 @@ class ChildVerificationUploadInfoView extends StatelessWidget {
                                         borderRadius: const BorderRadius.only(
                                           topLeft: Radius.circular(12),
                                           bottomLeft: Radius.circular(12),
+                                          topRight: Radius.circular(12),
+                                          bottomRight: Radius.circular(12),
                                         ),
                                         child: meal.imageUrl != null &&
                                                 meal.imageUrl!.isNotEmpty
                                             ? Image.network(
                                                 meal.imageUrl!,
-                                                width: 100,
-                                                height: 100,
+                                                width: 60,
+                                                height: 50,
                                                 fit: BoxFit.cover,
                                                 loadingBuilder: (context, child,
                                                     loadingProgress) {
@@ -296,8 +343,8 @@ class ChildVerificationUploadInfoView extends StatelessWidget {
                                                 errorBuilder: (context, error,
                                                     stackTrace) {
                                                   return Container(
-                                                    width: 100,
-                                                    height: 100,
+                                                    width: 60,
+                                                    height: 50,
                                                     color: Colors.grey[200],
                                                     child: const Icon(
                                                       Icons.image_not_supported,
@@ -308,8 +355,8 @@ class ChildVerificationUploadInfoView extends StatelessWidget {
                                                 },
                                               )
                                             : Container(
-                                                width: 100,
-                                                height: 100,
+                                                width: 60,
+                                                height: 50,
                                                 color: Colors.grey[200],
                                                 child: const Icon(
                                                   Icons.image_not_supported,
@@ -327,17 +374,92 @@ class ChildVerificationUploadInfoView extends StatelessWidget {
                                             crossAxisAlignment:
                                                 CrossAxisAlignment.start,
                                             children: [
-                                              Text(
-                                                meal.mealName ?? 'Unnamed Meal',
-                                                style: AppTextStyles
-                                                    .MetropolisMedium.copyWith(
-                                                  fontSize: 16,
-                                                  color: Colors.black,
-                                                ),
-                                                maxLines: 1,
-                                                overflow: TextOverflow.ellipsis,
+                                              Row(
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment.center,
+                                                children: [
+                                                  Expanded(
+                                                    child: Text(
+                                                      meal.mealName ??
+                                                          'Unnamed Meal',
+                                                      style: AppTextStyles
+                                                              .MetropolisMedium
+                                                          .copyWith(
+                                                        fontSize: 16,
+                                                        color: Colors.black,
+                                                      ),
+                                                      maxLines: 1,
+                                                      overflow:
+                                                          TextOverflow.ellipsis,
+                                                    ),
+                                                  ),
+                                                  // Status indicator
+                                                  Obx(() {
+                                                    final status = controller
+                                                        .getMealStatus(meal);
+                                                    Color statusColor;
+                                                    IconData statusIcon;
+
+                                                    switch (status) {
+                                                      case 'Delivered':
+                                                        statusColor =
+                                                            Colors.green;
+                                                        statusIcon =
+                                                            Icons.check_circle;
+                                                        break;
+                                                      case 'In Preparation':
+                                                        statusColor =
+                                                            Colors.orange;
+                                                        statusIcon =
+                                                            Icons.restaurant;
+                                                        break;
+                                                      default:
+                                                        statusColor =
+                                                            Colors.blue;
+                                                        statusIcon =
+                                                            Icons.schedule;
+                                                    }
+
+                                                    return Container(
+                                                      padding: const EdgeInsets
+                                                          .symmetric(
+                                                          horizontal: 8,
+                                                          vertical: 4),
+                                                      decoration: BoxDecoration(
+                                                        color: statusColor
+                                                            .withOpacity(0.1),
+                                                        borderRadius:
+                                                            BorderRadius
+                                                                .circular(12),
+                                                      ),
+                                                      child: Row(
+                                                        mainAxisSize:
+                                                            MainAxisSize.min,
+                                                        children: [
+                                                          Icon(
+                                                            statusIcon,
+                                                            size: 12,
+                                                            color: statusColor,
+                                                          ),
+                                                          const SizedBox(
+                                                              width: 4),
+                                                          Text(
+                                                            status,
+                                                            style: AppTextStyles
+                                                                    .MetropolisRegular
+                                                                .copyWith(
+                                                              fontSize: 10,
+                                                              color:
+                                                                  statusColor,
+                                                            ),
+                                                          ),
+                                                        ],
+                                                      ),
+                                                    );
+                                                  }),
+                                                ],
                                               ),
-                                              const SizedBox(height: 4),
+                                              // const SizedBox(height: 4),
                                               // Display meal time if available
                                               if (meal.schedule != null &&
                                                   meal.schedule!.availableAt !=
@@ -347,160 +469,168 @@ class ChildVerificationUploadInfoView extends StatelessWidget {
                                                 Text(
                                                   'Time: ${meal.schedule!.availableAt!.join(", ")}',
                                                   style: AppTextStyles
-                                                          .MetropolisRegular
+                                                          .MetropolisMedium
                                                       .copyWith(
                                                     fontSize: 12,
                                                     color: Colors.grey[700],
                                                   ),
                                                 ),
-                                              const SizedBox(height: 8),
-                                              Text(
-                                                '\$${meal.mealPrice ?? "0.00"}',
-                                                style: AppTextStyles
-                                                    .MetropolisMedium.copyWith(
-                                                  fontSize: 16,
-                                                  color:
-                                                      const Color(0xFFFC6011),
-                                                ),
-                                              ),
 
                                               // Add preparation button
                                               const SizedBox(height: 8),
                                               Align(
                                                 alignment:
                                                     Alignment.centerRight,
-                                                child: GestureDetector(
-                                                  onTap: () async {
-                                                    // Check if current time is within the allowed preparation window
-                                                    bool isWithinTimeWindow =
-                                                        false;
-                                                    String timeMessage = "";
+                                                child: Obx(() {
+                                                  final status = controller
+                                                      .getMealStatus(meal);
 
-                                                    if (meal.schedule != null &&
-                                                        meal.schedule!
-                                                                .availableAt !=
-                                                            null &&
-                                                        meal
-                                                            .schedule!
-                                                            .availableAt!
-                                                            .isNotEmpty) {
-                                                      final now =
-                                                          DateTime.now();
-                                                      final currentHour =
-                                                          now.hour;
+                                                  // If meal is already delivered or in preparation, don't show the button
+                                                  if (status == 'Delivered' ||
+                                                      status ==
+                                                          'In Preparation') {
+                                                    return const SizedBox
+                                                        .shrink();
+                                                  }
 
-                                                      // Check each available time
-                                                      for (String timeStr
-                                                          in meal.schedule!
-                                                              .availableAt!) {
-                                                        int scheduledHour = 0;
+                                                  return GestureDetector(
+                                                    onTap: () async {
+                                                      // Check if current time is within the allowed preparation window
+                                                      bool isWithinTimeWindow =
+                                                          false;
+                                                      String timeMessage = "";
 
-                                                        // Parse the time string (e.g., "9am", "2pm")
-                                                        if (timeStr
-                                                            .contains('am')) {
-                                                          scheduledHour =
-                                                              int.parse(timeStr
-                                                                  .replaceAll(
-                                                                      'am',
-                                                                      ''));
-                                                          // Handle 12am as 0 hour
-                                                          if (scheduledHour ==
-                                                              12)
-                                                            scheduledHour = 0;
-                                                        } else if (timeStr
-                                                            .contains('pm')) {
-                                                          scheduledHour =
-                                                              int.parse(timeStr
-                                                                  .replaceAll(
-                                                                      'pm',
-                                                                      ''));
-                                                          // Add 12 for PM times, except 12pm
-                                                          if (scheduledHour !=
-                                                              12)
-                                                            scheduledHour += 12;
+                                                      if (meal.schedule !=
+                                                              null &&
+                                                          meal.schedule!
+                                                                  .availableAt !=
+                                                              null &&
+                                                          meal
+                                                              .schedule!
+                                                              .availableAt!
+                                                              .isNotEmpty) {
+                                                        final now =
+                                                            DateTime.now();
+                                                        final currentHour =
+                                                            now.hour;
+
+                                                        // Check each available time
+                                                        for (String timeStr
+                                                            in meal.schedule!
+                                                                .availableAt!) {
+                                                          int scheduledHour = 0;
+
+                                                          // Parse the time string (e.g., "9am", "2pm")
+                                                          if (timeStr
+                                                              .contains('am')) {
+                                                            scheduledHour = int
+                                                                .parse(timeStr
+                                                                    .replaceAll(
+                                                                        'am',
+                                                                        ''));
+                                                            // Handle 12am as 0 hour
+                                                            if (scheduledHour ==
+                                                                12)
+                                                              scheduledHour = 0;
+                                                          } else if (timeStr
+                                                              .contains('pm')) {
+                                                            scheduledHour = int
+                                                                .parse(timeStr
+                                                                    .replaceAll(
+                                                                        'pm',
+                                                                        ''));
+                                                            // Add 12 for PM times, except 12pm
+                                                            if (scheduledHour !=
+                                                                12)
+                                                              scheduledHour +=
+                                                                  12;
+                                                          }
+                                                          // todo change it to 1 hour
+                                                          // Check if current time is within ±1 hour window
+                                                          if (currentHour >=
+                                                                  scheduledHour -
+                                                                      24 &&
+                                                              currentHour <=
+                                                                  scheduledHour +
+                                                                      24) {
+                                                            isWithinTimeWindow =
+                                                                true;
+                                                            break;
+                                                          }
                                                         }
-                                                        //todo change it to 1 hour
-                                                        // Check if current time is within ±1 hour window
-                                                        if (currentHour >=
-                                                                scheduledHour -
-                                                                    1 &&
-                                                            currentHour <=
-                                                                scheduledHour +
-                                                                    1) {
-                                                          isWithinTimeWindow =
-                                                              true;
-                                                          break;
+
+                                                        if (!isWithinTimeWindow) {
+                                                          timeMessage =
+                                                              "This meal can only be prepared within 1 hour of its scheduled time.";
                                                         }
-                                                      }
-
-                                                      if (!isWithinTimeWindow) {
-                                                        timeMessage =
-                                                            "This meal can only be prepared within 1 hour of its scheduled time.";
-                                                      }
-                                                    } else {
-                                                      // If no schedule is defined, allow preparation at any time
-                                                      isWithinTimeWindow = true;
-                                                    }
-
-                                                    if (isWithinTimeWindow) {
-                                                      final parentId =
-                                                          controller
-                                                              .childrenList
-                                                              .first
-                                                              .parentId;
-                                                      if (parentId != null) {
-                                                        await controller
-                                                            .fetchChildParentWallet(
-                                                                parentId, meal);
                                                       } else {
-                                                        Get.snackbar('Error',
-                                                            'Parent ID not found');
+                                                        // If no schedule is defined, allow preparation at any time
+                                                        isWithinTimeWindow =
+                                                            true;
                                                       }
-                                                    } else {
-                                                      Get.snackbar(
-                                                        'Outside Preparation Window',
-                                                        timeMessage,
-                                                        backgroundColor:
-                                                            Colors.orange,
-                                                        colorText: Colors.white,
-                                                        duration:
-                                                            const Duration(
-                                                                seconds: 3),
-                                                      );
-                                                    }
-                                                  },
-                                                  child: Container(
-                                                    padding: const EdgeInsets
-                                                        .symmetric(
-                                                        horizontal: 12,
-                                                        vertical: 6),
-                                                    decoration: BoxDecoration(
-                                                      gradient:
-                                                          const LinearGradient(
-                                                        colors: [
-                                                          Color(0xFFFC6011),
-                                                          Color(0xFFFF8D41)
-                                                        ],
-                                                        begin: Alignment
-                                                            .centerLeft,
-                                                        end: Alignment
-                                                            .centerRight,
+
+                                                      if (isWithinTimeWindow) {
+                                                        final parentId =
+                                                            controller
+                                                                .childrenList
+                                                                .first
+                                                                .parentId;
+                                                        if (parentId != null) {
+                                                          await controller
+                                                              .fetchChildParentWallet(
+                                                                  parentId,
+                                                                  meal);
+                                                        } else {
+                                                          Get.snackbar('Error',
+                                                              'Parent ID not found');
+                                                        }
+                                                      } else {
+                                                        Get.snackbar(
+                                                          'Outside Preparation Window',
+                                                          timeMessage,
+                                                          backgroundColor:
+                                                              Colors.orange,
+                                                          colorText:
+                                                              Colors.white,
+                                                          duration:
+                                                              const Duration(
+                                                                  seconds: 3),
+                                                        );
+                                                      }
+                                                    },
+                                                    child: Container(
+                                                      padding: const EdgeInsets
+                                                          .symmetric(
+                                                          horizontal: 12,
+                                                          vertical: 6),
+                                                      decoration: BoxDecoration(
+                                                        gradient:
+                                                            const LinearGradient(
+                                                          colors: [
+                                                            Color(0xFFFC6011),
+                                                            Color(0xFFFF8D41)
+                                                          ],
+                                                          begin: Alignment
+                                                              .centerLeft,
+                                                          end: Alignment
+                                                              .centerRight,
+                                                        ),
+                                                        borderRadius:
+                                                            BorderRadius
+                                                                .circular(15),
                                                       ),
-                                                      borderRadius:
-                                                          BorderRadius.circular(
-                                                              15),
-                                                    ),
-                                                    child: Text(
-                                                      'Start Preparation',
-                                                      style: AppTextStyles
-                                                              .MetropolisRegular
-                                                          .copyWith(
-                                                        fontSize: 12,
-                                                        color: Colors.white,
+                                                      child: Text(
+                                                        'Start Preparation',
+                                                        style: AppTextStyles
+                                                                .MetropolisRegular
+                                                            .copyWith(
+                                                          fontSize: 12,
+                                                          color: Colors.white,
+                                                        ),
                                                       ),
                                                     ),
-                                                  ),
-                                                ),
+                                                  );
+                                                }),
                                               ),
                                             ],
                                           ),

@@ -1,37 +1,45 @@
 class ParentSelectedMeals {
   String? mealName;
-  String? imageUrl;
   String? mealPrice;
   String? scheduleStatement;
-  Schedule? schedule; // Made nullable for safety
+  String? imageUrl;
+  Schedule? schedule;
+  List<String>? scheduledDates; // Add this field to store scheduled dates
 
   ParentSelectedMeals({
     this.mealName,
-    this.imageUrl,
     this.mealPrice,
     this.scheduleStatement,
+    this.imageUrl,
     this.schedule,
+    this.scheduledDates, // Add to constructor
   });
 
-  // Factory constructor for creating an object from a Map (useful for JSON parsing)
-  factory ParentSelectedMeals.fromMap(Map<String, dynamic> map) {
+  // Convert JSON (Map) to ParentSelectedMeals object
+  factory ParentSelectedMeals.fromMap(Map<String, dynamic> json) {
     return ParentSelectedMeals(
-      mealName: map['mealName'] as String?,
-      imageUrl: map['imageUrl'] as String?,
-      mealPrice: map['mealPrice'] as String?,
-      scheduleStatement: map['scheduleStatement'] as String?,
-      schedule: map['schedule'] != null ? Schedule.fromMap(map['schedule']) : null,
+      mealName: json['mealName'],
+      mealPrice: json['mealPrice'],
+      scheduleStatement: json['scheduleStatement'],
+      imageUrl: json['imageUrl'],
+      schedule: json['schedule'] != null
+          ? Schedule.fromMap(json['schedule'])
+          : null,
+      scheduledDates: json['scheduledDates'] != null
+          ? List<String>.from(json['scheduledDates'])
+          : null,
     );
   }
 
-  // Convert object to Map (useful for sending data to Firestore or APIs)
+  // Convert ParentSelectedMeals object to Map
   Map<String, dynamic> toMap() {
     return {
       'mealName': mealName,
-      'imageUrl': imageUrl,
       'mealPrice': mealPrice,
       'scheduleStatement': scheduleStatement,
+      'imageUrl': imageUrl,
       'schedule': schedule?.toMap(),
+      'scheduledDates': scheduledDates,
     };
   }
 

@@ -217,6 +217,8 @@ class ParentsChildrenDetailsView
                 text: 'CONTINUE',
                 onPressed: () {
                   controller.doesParentHaveChildren();
+                  // Clear all data after continuing
+                  controller.clear();
                 },
                 isLoading: RxBool(false),
               ),
@@ -247,7 +249,7 @@ class ParentsChildrenDetailsView
                 controller.isYesSelected.value = false;
                 print("objectdsss");
                 controller.allChildrenSameSchool.value = "No";
-                 controller.deleteChildrenByParentId(context);
+                controller.deleteChildrenByParentId(context);
               },
               child: Row(
                 children: [
@@ -595,6 +597,8 @@ class ParentsChildrenDetailsView
           controller: controller.nameControllers[index],
         ),
         const SizedBox(height: 12),
+        _buildGenderDropdown(index), // Add gender dropdown here
+        const SizedBox(height: 12),
         SimpleTextFieldWithOutSuffixWidget(
           hintText: 'Child School ID',
           controller: controller.idControllers[index],
@@ -660,6 +664,57 @@ class ParentsChildrenDetailsView
           },
         ),
       ],
+    );
+  }
+
+  Widget _buildGenderDropdown(int index) {
+    return Container(
+      height: 56,
+      width: double.infinity,
+      padding: const EdgeInsets.only(left: 30, right: 10),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(100),
+        color: AppColors.whiteColor,
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.2),
+            blurRadius: 6,
+            offset: const Offset(0, 3),
+          ),
+        ],
+      ),
+      child: DropdownButtonHideUnderline(
+        child: DropdownButton<String>(
+          value: controller.genders[index],
+          hint: Text(
+            'Select Gender',
+            style: AppTextStyles.MetropolisRegular.copyWith(
+              color: const Color(0xFFB6B7B7),
+              fontSize: 14,
+            ),
+          ),
+          isExpanded: true,
+          icon: const Icon(Icons.arrow_drop_down, color: Color(0xFFB6B7B7)),
+          items: <String>['Male', 'Female']
+              .map<DropdownMenuItem<String>>((String value) {
+            return DropdownMenuItem<String>(
+              value: value,
+              child: Text(
+                value,
+                style: AppTextStyles.MetropolisRegular.copyWith(
+                  fontSize: 14,
+                  color: Colors.black87,
+                ),
+              ),
+            );
+          }).toList(),
+          onChanged: (String? newValue) {
+            if (newValue != null) {
+              controller.setGender(index, newValue);
+            }
+          },
+        ),
+      ),
     );
   }
 }

@@ -216,7 +216,7 @@ class CafeteriaView extends GetView<CafeteriaController> {
                                     childName: parentController
                                         .nameControllers[selectedIndex].text,
                                     childSchoolID: parentController
-                                        .idControllers[index].text,
+                                        .idControllers[selectedIndex].text,
                                     childImageUrl: parentController
                                         .images[selectedIndex]!.path,
                                     schoolName: parentController
