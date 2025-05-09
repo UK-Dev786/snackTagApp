@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
+import 'package:snacktag/config/app_colors.dart';
 import 'package:snacktag/config/app_images.dart';
 
 import '../../../../config/app_text_style.dart';
@@ -311,60 +312,115 @@ class NotificationItem extends StatelessWidget {
                   ),
                   const SizedBox(width: 12),
                   Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisSize:
-                          MainAxisSize.min, // Use minimum space needed
+                    child: Row(
                       children: [
-                        Text(
-                          notification.title,
-                          style: AppTextStyles.MetropolisMedium.copyWith(
-                            color: const Color(0xFF334856),
-                            fontSize: 14,
-                          ),
-                        ),
-                        const SizedBox(height: 2),
-                        FutureBuilder<String>(
-                          future: Get.find<ParentsOrdersHistoryController>()
-                              .getSchoolNameForNotification(notification),
-                          builder: (context, snapshot) {
-                            return Text(
-                              snapshot.connectionState ==
-                                      ConnectionState.waiting
-                                  ? "Loading school info..."
-                                  : snapshot.hasData &&
-                                          snapshot.data!.isNotEmpty
-                                      ? snapshot.data!
-                                      : "School information unavailable",
-                              style: AppTextStyles.MetropolisRegular.copyWith(
-                                color: const Color(0xFF6E8CA0),
-                                fontSize: 12,
+                        Expanded(
+                          flex: 3,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Text(
+                                notification.title,
+                                style: AppTextStyles.MetropolisMedium.copyWith(
+                                  color: const Color(0xFF334856),
+                                  fontSize: 14,
+                                ),
                               ),
-                              maxLines: 2,
-                              overflow: TextOverflow.ellipsis,
-                            );
-                          },
-                        ),
-                        const SizedBox(height: 2),
-                        Text(
-                          notification.body,
-                          style: AppTextStyles.MetropolisRegular.copyWith(
-                            color: const Color(0xFF6E8CA0),
-                            fontSize: 12,
+                              const SizedBox(height: 2),
+                              FutureBuilder<String>(
+                                future:
+                                    Get.find<ParentsOrdersHistoryController>()
+                                        .getSchoolNameForNotification(
+                                            notification),
+                                builder: (context, snapshot) {
+                                  return Text(
+                                    snapshot.connectionState ==
+                                            ConnectionState.waiting
+                                        ? "Loading school info..."
+                                        : snapshot.hasData &&
+                                                snapshot.data!.isNotEmpty
+                                            ? snapshot.data!
+                                            : "School information unavailable",
+                                    style: AppTextStyles.MetropolisRegular
+                                        .copyWith(
+                                      color: const Color(0xFF6E8CA0),
+                                      fontSize: 12,
+                                    ),
+                                    maxLines: 2,
+                                    overflow: TextOverflow.ellipsis,
+                                  );
+                                },
+                              ),
+                              const SizedBox(height: 2),
+                              Text(
+                                notification.body,
+                                style: AppTextStyles.MetropolisRegular.copyWith(
+                                  color: const Color(0xFF6E8CA0),
+                                  fontSize: 12,
+                                ),
+                                maxLines: 2,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ],
                           ),
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
                         ),
-                        const SizedBox(height: 3),
-                        Align(
-                          alignment: Alignment.centerRight,
-                          child: Text(
-                            _formatTimestamp(notification.timestamp),
-                            style: AppTextStyles.MetropolisRegular.copyWith(
-                              color: const Color(0xFF798186),
-                              fontSize: 9,
+                        Container(
+                          height: 65,
+                          child: VerticalDivider(
+                            color: AppColors.blackColor.withOpacity(0.3),
+                            thickness: 1,
+                            width: 20,
+                            indent: 5,
+                            endIndent: 5,
+                          ),
+                        ),
+                        Column(
+                          children: [
+                            FutureBuilder<String>(
+                              future: Get.find<ParentsOrdersHistoryController>()
+                                  .getMealPriceForNotification(notification),
+                              builder: (context, snapshot) {
+                                return RichText(
+                                  text: TextSpan(
+                                    children: [
+                                      TextSpan(
+                                        text: 'MX\$',
+                                        style: AppTextStyles.MetropolisMedium
+                                            .copyWith(
+                                          color: AppColors.blackColor
+                                              .withOpacity(0.6),
+                                          fontSize: 15,
+                                        ),
+                                      ),
+                                      TextSpan(
+                                        text: snapshot.connectionState ==
+                                                ConnectionState.waiting
+                                            ? '...'
+                                            : snapshot.hasData &&
+                                                    snapshot.data!.isNotEmpty
+                                                ? snapshot.data!
+                                                : '0.00',
+                                        style: AppTextStyles.MetropolisMedium
+                                            .copyWith(
+                                          color: AppColors.blackColor,
+                                          fontSize: 16,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                );
+                              },
                             ),
-                          ),
+                            const SizedBox(height: 5),
+                            Text(
+                              'Order Spending',
+                              style: AppTextStyles.MetropolisMedium.copyWith(
+                                color: AppColors.blackColor,
+                                fontSize: 6,
+                              ),
+                            ),
+                          ],
                         ),
                       ],
                     ),
@@ -378,7 +434,7 @@ class NotificationItem extends StatelessWidget {
           padding: EdgeInsets.symmetric(horizontal: 16),
           child: Divider(
             color: Color(0xFFEEEEEE),
-            thickness: 1,
+            thickness: 0,
           ),
         ),
       ],

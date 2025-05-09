@@ -318,4 +318,42 @@ class ParentsOrdersHistoryController extends GetxController {
     // If all else fails, return a generic message
     return "School information unavailable";
   }
+
+  Future<String> getMealPriceForNotification(
+      NotificationModel notification) async {
+    try {
+      // Get the orderId from the notification data
+      final orderId = notification.data['orderId'];
+      if (orderId == null || orderId.isEmpty) {
+        return '0.00';
+      }
+
+      // Fetch the order from Firestore
+      final doc = await FirebaseFirestore.instance
+          .collection('orderPreparation')
+          .doc(orderId)
+          .get();
+
+      if (!doc.exists) {
+        return '0.00';
+      }
+
+      // Extract the meal price from the order data
+      final data = doc.data();
+      if (data != null &&
+          data.containsKey('selectedMealMenuData') &&
+          data['selectedMealMenuData'] is List &&
+          data['selectedMealMenuData'].isNotEmpty) {
+        final mealData = data['selectedMealMenuData'][0];
+        if (mealData != null && mealData.containsKey('mealPrice')) {
+          return mealData['mealPrice'].toString();
+        }
+      }
+
+      return '0.00';
+    } catch (e) {
+      print('Error fetching meal price: $e');
+      return '0.00';
+    }
+  }
 }

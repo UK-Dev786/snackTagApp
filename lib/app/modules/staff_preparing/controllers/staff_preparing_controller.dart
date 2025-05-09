@@ -441,9 +441,10 @@ class StaffOrderPreparingController extends GetxController {
 
       await _notificationService.sendNotification(
         userId: parentId,
-        title: '$childName - ${cafeteriaName ?? schoolName ?? "School"}',
-        body:
-            'received ${getMealTimeFromOrder(orderDetails)} meal from ${cafeteriaName ?? "cafeteria"}',
+        title: '$childName',
+        // body:
+        //     'received ${getMealTimeFromOrder(orderDetails)} meal from ${cafeteriaName ?? "cafeteria"}',
+        body: 'received ${getMealTimeFromOrder(orderDetails)} meal',
         type: 'order_delivered',
         data: {
           'orderId': orderId,
