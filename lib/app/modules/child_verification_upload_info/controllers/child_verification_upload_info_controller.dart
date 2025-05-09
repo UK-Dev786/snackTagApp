@@ -18,14 +18,14 @@ class ChildVerificationUploadInfoController extends GetxController {
   final ChildVerificationWalletService _walletService =
       ChildVerificationWalletService();
   final NotificationService _notificationService = NotificationService();
-  var childrenList = <ParentsAddChildren>[].obs;
-  var isLoading = false.obs;
+  final childrenList = RxList<ParentsAddChildren>([]);
+  final isLoading = false.obs;
   final walletData = Rxn<ParentAddWalletModel>();
   late final StaffHistoryController historyController;
   final UserPreferences preferences = UserPreferences();
   StaffModel? staffModel;
   // Add this property to track meal statuses
-  final mealStatuses = <String, RxString>{}.obs;
+  final mealStatuses = RxMap<String, RxString>();
 
   @override
   void onInit() {
@@ -474,7 +474,7 @@ class ChildVerificationUploadInfoController extends GetxController {
     // Check status immediately if not already done
     if (!mealStatuses.containsKey(mealKey)) {
       mealStatuses[mealKey] = 'Ready for Preparation'.obs;
-      checkMealStatus(meal);
+      // Don't call checkMealStatus here, it will be called by the timer
     }
 
     return mealStatuses[mealKey]?.value ?? 'Ready for Preparation';

@@ -8,25 +8,34 @@ class ParentAddWalletService extends BaseService {
       // Reference to the user's wallet document
       DocumentReference userWalletRef = FirebaseFirestore.instance
           .collection("users")
-          .doc(model.parrentId) // Unique wallet per user
+          .doc(model.parrentId)
           .collection("ParentWalletAmount")
-          .doc(model
-              .parrentId); // Use userId as document ID to make it unique per user
+          .doc(model.parrentId);
 
       DocumentSnapshot walletSnapshot = await userWalletRef.get();
 
       if (walletSnapshot.exists) {
         // Wallet exists, update the amount
-        double existingAmount =
-            (walletSnapshot.data() as Map<String, dynamic>)['amount'] ?? 0.0;
+        // Convert to double to ensure type safety
+        double existingAmount = 0.0;
+        var rawAmount =
+            (walletSnapshot.data() as Map<String, dynamic>)['amount'];
+        if (rawAmount is int) {
+          existingAmount = rawAmount.toDouble();
+        } else if (rawAmount is double) {
+          existingAmount = rawAmount;
+        } else if (rawAmount != null) {
+          existingAmount = double.tryParse(rawAmount.toString()) ?? 0.0;
+        }
+
         double newTotalAmount = existingAmount + model.amount;
 
         await userWalletRef.update({
           'amount': newTotalAmount,
-          'enableMonthlyReload': model.enableMonthlyReload, // Update boolean
-          'updatedAt': FieldValue.serverTimestamp(), // Store last update time
-          'monthlyExpenditures':
-              model.monthlyExpenditures, // Update monthly expenditures
+          'enableMonthlyReload': model.enableMonthlyReload,
+          'parentId': model.parrentId,
+          'updatedAt': FieldValue.serverTimestamp(),
+          'monthlyExpenditures': model.monthlyExpenditures ?? 0.0,
         });
 
         print(
@@ -36,10 +45,10 @@ class ParentAddWalletService extends BaseService {
         model.id = userWalletRef.id;
         await userWalletRef.set({
           'id': model.id,
-          'userId': model.parrentId,
-          'amount': model.amount, // Set initial amount
+          'parentId': model.parrentId,
+          'amount': model.amount,
           'enableMonthlyReload': model.enableMonthlyReload,
-          'monthlyExpenditures': 0.0, // Initialize monthly expenditures
+          'monthlyExpenditures': 0.0,
           'createdAt': FieldValue.serverTimestamp(),
           'updatedAt': FieldValue.serverTimestamp(),
         });
@@ -48,6 +57,8 @@ class ParentAddWalletService extends BaseService {
       }
     } catch (e) {
       print("❌ Error updating wallet amount for user ${model.parrentId}: $e");
+      // Re-throw the error to be caught by the calling function
+      rethrow;
     }
   }
 

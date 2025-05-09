@@ -171,7 +171,7 @@ class ParentsHeader extends StatelessWidget {
                                 ),
                                 TextSpan(
                                   text:
-                                      '${parentController.parentAddWalletModel.value?.monthlyExpenditures.toStringAsFixed(2) ?? "0.00"}',
+                                      '${parentController.parentAddWalletModel.value?.monthlyExpenditures?.toStringAsFixed(2) ?? "0.00"}',
                                   style:
                                       AppTextStyles.MetropolisRegular.copyWith(
                                     fontWeight: FontWeight.w600,

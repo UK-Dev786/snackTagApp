@@ -24,7 +24,6 @@ class ChildVerificationWalletService extends BaseService {
 
       DocumentSnapshot firstDoc = walletSnapshot.docs.first;
       return ParentAddWalletModel.fromJson(
-        firstDoc.id,
         firstDoc.data() as Map<String, dynamic>,
       );
     } catch (e) {

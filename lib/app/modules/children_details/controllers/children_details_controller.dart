@@ -20,33 +20,40 @@ import '../../../../widgets/custom_dialog_schedule.dart';
 class ChildrenDetailsController extends GetxController {
   final AddChildrenService addChildrenService = AddChildrenService();
   // Observable for selected payment option
-  RxString selectedPaymentOption = 'Meal Selection'.obs;
+  final selectedPaymentOption = 'Meal Selection'.obs;
   late ScheduleDialogController scheduleController;
-  var isLoading = false.obs;
+  final isLoading = false.obs;
   // Observable for selected meal option
-  RxString selectedClassRoomDeliveryOption = 'No'.obs;
+  final selectedClassRoomDeliveryOption = 'No'.obs;
 
   // ==  === previous screen collected data
   var cafeModel = <CafeteriaDetailsParents>[]; // Initialize list
-  var meals = <MealModel>[].obs;
-  var scheduleData = <MealSheduleModel>[].obs;
-  var selectedMealData = <ParentSelectedMeals>[].obs;
+  final meals = RxList<MealModel>();
+  final scheduleData = RxList<MealSheduleModel>();
+  final selectedMealData = RxList<ParentSelectedMeals>();
   // ============ main model for saving children data ============
   var parentsAddChild = ParentsAddChildren();
-// ============ main model for saving children data ============
-// ============ Getting Data From Parent Controller  ============
+  // ============ main model for saving children data ============
+  // ============ Getting Data From Parent Controller  ============
   final ParentsChildrenDetailsController parentController =
       Get.find<ParentsChildrenDetailsController>();
-  var noOfChildren = 0.obs;
-  var allChildrenAreInSameSchool = false.obs;
+  final noOfChildren = 0.obs;
+  final allChildrenAreInSameSchool = false.obs;
 
-  // ============ Getting Data From Parent Controller  ============
+  // Observable for selected meal option
+  final selectedDurationOption = 'Weekly'.obs;
+
   File? childImageFile;
 
   @override
   void onInit() {
-    // TODO: implement onInit
     super.onInit();
+
+    // Initialize reactive collections before accessing arguments
+    meals.value = [];
+    scheduleData.value = [];
+    selectedMealData.value = [];
+
     if (Get.arguments != null && Get.arguments is Map<String, dynamic>) {
       var receivedImageFile = Get.arguments["imageFile"] as File?;
       // Assign arguments to existing observable lists
@@ -61,27 +68,37 @@ class ChildrenDetailsController extends GetxController {
       var receivedSelectedMeal =
           Get.arguments['selectedMealData'] as List<ParentSelectedMeals>?;
       parentsAddChild = receivedChildData;
+
+      // Use value assignment instead of assignAll for reactive collections
       if (receivedSelectedMeal != null) {
-        selectedMealData
-            .assignAll(receivedSelectedMeal); // Assign data to observable list
+        selectedMealData.value = receivedSelectedMeal;
       }
 
       if (receivedSchedule != null) {
-        scheduleData
-            .assignAll(receivedSchedule); // Assign data to observable list
+        scheduleData.value = receivedSchedule;
       }
 
       if (receivedCafe != null) {
-        cafeModel.assignAll(receivedCafe);
+        cafeModel = receivedCafe;
       }
+
       if (receivedMeal != null) {
-        meals.assignAll(receivedMeal);
+        meals.value = receivedMeal;
       }
+
       if (receivedImageFile != null) {
         childImageFile = receivedImageFile;
       }
     }
-    scheduleController = Get.find<ScheduleDialogController>();
+
+    try {
+      scheduleController = Get.find<ScheduleDialogController>();
+    } catch (e) {
+      print("ScheduleDialogController not found: $e");
+    }
+
+    // Call update() at the end to trigger a rebuild
+    update();
   }
 
 // ============  saving children data ============
@@ -334,9 +351,6 @@ class ChildrenDetailsController extends GetxController {
   void updatePaymentOption(String option) {
     selectedPaymentOption.value = option;
   }
-
-  // Observable for selected meal option
-  RxString selectedDurationOption = 'Weekly'.obs;
 
   // Update the selected option
   void updateDurationOption(String option) {

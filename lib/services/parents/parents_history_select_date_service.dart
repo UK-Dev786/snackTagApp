@@ -5,11 +5,11 @@ import 'package:snacktag/models/parents_models/add_children.dart';
 import 'package:snacktag/models/parents_models/parent_add_wallet_model.dart';
 import 'package:snacktag/services/base_service.dart';
 
-class ParentsHistorySelectDateService extends BaseService{
+class ParentsHistorySelectDateService extends BaseService {
   final FirebaseFirestore firestore = FirebaseFirestore.instance;
 
   Future<List<ParentsAddChildren>> fetchChildrenByParentId(
-      String parentId) async { 
+      String parentId) async {
     try {
       QuerySnapshot<Map<String, dynamic>> querySnapshot = await firestore
           .collection("parentsChildren")
@@ -34,6 +34,7 @@ class ParentsHistorySelectDateService extends BaseService{
       return [];
     }
   }
+
   Future<List<MealModel>> getMealsByUser(String userId) async {
     try {
       QuerySnapshot snapshot = await FirebaseFirestore.instance
@@ -52,7 +53,9 @@ class ParentsHistorySelectDateService extends BaseService{
       return [];
     }
   }
-  Future<List<ParentsAddChildren>> fetchChildrenByIds(List<String> studentIds) async {
+
+  Future<List<ParentsAddChildren>> fetchChildrenByIds(
+      List<String> studentIds) async {
     try {
       print("Fetching children for IDs: $studentIds");
 
@@ -76,7 +79,7 @@ class ParentsHistorySelectDateService extends BaseService{
     }
   }
 
- // Fetch wallet data as a real-time stream
+  // Fetch wallet data as a real-time stream
   Stream<ParentAddWalletModel?> fetchWalletStreamByParentId(String parentId) {
     print("🚀 Listening for wallet data changes for parentId: $parentId");
 
@@ -96,7 +99,7 @@ class ParentsHistorySelectDateService extends BaseService{
       String docId = walletDoc.id;
       Map<String, dynamic> data = walletDoc.data() as Map<String, dynamic>;
 
-      ParentAddWalletModel wallet = ParentAddWalletModel.fromJson(docId, data);
+      ParentAddWalletModel wallet = ParentAddWalletModel.fromJson(data);
       print("✅ Wallet Data Updated: ${wallet.toJson()}");
 
       return wallet;
