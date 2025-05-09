@@ -277,12 +277,45 @@ class ParentsHeader extends StatelessWidget {
                                     ),
                                     child: Padding(
                                       padding: const EdgeInsets.all(3.0),
-                                      child: Image.asset(
-                                        child.childGender?.toLowerCase() ==
-                                                'female'
-                                            ? AppImages.femaleAvatar
-                                            : AppImages.maleAvatar,
-                                        fit: BoxFit.contain,
+                                      child: ClipOval(
+                                        child: child.childImageUrl != null &&
+                                                child.childImageUrl!.isNotEmpty
+                                            ? Image.network(
+                                                child.childImageUrl!,
+                                                fit: BoxFit.cover,
+                                                width: double.infinity,
+                                                height: double.infinity,
+                                                loadingBuilder: (context, child,
+                                                    loadingProgress) {
+                                                  if (loadingProgress == null)
+                                                    return child;
+                                                  return const Center(
+                                                    child:
+                                                        CircularProgressIndicator(
+                                                      strokeWidth: 2,
+                                                    ),
+                                                  );
+                                                },
+                                                errorBuilder: (context, error,
+                                                    stackTrace) {
+                                                  return Image.asset(
+                                                    child.childGender
+                                                                ?.toLowerCase() ==
+                                                            'female'
+                                                        ? AppImages.femaleAvatar
+                                                        : AppImages.maleAvatar,
+                                                    fit: BoxFit.contain,
+                                                  );
+                                                },
+                                              )
+                                            : Image.asset(
+                                                child.childGender
+                                                            ?.toLowerCase() ==
+                                                        'female'
+                                                    ? AppImages.femaleAvatar
+                                                    : AppImages.maleAvatar,
+                                                fit: BoxFit.contain,
+                                              ),
                                       ),
                                     ),
                                   ),
