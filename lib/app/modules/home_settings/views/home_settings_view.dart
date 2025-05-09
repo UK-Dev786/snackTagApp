@@ -54,7 +54,7 @@ class HomeSettingsView extends GetView<HomeSettingsController> {
                       onTap: () {
                         // Get.toNamed(Routes.CAFETERIA_ADD_STAFF, arguments: true);
                         // Get.toNamed(Routes.CAFETERIA_STAFF_LIST);
-                        Get.toNamed(Routes.PARENTS_HISTORY);
+                        Get.toNamed(Routes.PARENTS_ORDERS_HISTORY);
                       },
                     ),
                     // CafeteriaSettingWidget(
