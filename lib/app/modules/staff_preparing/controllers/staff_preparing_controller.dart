@@ -427,14 +427,23 @@ class StaffOrderPreparingController extends GetxController {
       ParentsAddChildren? orderDetails =
           await _preparationService.getOrderDetails(orderId);
       String? childImageUrl = orderDetails?.childImageUrl;
+      String? schoolName = orderDetails?.schoolName;
 
       print(
-          "Parent: Sending order delivered notification with childImageUrl: $childImageUrl");
+          "Parent: Sending order delivered notification with childImageUrl: $childImageUrl, schoolName: $schoolName");
+
+      // Get cafeteria name from the order details or from the staff data
+      String? cafeteriaName = orderDetails?.cafeteriaName;
+      if ((cafeteriaName == null || cafeteriaName.isEmpty) &&
+          cafeteriaData.value != null) {
+        cafeteriaName = cafeteriaData.value!.cafeteriaName;
+      }
 
       await _notificationService.sendNotification(
         userId: parentId,
-        title: '$childName',
-        body: 'received ${getMealTimeFromOrder(orderDetails)} meal',
+        title: '$childName - ${cafeteriaName ?? schoolName ?? "School"}',
+        body:
+            'received ${getMealTimeFromOrder(orderDetails)} meal from ${cafeteriaName ?? "cafeteria"}',
         type: 'order_delivered',
         data: {
           'orderId': orderId,
@@ -442,6 +451,10 @@ class StaffOrderPreparingController extends GetxController {
           'notificationType': 'order_delivered',
           'childImageUrl':
               childImageUrl, // Include child image URL in notification data
+          'schoolName': schoolName, // Include school name in notification data
+          'childName': childName, // Include child name in notification data
+          'cafeteriaName':
+              cafeteriaName, // Include cafeteria name in notification data
         },
       );
       print("Parent: Order delivery notification sent to parent: $parentId");

@@ -324,14 +324,26 @@ class NotificationItem extends StatelessWidget {
                           ),
                         ),
                         const SizedBox(height: 2),
-                        Text(
-                          _getSchoolName(notification),
-                          style: AppTextStyles.MetropolisRegular.copyWith(
-                            color: const Color(0xFF6E8CA0),
-                            fontSize: 12,
-                          ),
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
+                        FutureBuilder<String>(
+                          future: Get.find<ParentsOrdersHistoryController>()
+                              .getSchoolNameForNotification(notification),
+                          builder: (context, snapshot) {
+                            return Text(
+                              snapshot.connectionState ==
+                                      ConnectionState.waiting
+                                  ? "Loading school info..."
+                                  : snapshot.hasData &&
+                                          snapshot.data!.isNotEmpty
+                                      ? snapshot.data!
+                                      : "School information unavailable",
+                              style: AppTextStyles.MetropolisRegular.copyWith(
+                                color: const Color(0xFF6E8CA0),
+                                fontSize: 12,
+                              ),
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                            );
+                          },
                         ),
                         const SizedBox(height: 2),
                         Text(
@@ -388,46 +400,5 @@ class NotificationItem extends StatelessWidget {
     } else {
       return 'Just now';
     }
-  }
-
-  // Helper method to extract school name from notification data
-  String _getSchoolName(NotificationModel notification) {
-    // Try to get school name directly from notification data
-    if (notification.data.containsKey('schoolName') &&
-        notification.data['schoolName'] != null &&
-        notification.data['schoolName'].toString().isNotEmpty) {
-      return notification.data['schoolName'].toString();
-    }
-
-    // Try to get school name from child data
-    if (notification.data.containsKey('childSchool') &&
-        notification.data['childSchool'] != null &&
-        notification.data['childSchool'].toString().isNotEmpty) {
-      return notification.data['childSchool'].toString();
-    }
-
-    // Try to get school name from cafeteria data
-    if (notification.data.containsKey('cafeteriaSchool') &&
-        notification.data['cafeteriaSchool'] != null &&
-        notification.data['cafeteriaSchool'].toString().isNotEmpty) {
-      return notification.data['cafeteriaSchool'].toString();
-    }
-
-    // Try to get cafeteria name as a fallback
-    if (notification.data.containsKey('cafeteriaName') &&
-        notification.data['cafeteriaName'] != null &&
-        notification.data['cafeteriaName'].toString().isNotEmpty) {
-      return notification.data['cafeteriaName'].toString();
-    }
-
-    // Try to get child name and use that as a fallback
-    if (notification.data.containsKey('childName') &&
-        notification.data['childName'] != null &&
-        notification.data['childName'].toString().isNotEmpty) {
-      return "${notification.data['childName'].toString()}'s school";
-    }
-
-    // Default fallback
-    return 'School not specified';
   }
 }

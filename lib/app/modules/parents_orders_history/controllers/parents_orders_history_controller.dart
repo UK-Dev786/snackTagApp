@@ -2,14 +2,19 @@ import 'package:get/get.dart';
 import 'package:snacktag/models/notification_model.dart';
 import 'package:snacktag/services/notifications_service/notifications_service.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:intl/intl.dart';
 
 class ParentsOrdersHistoryController extends GetxController {
   final NotificationService _notificationService = NotificationService();
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final RxList<NotificationModel> notifications = <NotificationModel>[].obs;
   final RxBool isLoading = false.obs;
   final RxString errorMessage = ''.obs;
   final count = 0.obs;
+
+  // Cache for school names to avoid repeated database queries
+  final Map<String, String> _schoolNameCache = {};
 
   @override
   void onInit() {
@@ -191,5 +196,126 @@ class ParentsOrdersHistoryController extends GetxController {
     } finally {
       isLoading.value = false;
     }
+  }
+
+  // Method to get school name for a child from the parentsChildren collection
+  Future<String> getSchoolNameForChild(String childId) async {
+    // Check cache first
+    if (_schoolNameCache.containsKey(childId)) {
+      return _schoolNameCache[childId]!;
+    }
+
+    try {
+      // Try to find the document by querying for the childId field
+      QuerySnapshot querySnapshot = await _firestore
+          .collection('parentsChildren')
+          .where('childId', isEqualTo: childId)
+          .limit(1)
+          .get();
+
+      if (querySnapshot.docs.isNotEmpty) {
+        // Extract school name from the document
+        final data = querySnapshot.docs.first.data() as Map<String, dynamic>;
+        final schoolName = data['schoolName'] as String?;
+
+        if (schoolName != null && schoolName.isNotEmpty) {
+          // Cache the result
+          _schoolNameCache[childId] = schoolName;
+          return schoolName;
+        }
+      }
+
+      // If we couldn't find by childId, try direct document reference
+      DocumentSnapshot childDoc =
+          await _firestore.collection('parentsChildren').doc(childId).get();
+
+      if (childDoc.exists) {
+        final data = childDoc.data() as Map<String, dynamic>;
+        final schoolName = data['schoolName'] as String?;
+
+        if (schoolName != null && schoolName.isNotEmpty) {
+          // Cache the result
+          _schoolNameCache[childId] = schoolName;
+          return schoolName;
+        }
+      }
+
+      return "School information unavailable";
+    } catch (e) {
+      print("Error fetching school name for child: $e");
+      return "School information unavailable";
+    }
+  }
+
+  // Method to get school name from notification data or database
+  Future<String> getSchoolNameForNotification(
+      NotificationModel notification) async {
+    // Try to get school name directly from notification data
+    if (notification.data.containsKey('schoolName') &&
+        notification.data['schoolName'] != null &&
+        notification.data['schoolName'].toString().isNotEmpty) {
+      return notification.data['schoolName'].toString();
+    }
+
+    // Try to get cafeteria name from notification data
+    if (notification.data.containsKey('cafeteriaName') &&
+        notification.data['cafeteriaName'] != null &&
+        notification.data['cafeteriaName'].toString().isNotEmpty) {
+      return notification.data['cafeteriaName'].toString();
+    }
+
+    // Try to get child ID from notification data
+    String? childId;
+    if (notification.data.containsKey('childId') &&
+        notification.data['childId'] != null &&
+        notification.data['childId'].toString().isNotEmpty) {
+      childId = notification.data['childId'].toString();
+    }
+
+    // If we have a child ID, try to get school name from database
+    if (childId != null) {
+      return await getSchoolNameForChild(childId);
+    }
+
+    // Try to get order ID from notification data
+    String? orderId;
+    if (notification.data.containsKey('orderId') &&
+        notification.data['orderId'] != null &&
+        notification.data['orderId'].toString().isNotEmpty) {
+      orderId = notification.data['orderId'].toString();
+
+      // Try to get order details from database
+      try {
+        DocumentSnapshot orderDoc =
+            await _firestore.collection('orderPreparation').doc(orderId).get();
+
+        if (orderDoc.exists) {
+          final data = orderDoc.data() as Map<String, dynamic>;
+
+          // Try to get school name from order
+          final schoolName = data['schoolName'] as String?;
+          if (schoolName != null && schoolName.isNotEmpty) {
+            return schoolName;
+          }
+
+          // Try to get cafeteria name from order
+          final cafeteriaName = data['cafeteriaName'] as String?;
+          if (cafeteriaName != null && cafeteriaName.isNotEmpty) {
+            return cafeteriaName;
+          }
+
+          // Try to get child ID from order and then get school name
+          final childIdFromOrder = data['childId'] as String?;
+          if (childIdFromOrder != null && childIdFromOrder.isNotEmpty) {
+            return await getSchoolNameForChild(childIdFromOrder);
+          }
+        }
+      } catch (e) {
+        print("Error fetching order details: $e");
+      }
+    }
+
+    // If all else fails, return a generic message
+    return "School information unavailable";
   }
 }
