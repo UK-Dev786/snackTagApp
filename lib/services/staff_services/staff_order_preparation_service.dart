@@ -81,15 +81,17 @@ class StaffOrderPreparationService {
   Future<bool> markOrderAsDelivered(
       String orderId, String deliveredBy, String staffId) async {
     try {
-      await _firestore.collection('orderPreparation').doc(orderId).update({
+      Map<String, dynamic> updateData = {
         'delivered': true,
         'status': 'Delivered',
         'orderDeliveredTime': DateTime.now().toIso8601String(),
         'startPreparation': false,
         'orderDeliveredBy': deliveredBy,
-        staffId: staffId,
-      });
-      print("✅ Order marked as delivered: $orderId");
+        'staffOrderDeliveredId': staffId,  // Store staff ID properly
+      };
+      
+      await _firestore.collection('orderPreparation').doc(orderId).update(updateData);
+      print("✅ Order marked as delivered: $orderId by staff: $staffId");
       return true;
     } catch (e) {
       print("❌ Error marking order as delivered: $e");
@@ -338,41 +340,114 @@ class StaffOrderPreparationService {
     }
   }
 
-  // Method to get delivered orders for a specific date range
+  // Method to get delivered orders for a specific date range without requiring complex index
   Future<List<ParentsAddChildren>> getDeliveredOrdersForDateRange(
       String cafeteriaName, String startDateStr, String endDateStr) async {
     try {
       print(
           "📅 Fetching delivered orders from $startDateStr to $endDateStr for cafeteria: $cafeteriaName");
 
+      // Use a simpler query that requires fewer indexes
       QuerySnapshot<Map<String, dynamic>> snapshot = await _firestore
           .collection('orderPreparation')
           .where('cafeteriaName', isEqualTo: cafeteriaName)
-          .where('status',
-              isEqualTo: 'Delivered') // Only get orders with status 'Delivered'
-          .where('delivered',
-              isEqualTo: true) // Only get orders marked as delivered
-          .where('orderDeliveredTime', isGreaterThanOrEqualTo: startDateStr)
-          .where('orderDeliveredTime', isLessThanOrEqualTo: endDateStr)
-          .orderBy('orderDeliveredTime', descending: true)
+          .where('delivered', isEqualTo: true)
           .get();
 
-      print(
-          "📦 Fetched ${snapshot.docs.length} delivered orders for date range");
+      print("📦 Fetched ${snapshot.docs.length} total delivered orders for cafeteria");
 
+      // Filter the results in memory instead of in the query
       List<ParentsAddChildren> orders = [];
       for (var doc in snapshot.docs) {
         try {
-          orders.add(ParentsAddChildren.fromJson(doc.data()));
+          Map<String, dynamic> data = doc.data();
+          
+          // Check status
+          if (data['status'] != 'Delivered') {
+            continue;
+          }
+          
+          // Check delivery time
+          String? deliveryTime = data['orderDeliveredTime'];
+          if (deliveryTime == null) {
+            continue;
+          }
+          
+          // Check if within date range
+          if (deliveryTime.compareTo(startDateStr) < 0 || 
+              deliveryTime.compareTo(endDateStr) > 0) {
+            continue;
+          }
+          
+          // If we got here, the order matches all our criteria
+          orders.add(ParentsAddChildren.fromJson(data));
         } catch (e) {
           print("❌ Error parsing order data: $e");
         }
       }
+      
+      // Sort the results manually (descending by delivery time)
+      orders.sort((a, b) {
+        String timeA = a.orderDeliveredTime ?? '';
+        String timeB = b.orderDeliveredTime ?? '';
+        return timeB.compareTo(timeA); // Descending order
+      });
 
+      print("📦 Filtered to ${orders.length} delivered orders within date range");
       return orders;
     } catch (e) {
       print("❌ Error fetching delivered orders for date range: $e");
-      return [];
+      
+      // Try an even simpler approach if the first one fails
+      try {
+        print("🔄 Trying alternative approach to fetch orders");
+        
+        // Just get all orders for the cafeteria
+        QuerySnapshot<Map<String, dynamic>> snapshot = await _firestore
+            .collection('orderPreparation')
+            .where('cafeteriaName', isEqualTo: cafeteriaName)
+            .get();
+        
+        List<ParentsAddChildren> orders = [];
+        for (var doc in snapshot.docs) {
+          try {
+            Map<String, dynamic> data = doc.data();
+            
+            // Apply all filters in memory
+            if (data['delivered'] != true || 
+                data['status'] != 'Delivered') {
+              continue;
+            }
+            
+            String? deliveryTime = data['orderDeliveredTime'];
+            if (deliveryTime == null) {
+              continue;
+            }
+            
+            if (deliveryTime.compareTo(startDateStr) < 0 || 
+                deliveryTime.compareTo(endDateStr) > 0) {
+              continue;
+            }
+            
+            orders.add(ParentsAddChildren.fromJson(data));
+          } catch (e) {
+            print("❌ Error parsing order data: $e");
+          }
+        }
+        
+        // Sort manually
+        orders.sort((a, b) {
+          String timeA = a.orderDeliveredTime ?? '';
+          String timeB = b.orderDeliveredTime ?? '';
+          return timeB.compareTo(timeA);
+        });
+        
+        print("📦 Alternative approach found ${orders.length} orders");
+        return orders;
+      } catch (fallbackError) {
+        print("❌ Alternative approach also failed: $fallbackError");
+        return [];
+      }
     }
   }
 }
