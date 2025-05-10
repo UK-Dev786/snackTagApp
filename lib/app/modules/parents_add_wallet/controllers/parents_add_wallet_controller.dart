@@ -68,10 +68,38 @@ class ParentsAddWalletController extends GetxController {
       final user = _auth.currentUser;
       print("👤 Current user ID: ${user?.uid}");
 
+      // Get the current wallet data to preserve monthly expenditures
+      double currentMonthlyExpenditures = 0.0;
+
+      // Try to get the existing wallet data
+      try {
+        final walletSnapshot = await FirebaseFirestore.instance
+            .collection('users')
+            .doc(user!.uid)
+            .collection('ParentWalletAmount')
+            .doc(user.uid)
+            .get();
+
+        if (walletSnapshot.exists) {
+          final data = walletSnapshot.data();
+          if (data != null && data.containsKey('monthlyExpenditures')) {
+            currentMonthlyExpenditures = data['monthlyExpenditures'] is double
+                ? data['monthlyExpenditures']
+                : double.tryParse(data['monthlyExpenditures'].toString()) ??
+                    0.0;
+          }
+        }
+      } catch (e) {
+        print("⚠️ Error fetching current wallet data: $e");
+        // Continue with default value if there's an error
+      }
+
       ParentAddWalletModel wallet = ParentAddWalletModel(
         parrentId: user!.uid,
         amount: parsedAmount,
         enableMonthlyReload: isMonthlyReloadEnabled.value,
+        monthlyExpenditures:
+            currentMonthlyExpenditures, // Preserve the current value
       );
 
       print("💼 Saving wallet data: ${wallet.toJson()}");

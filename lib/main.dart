@@ -24,7 +24,7 @@ void main() async {
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
-  
+
   // Initialize Firebase App Check BEFORE any other Firebase services
   try {
     // For debug builds, use the debug provider
@@ -44,10 +44,10 @@ void main() async {
       );
       print('✅ Firebase App Check initialized in production mode');
     }
-    
+
     // Enable token auto refresh
     await FirebaseAppCheck.instance.setTokenAutoRefreshEnabled(true);
-    
+
     // Verify App Check is working
     try {
       final token = await FirebaseAppCheck.instance.getToken();
@@ -59,7 +59,7 @@ void main() async {
     print('❌ Error initializing Firebase App Check: $e');
     // Continue with app initialization even if App Check fails
   }
-  
+
   // Initialize Stripe
   Stripe.publishableKey =
       'pk_test_51Qz5ao08zT37J1Lvgay2AfgAVN3ANqMnvc2MSsXKepaLSVF8EpV4iUwRkJVF06FsEYXOnQNnjg83NOfkVLTSv0Mv00kDI0wRJw';
