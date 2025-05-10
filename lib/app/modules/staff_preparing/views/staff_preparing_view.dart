@@ -108,7 +108,7 @@ class StaffPreparingView extends GetView<StaffOrderPreparingController> {
                                     Column(
                                       mainAxisAlignment: MainAxisAlignment
                                           .start, // Align image to top
-                                      children: [
+                                      children: [,kj;;
                                         Container(
                                           width: 55,
                                           height: 55,
