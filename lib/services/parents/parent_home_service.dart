@@ -49,7 +49,8 @@ class ParentHomeService {
       String docId = walletDoc.id;
       Map<String, dynamic> data = walletDoc.data() as Map<String, dynamic>;
 
-      ParentAddWalletModel wallet = ParentAddWalletModel.fromJson(docId, data);
+      ParentAddWalletModel wallet = ParentAddWalletModel.fromJson(data);
+      wallet.id = docId;
       print("✅ Wallet Data Updated: ${wallet.toJson()}");
 
       return wallet;

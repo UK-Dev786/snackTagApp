@@ -18,14 +18,14 @@ class ChildVerificationUploadInfoController extends GetxController {
   final ChildVerificationWalletService _walletService =
       ChildVerificationWalletService();
   final NotificationService _notificationService = NotificationService();
-  var childrenList = <ParentsAddChildren>[].obs;
-  var isLoading = false.obs;
+  final childrenList = RxList<ParentsAddChildren>([]);
+  final isLoading = false.obs;
   final walletData = Rxn<ParentAddWalletModel>();
   late final StaffHistoryController historyController;
   final UserPreferences preferences = UserPreferences();
   StaffModel? staffModel;
   // Add this property to track meal statuses
-  final mealStatuses = <String, RxString>{}.obs;
+  final mealStatuses = RxMap<String, RxString>();
 
   @override
   void onInit() {
@@ -338,6 +338,15 @@ class ChildVerificationUploadInfoController extends GetxController {
     required String orderPrepId,
   }) async {
     try {
+      // Get the child image URL from the child data
+      String? childImageUrl;
+      if (childrenList.isNotEmpty) {
+        childImageUrl = childrenList.first.childImageUrl;
+      }
+
+      print(
+          "Parent: Sending order prepared notification with childImageUrl: $childImageUrl");
+
       await _notificationService.sendNotification(
         userId: parentId,
         title: 'Order Preparation Started',
@@ -347,11 +356,13 @@ class ChildVerificationUploadInfoController extends GetxController {
           'orderId': orderPrepId,
           'preparedBy': staffName,
           'notificationType': 'order_prepared',
+          'childImageUrl':
+              childImageUrl, // Include child image URL in notification data
         },
       );
-      print("Order preparation notification sent to parent: $parentId");
+      print("Parent: Order preparation notification sent to parent: $parentId");
     } catch (e) {
-      print('Error sending order preparation notification: $e');
+      print('Parent: Error sending order preparation notification: $e');
     }
   }
 
@@ -463,7 +474,7 @@ class ChildVerificationUploadInfoController extends GetxController {
     // Check status immediately if not already done
     if (!mealStatuses.containsKey(mealKey)) {
       mealStatuses[mealKey] = 'Ready for Preparation'.obs;
-      checkMealStatus(meal);
+      // Don't call checkMealStatus here, it will be called by the timer
     }
 
     return mealStatuses[mealKey]?.value ?? 'Ready for Preparation';

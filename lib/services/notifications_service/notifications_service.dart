@@ -619,4 +619,33 @@ class NotificationService {
 
     return exists;
   }
+
+  // Add a method to force refresh notifications from Firestore
+  Future<void> refreshNotifications(String userId) async {
+    try {
+      print("🔄 Forcing refresh of notifications for user: $userId");
+
+      if (userId.isEmpty) {
+        print("🚫 Cannot refresh notifications: userId is empty");
+        return;
+      }
+
+      // Get a fresh snapshot from Firestore
+      final snapshot = await _firestore
+          .collection('users')
+          .doc(userId)
+          .collection('notifications')
+          .orderBy('timestamp', descending: true)
+          .get();
+
+      print(
+          "📊 Refreshed notifications: ${snapshot.docs.length} documents found");
+
+      // No need to process the data here, the stream will handle that
+      // This just ensures we've made a fresh request to Firestore
+    } catch (e) {
+      print("❌ Error refreshing notifications: $e");
+      rethrow;
+    }
+  }
 }

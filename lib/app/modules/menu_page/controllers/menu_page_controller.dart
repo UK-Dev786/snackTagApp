@@ -12,17 +12,17 @@ import 'package:snacktag/services/parents/school_cafaterias_model.dart';
 class MenuPageController extends GetxController {
   //TODO: Implement CafeteriaController
   final AddChildrenService addChildrenService = AddChildrenService();
-  var selectedIndexes = <int>{}.obs;
-  var scheduleModel = <MealSheduleModel>[].obs;
-  var cafeteriaId = ''.obs;
-  var isLoading = false.obs;
-  var meals = <MealModel>[].obs;
-  var searchText = "".obs;
-  var filteredMeals = <MealModel>[].obs;
-  var isDataFound = false.obs;
+  final selectedIndexes = RxSet<int>();
+  final scheduleModel = RxList<MealSheduleModel>();
+  final cafeteriaId = ''.obs;
+  final isLoading = false.obs;
+  final meals = RxList<MealModel>();
+  final searchText = "".obs;
+  final filteredMeals = RxList<MealModel>();
+  final isDataFound = false.obs;
   File? childImageFile;
-  var scheduleStatementList = <String>[].obs;
-// Initialize list
+  final scheduleStatementList = RxList<String>();
+  // Initialize list
   var childData = ParentsAddChildren();
   var cafeModel = <CafeteriaDetailsParents>[]; // Initialize list
   File? imageFile;
@@ -45,8 +45,7 @@ class MenuPageController extends GetxController {
       childData = args["childData"] as ParentsAddChildren;
 
       // Retrieve image file
-       imageFile = args["imageFile"] as File?;
-
+      imageFile = args["imageFile"] as File?;
     }
     print("cafeteria user id: ${cafeteriaId.value}");
     fetchMeals(cafeteriaId.value);
@@ -71,8 +70,8 @@ class MenuPageController extends GetxController {
       filteredMeals.assignAll(meals);
       isDataFound.value = false;
     } else {
-      filteredMeals.assignAll(
-          meals.where((meal) => meal.name!.toLowerCase().contains(searchText.value.toLowerCase())));
+      filteredMeals.assignAll(meals.where((meal) =>
+          meal.name!.toLowerCase().contains(searchText.value.toLowerCase())));
       isDataFound.value = filteredMeals.isEmpty;
     }
   }

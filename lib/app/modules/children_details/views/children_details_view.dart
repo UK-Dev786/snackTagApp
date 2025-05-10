@@ -16,140 +16,162 @@ class ChildrenDetailsView extends GetView<ChildrenDetailsController> {
   const ChildrenDetailsView({super.key});
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.white, // Set the background color to white
-
-      body: SingleChildScrollView(
-        child: Column(
-          children: [
-            Padding(
-              padding: const EdgeInsets.only(
-                  left: 24, right: 24, top: 42, bottom: 12),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisAlignment: MainAxisAlignment.start,
-                children: [
-                  Align(
-                    alignment: Alignment.topLeft,
-                    child: GestureDetector(
-                      onTap: () {
-                        Get.back();
-                      },
-                      child: Container(
-                        height: 35,
-                        width: 35,
-                        margin: const EdgeInsets.only(
-                            top: 16), // Add some margin if needed
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.grey.withOpacity(0.2),
-                              blurRadius: 4,
-                              spreadRadius: 2,
+    return GetBuilder<ChildrenDetailsController>(builder: (controller) {
+      return Scaffold(
+        backgroundColor: Colors.white,
+        appBar: AppBar(
+          backgroundColor: Colors.white,
+          elevation: 0,
+          leading: IconButton(
+            icon: const Icon(
+              Icons.arrow_back_ios,
+              color: Colors.black,
+            ),
+            onPressed: () {
+              Get.back();
+            },
+          ),
+          title: Text(
+            "Children Details",
+            style: AppTextStyles.MetropolisBold.copyWith(
+              fontSize: 18,
+              color: Colors.black,
+            ),
+          ),
+        ),
+        body: SingleChildScrollView(
+          child: Column(
+            children: [
+              Padding(
+                padding: const EdgeInsets.only(
+                    left: 24, right: 24, top: 42, bottom: 12),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: [
+                    Align(
+                      alignment: Alignment.topLeft,
+                      child: GestureDetector(
+                        onTap: () {
+                          Get.back();
+                        },
+                        child: Container(
+                          height: 35,
+                          width: 35,
+                          margin: const EdgeInsets.only(
+                              top: 16), // Add some margin if needed
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.grey.withOpacity(0.2),
+                                blurRadius: 4,
+                                spreadRadius: 2,
+                              ),
+                            ],
+                            color: Colors
+                                .white, // Background color for the container
+                          ),
+                          child: Center(
+                            child: Image.asset(
+                              "assets/icon/back.png",
+                              height: 15, // Set the height to 15
+                              width: 10, // Set the width to 15
                             ),
-                          ],
-                          color: Colors
-                              .white, // Background color for the container
-                        ),
-                        child: Center(
-                          child: Image.asset(
-                            "assets/icon/back.png",
-                            height: 15, // Set the height to 15
-                            width: 10, // Set the width to 15
                           ),
                         ),
                       ),
                     ),
-                  ),
-                  const SizedBox(
-                    height: 8,
-                  ),
-                  Align(
-                    alignment: Alignment.center,
-                    child: Text(
-                      'CAFETERIA DETAILS',
-                      style: AppTextStyles.MetropolisMedium.copyWith(
-                          color: const Color(0xFF434343), fontSize: 18),
+                    const SizedBox(
+                      height: 8,
                     ),
-                  ),
-                  const SizedBox(
-                    height: 30,
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 8),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        _buildSelectCafeteria(),
-                        const SizedBox(height: 16),
-                        _buildCafeteriaDetails(controller.cafeModel[0]),
-                        const SizedBox(height: 12),
-                        _buildSelectMeal(),
-                        _selectMealDeals(controller.selectedMealData),
-                        const SizedBox(height: 8),
-                        Align(
-                          alignment: Alignment
-                              .centerRight, // Aligns content to the right
-                          child: GestureDetector(
-                            onTap: () {
-                              // Add your logic here
-                              Get.back();
-                            },
-                            child: Row(
-                              mainAxisSize: MainAxisSize
-                                  .min, // Ensures the row only takes as much space as needed
-                              children: [
-                                Image.asset(
-                                  "assets/icon/add.png",
-                                  height: 15, // Set the height to 15
-                                  width: 15, // Set the width to 15
-                                ),
-                                const SizedBox(width: 4),
-                                Text(
-                                  "Add",
-                                  style: AppTextStyles.PoppinsRegular.copyWith(
-                                    fontSize: 13,
-                                    color: const Color(0xFFF4C150),
+                    Align(
+                      alignment: Alignment.center,
+                      child: Text(
+                        'CAFETERIA DETAILS',
+                        style: AppTextStyles.MetropolisMedium.copyWith(
+                            color: const Color(0xFF434343), fontSize: 18),
+                      ),
+                    ),
+                    const SizedBox(
+                      height: 30,
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 8),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          _buildSelectCafeteria(),
+                          const SizedBox(height: 16),
+                          _buildCafeteriaDetails(controller.cafeModel[0]),
+                          const SizedBox(height: 12),
+                          _buildSelectMeal(),
+                          _selectMealDeals(controller.selectedMealData),
+                          const SizedBox(height: 8),
+                          Align(
+                            alignment: Alignment
+                                .centerRight, // Aligns content to the right
+                            child: GestureDetector(
+                              onTap: () {
+                                // Add your logic here
+                                Get.back();
+                              },
+                              child: Row(
+                                mainAxisSize: MainAxisSize
+                                    .min, // Ensures the row only takes as much space as needed
+                                children: [
+                                  Image.asset(
+                                    "assets/icon/add.png",
+                                    height: 15, // Set the height to 15
+                                    width: 15, // Set the width to 15
                                   ),
-                                ),
-                              ],
+                                  const SizedBox(width: 4),
+                                  Text(
+                                    "Add",
+                                    style:
+                                        AppTextStyles.PoppinsRegular.copyWith(
+                                      fontSize: 13,
+                                      color: const Color(0xFFF4C150),
+                                    ),
+                                  ),
+                                ],
+                              ),
                             ),
                           ),
-                        ),
-                        const SizedBox(height: 18),
-                        _buildClassRoomDelivery(),
-                        const SizedBox(height: 34),
-                      ],
+                          const SizedBox(height: 18),
+                          _buildClassRoomDelivery(),
+                          const SizedBox(height: 34),
+                        ],
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
-            ),
-            Obx(
-              () => isEdit == true
-                  ? CustomButton1(
-                      fontSize: 16,
-                      isBackColor: true,
-                      text: 'UPDATE',
-                      onPressed: () {
-                        controller.updateChildren();
-                      },
-                      isLoading: controller.isLoading.value)
-                  : CustomButton1(
-                      fontSize: 16,
-                      isBackColor: true,
-                      text: 'SUBMIT',
-                      onPressed: () {
-                        controller.addChildren();
-                      },
-                      isLoading: controller.isLoading.value),
-            ),
-            const SizedBox(height: 16),
-          ],
+              Obx(
+                () => isEdit == true
+                    ? CustomButton1(
+                        fontSize: 16,
+                        isBackColor: true,
+                        text: 'UPDATE',
+                        onPressed: () {
+                          controller.updateChildren();
+                        },
+                        isLoading: controller.isLoading.value)
+                    : CustomButton1(
+                        fontSize: 16,
+                        isBackColor: true,
+                        text: 'SUBMIT',
+                        onPressed: () {
+                          controller.addChildren();
+                        },
+                        isLoading: controller.isLoading.value),
+              ),
+              const SizedBox(height: 16),
+            ],
+          ),
         ),
-      ),
-    );
+      );
+    });
   }
 
 // Type of Payment

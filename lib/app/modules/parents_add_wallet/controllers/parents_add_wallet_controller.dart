@@ -49,11 +49,14 @@ class ParentsAddWalletController extends GetxController {
     }
 
     isLoading.value = true;
+    print("💰 Starting wallet payment process for amount: $parsedAmount");
 
     try {
       // Process payment first
+      print("💳 Processing payment...");
       final paymentSuccess =
           await _stripeService.processWalletPayment(parsedAmount);
+      print("💳 Payment result: ${paymentSuccess ? 'Success' : 'Failed'}");
 
       if (!paymentSuccess) {
         Get.snackbar("Error", "Payment failed");
@@ -63,17 +66,22 @@ class ParentsAddWalletController extends GetxController {
 
       // If payment successful, save to wallet
       final user = _auth.currentUser;
+      print("👤 Current user ID: ${user?.uid}");
+
       ParentAddWalletModel wallet = ParentAddWalletModel(
         parrentId: user!.uid,
         amount: parsedAmount,
         enableMonthlyReload: isMonthlyReloadEnabled.value,
       );
 
+      print("💼 Saving wallet data: ${wallet.toJson()}");
       await ParentAddWalletService().addOrUpdateWalletAmount(wallet);
+      print("✅ Wallet data saved successfully");
+
       Get.snackbar("Success", "Balance Added Successfully");
       doesParentHaveChildren();
     } catch (error) {
-      print("Error: ${error.toString()}");
+      print("❌ Error in saveWalletData: ${error.toString()}");
       Get.snackbar("Error", "Failed to process payment");
     } finally {
       isLoading.value = false;

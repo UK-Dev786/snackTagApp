@@ -176,9 +176,9 @@ class StaffOrderPreparingController extends GetxController {
 
         // Mark the order as delivered - pass staff ID if available
         bool success = await _preparationService.markOrderAsDelivered(
-            orderId, 
+            orderId,
             staffData.value!.staffName!,
-            staffData.value!.staffPhone ?? '');  // Pass staff ID if available
+            staffData.value!.staffPhone ?? ''); // Pass staff ID if available
 
         if (success) {
           // Send notification to parent about order delivery
@@ -423,22 +423,58 @@ class StaffOrderPreparingController extends GetxController {
     required String orderId,
   }) async {
     try {
+      // Get the child image URL from the order details
+      ParentsAddChildren? orderDetails =
+          await _preparationService.getOrderDetails(orderId);
+      String? childImageUrl = orderDetails?.childImageUrl;
+      String? schoolName = orderDetails?.schoolName;
+
+      print(
+          "Parent: Sending order delivered notification with childImageUrl: $childImageUrl, schoolName: $schoolName");
+
+      // Get cafeteria name from the order details or from the staff data
+      String? cafeteriaName = orderDetails?.cafeteriaName;
+      if ((cafeteriaName == null || cafeteriaName.isEmpty) &&
+          cafeteriaData.value != null) {
+        cafeteriaName = cafeteriaData.value!.cafeteriaName;
+      }
+
       await _notificationService.sendNotification(
         userId: parentId,
-        title: 'Order Delivered',
-        body: 'The order for $childName has been delivered by $staffName',
+        title: '$childName',
+        // body:
+        //     'received ${getMealTimeFromOrder(orderDetails)} meal from ${cafeteriaName ?? "cafeteria"}',
+        body: 'received ${getMealTimeFromOrder(orderDetails)} meal',
         type: 'order_delivered',
         data: {
           'orderId': orderId,
           'deliveredBy': staffName,
           'notificationType': 'order_delivered',
+          'childImageUrl':
+              childImageUrl, // Include child image URL in notification data
+          'schoolName': schoolName, // Include school name in notification data
+          'childName': childName, // Include child name in notification data
+          'cafeteriaName':
+              cafeteriaName, // Include cafeteria name in notification data
         },
       );
-      print("Order delivery notification sent to parent: $parentId");
+      print("Parent: Order delivery notification sent to parent: $parentId");
     } catch (e) {
-      print('Error sending order delivery notification: $e');
+      print('Parent: Error sending order delivery notification: $e');
       // Don't rethrow to prevent disrupting the main flow
     }
+  }
+
+  // Helper method to get meal time from order
+  String getMealTimeFromOrder(ParentsAddChildren? orderDetails) {
+    if (orderDetails?.selectedMealMenuData != null &&
+        orderDetails!.selectedMealMenuData!.isNotEmpty &&
+        orderDetails.selectedMealMenuData![0].schedule?.availableAt != null &&
+        orderDetails
+            .selectedMealMenuData![0].schedule!.availableAt!.isNotEmpty) {
+      return orderDetails.selectedMealMenuData![0].schedule!.availableAt![0];
+    }
+    return "scheduled";
   }
 
   @override

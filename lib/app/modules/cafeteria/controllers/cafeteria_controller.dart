@@ -8,19 +8,19 @@ class CafeteriaController extends GetxController {
 
   //TODO: Implement CafeteriaController
 
-  var selectedIndexes = <int>{}.obs;
-var  cafeteriaL = <UserModel>[].obs;
-  var filteredCafeteriaL = <UserModel>[].obs;
+  // Initialize with RxSet directly instead of using .obs on a Set literal
+  final selectedIndexes = RxSet<int>();
+  final cafeteriaL = RxList<UserModel>();
+  final filteredCafeteriaL = RxList<UserModel>();
 
-  var schoolName = ''.obs; // Store the school name
-  var childName = ''.obs; // Store the school name
-  var childId = ''.obs; // Store the school name
-  TextEditingController searchTextController = TextEditingController();
-  var isLoading = false.obs;
-  var isDataFound = false.obs;
-  var searchText = "".obs;
+  final schoolName = ''.obs; // Store the school name
+  final childName = ''.obs; // Store the school name
+  final childId = ''.obs; // Store the school name
+  final TextEditingController searchTextController = TextEditingController();
+  final isLoading = false.obs;
+  final isDataFound = false.obs;
+  final searchText = "".obs;
   bool isEdit = false;
-
 
   final TextEditingController textController = TextEditingController();
 
@@ -31,7 +31,7 @@ var  cafeteriaL = <UserModel>[].obs;
     if (Get.arguments != null && Get.arguments is String) {
       schoolName.value = Get.arguments;
       childName.value = Get.arguments;
-   }
+    }
 
     fetchSchoolCafeteria();
   }
@@ -40,7 +40,8 @@ var  cafeteriaL = <UserModel>[].obs;
     isLoading.value = true;
 
     // Ensure getCafeteriaSchool returns a Stream
-    cafeteriaL.bindStream(addChildrenService.getCafeteriaSchool(schoolName.value));
+    cafeteriaL
+        .bindStream(addChildrenService.getCafeteriaSchool(schoolName.value));
 
     cafeteriaL.listen((_) {
       print("Fetched School Data: $cafeteriaL");
@@ -54,11 +55,11 @@ var  cafeteriaL = <UserModel>[].obs;
       filteredCafeteriaL.assignAll(cafeteriaL);
       isDataFound.value = false;
     } else {
-      filteredCafeteriaL.assignAll(
-          cafeteriaL.where((cafeteria) =>
-          (cafeteria.cafeteriaName?.toLowerCase().contains(searchText.value.toLowerCase()) ?? false)
-          )
-      );
+      filteredCafeteriaL.assignAll(cafeteriaL.where((cafeteria) => (cafeteria
+              .cafeteriaName
+              ?.toLowerCase()
+              .contains(searchText.value.toLowerCase()) ??
+          false)));
       isDataFound.value = filteredCafeteriaL.isEmpty;
     }
   }

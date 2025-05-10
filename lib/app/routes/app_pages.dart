@@ -1,25 +1,15 @@
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
-import 'package:snacktag/app/modules/admin_setting_profile/bindings/admin_setting_profile_binding.dart';
-import 'package:snacktag/app/modules/admin_setting_profile/views/admin_setting_profile_view.dart';
-import 'package:snacktag/app/modules/cafeteria_add_staff/bindings/cafeteria_edit_staff_binding.dart';
-import 'package:snacktag/app/modules/cafeteria_add_staff/views/cafeteria_edit_staff_view.dart';
-import 'package:snacktag/app/modules/cafeteria_upcoming_detail/binding/cafeteria_upcoming_detail_binding.dart';
-import 'package:snacktag/app/modules/cafeteria_upcoming_detail/view/cafeteria_upcoming_detail_viewe.dart';
-import 'package:snacktag/app/modules/parent_children_edit/binding/parent_children_edit_binding.dart';
-import 'package:snacktag/app/modules/parent_children_edit/view/parent_children_edit_VIEW.dart';
-import 'package:snacktag/app/modules/parent_upcoming_order_detail/binding/parent_upcoming_order_detail_binding.dart';
-import 'package:snacktag/app/modules/parents_profile/binding/parent_profile_binding.dart';
-import 'package:snacktag/app/modules/parents_profile/view/parent_profile_view.dart';
-import 'package:snacktag/app/modules/staff_order_history/bindings/staff_order_history_binding.dart';
-import 'package:snacktag/app/modules/staff_order_history/views/staff_order_history_view.dart';
-import 'package:snacktag/app/modules/staff_setting_profile/bindings/staff_setting_profile_binding.dart';
-import 'package:snacktag/app/modules/staff_setting_profile/views/staff_setting_profile_view.dart';
 
+import 'package:get/get.dart';
+
+import '../modules/admin_setting_profile/bindings/admin_setting_profile_binding.dart';
+import '../modules/admin_setting_profile/views/admin_setting_profile_view.dart';
 import '../modules/cafeteria/bindings/cafeteria_binding.dart';
 import '../modules/cafeteria/views/cafeteria_view.dart';
 import '../modules/cafeteria_add_staff/bindings/cafeteria_add_staff_binding.dart';
+import '../modules/cafeteria_add_staff/bindings/cafeteria_edit_staff_binding.dart';
 import '../modules/cafeteria_add_staff/views/cafeteria_add_staff_view.dart';
+import '../modules/cafeteria_add_staff/views/cafeteria_edit_staff_view.dart';
 import '../modules/cafeteria_child_verification/bindings/cafeteria_child_verification_binding.dart';
 import '../modules/cafeteria_child_verification/views/cafeteria_child_verification_view.dart';
 import '../modules/cafeteria_child_verification_home/bindings/cafeteria_child_verification_home_binding.dart';
@@ -46,10 +36,14 @@ import '../modules/cafeteria_phone_authenication/bindings/cafeteria_phone_authen
 import '../modules/cafeteria_phone_authenication/views/cafeteria_phone_authenication_view.dart';
 import '../modules/cafeteria_phone_verification/bindings/cafeteria_phone_verification_binding.dart';
 import '../modules/cafeteria_phone_verification/views/cafeteria_phone_verification_view.dart';
+import '../modules/cafeteria_setting_history/bindings/cafeteria_setting_history_binding.dart';
+import '../modules/cafeteria_setting_history/views/cafeteria_setting_history_view.dart';
 import '../modules/cafeteria_settings/bindings/cafeteria_settings_binding.dart';
 import '../modules/cafeteria_settings/views/cafeteria_settings_view.dart';
 import '../modules/cafeteria_staff_list/bindings/cafeteria_staff_list_binding.dart';
 import '../modules/cafeteria_staff_list/views/cafeteria_staff_list_view.dart';
+import '../modules/cafeteria_upcoming_detail/binding/cafeteria_upcoming_detail_binding.dart';
+import '../modules/cafeteria_upcoming_detail/view/cafeteria_upcoming_detail_viewe.dart';
 import '../modules/child_verification_upload_info/bindings/child_verification_upload_info_binding.dart';
 import '../modules/child_verification_upload_info/views/child_verification_upload_info_view.dart';
 import '../modules/children_details/bindings/children_details_binding.dart';
@@ -66,8 +60,12 @@ import '../modules/menu_page/bindings/menu_page_binding.dart';
 import '../modules/menu_page/views/menu_page_view.dart';
 import '../modules/notifications/bindings/notifications_binding.dart';
 import '../modules/notifications/views/notifications_view.dart';
+import '../modules/parent_children_edit/binding/parent_children_edit_binding.dart';
+import '../modules/parent_children_edit/view/parent_children_edit_VIEW.dart';
 import '../modules/parent_name/bindings/parent_name_binding.dart';
 import '../modules/parent_name/views/parent_name_view.dart';
+import '../modules/parent_upcoming_order_detail/binding/parent_upcoming_order_detail_binding.dart';
+import '../modules/parent_upcoming_order_detail/view/parent_upcoming_order_detail_view.dart';
 import '../modules/parents_add_wallet/bindings/parents_add_wallet_binding.dart';
 import '../modules/parents_add_wallet/views/parents_add_wallet_view.dart';
 import '../modules/parents_children_details/bindings/parents_children_details_binding.dart';
@@ -82,6 +80,10 @@ import '../modules/parents_history_select_date/bindings/parents_history_select_d
 import '../modules/parents_history_select_date/views/parents_history_select_date_view.dart';
 import '../modules/parents_home/bindings/parents_home_binding.dart';
 import '../modules/parents_home/views/parents_home_view.dart';
+import '../modules/parents_orders_history/bindings/parents_orders_history_binding.dart';
+import '../modules/parents_orders_history/views/parents_orders_history_view.dart';
+import '../modules/parents_profile/binding/parent_profile_binding.dart';
+import '../modules/parents_profile/view/parent_profile_view.dart';
 import '../modules/phone_authentication/bindings/phone_authentication_binding.dart';
 import '../modules/phone_authentication/views/phone_authentication_view.dart';
 import '../modules/phone_verification/bindings/phone_verification_binding.dart';
@@ -92,6 +94,8 @@ import '../modules/qr_code/bindings/qr_code_binding.dart';
 import '../modules/qr_code/views/qr_code_view.dart';
 import '../modules/selection/bindings/selection_binding.dart';
 import '../modules/selection/views/selection_view.dart';
+import '../modules/setting_parent_profile/bindings/setting_parent_profile_binding.dart';
+import '../modules/setting_parent_profile/views/setting_parent_profile_view.dart';
 import '../modules/settings/bindings/settings_binding.dart';
 import '../modules/settings/views/settings_view.dart';
 import '../modules/sign_in/bindings/sign_in_binding.dart';
@@ -119,19 +123,20 @@ import '../modules/staff_landing_page/bindings/staff_landing_page_binding.dart';
 import '../modules/staff_landing_page/views/staff_landing_page_view.dart';
 import '../modules/staff_meal_selection/bindings/staff_meal_selection_binding.dart';
 import '../modules/staff_meal_selection/views/staff_meal_selection_view.dart';
+import '../modules/staff_order_details/bindings/staff_order_details_binding.dart';
+import '../modules/staff_order_details/views/staff_order_details_view.dart';
+import '../modules/staff_order_history/bindings/staff_order_history_binding.dart';
+import '../modules/staff_order_history/views/staff_order_history_view.dart';
 import '../modules/staff_phone_verification/bindings/staff_phone_verification_binding.dart';
 import '../modules/staff_phone_verification/views/staff_phone_verification_view.dart';
 import '../modules/staff_preparing/bindings/staff_preparing_binding.dart';
 import '../modules/staff_preparing/views/staff_preparing_view.dart';
 import '../modules/staff_profile/bindings/staff_profile_binding.dart';
 import '../modules/staff_profile/views/staff_profile_view.dart';
+import '../modules/staff_setting_profile/bindings/staff_setting_profile_binding.dart';
+import '../modules/staff_setting_profile/views/staff_setting_profile_view.dart';
 import '../modules/staff_settings/bindings/staff_settings_binding.dart';
 import '../modules/staff_settings/views/staff_settings_view.dart';
-import '../modules/cafeteria_setting_history/bindings/cafeteria_setting_history_binding.dart';
-import '../modules/cafeteria_setting_history/views/cafeteria_setting_history_view.dart';
-import '../modules/parent_upcoming_order_detail/view/parent_upcoming_order_detail_view.dart';
-import '../modules/setting_parent_profile/bindings/setting_parent_profile_binding.dart';
-import '../modules/setting_parent_profile/views/setting_parent_profile_view.dart';
 import '../modules/stripe_onboarding/view/stripe_onboarding_view.dart';
 
 part 'app_routes.dart';
@@ -502,6 +507,17 @@ class AppPages {
       page: () => const StaffOrderHistoryView(),
       binding: StaffOrderHistoryBinding(),
       transition: Transition.fadeIn,
+    ),
+    GetPage(
+      name: _Paths.STAFF_ORDER_DETAILS,
+      page: () => const StaffOrderDetailsView(),
+      binding: StaffOrderDetailsBinding(),
+      transition: Transition.fadeIn,
+    ),
+    GetPage(
+      name: _Paths.PARENTS_ORDERS_HISTORY,
+      page: () => const ParentsOrdersHistoryView(),
+      binding: ParentsOrdersHistoryBinding(),
     ),
   ];
 }
