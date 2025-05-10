@@ -301,9 +301,10 @@ class ParentsHeader extends StatelessWidget {
                                                   return Image.asset(
                                                     child.childGender
                                                                 ?.toLowerCase() ==
-                                                            'female'
-                                                        ? AppImages.femaleAvatar
-                                                        : AppImages.maleAvatar,
+                                                            'Male'
+                                                        ? AppImages.maleAvatar
+                                                        : AppImages
+                                                            .femaleAvatar,
                                                     fit: BoxFit.contain,
                                                   );
                                                 },
@@ -311,7 +312,7 @@ class ParentsHeader extends StatelessWidget {
                                             : Image.asset(
                                                 child.childGender
                                                             ?.toLowerCase() ==
-                                                        'female'
+                                                        'Female'
                                                     ? AppImages.femaleAvatar
                                                     : AppImages.maleAvatar,
                                                 fit: BoxFit.contain,
