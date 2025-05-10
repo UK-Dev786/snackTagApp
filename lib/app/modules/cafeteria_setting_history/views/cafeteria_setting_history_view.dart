@@ -15,7 +15,7 @@
 //       body: SingleChildScrollView(
 //         child: GetBuilder<CafeteriaSettingHistoryController>(
 //           init: CafeteriaSettingHistoryController(),
-          
+
 //           builder: (context) {
 //             return Column(
 //               crossAxisAlignment: CrossAxisAlignment.start,
@@ -202,7 +202,8 @@ import 'package:snacktag/config/app_text_style.dart';
 import 'package:snacktag/widgets/custom_wallet_widget.dart';
 import '../controllers/cafeteria_setting_history_controller.dart';
 
-class CafeteriaSettingHistoryView extends GetView<CafeteriaSettingHistoryController> {
+class CafeteriaSettingHistoryView
+    extends GetView<CafeteriaSettingHistoryController> {
   const CafeteriaSettingHistoryView({super.key});
 
   @override
@@ -357,7 +358,8 @@ class CafeteriaSettingHistoryView extends GetView<CafeteriaSettingHistoryControl
                             color: Colors.grey.withOpacity(0.4),
                             spreadRadius: 1,
                             blurRadius: 6,
-                            offset: const Offset(0, 6), // changes position of shadow
+                            offset: const Offset(
+                                0, 6), // changes position of shadow
                           ),
                         ],
                       ),
@@ -378,32 +380,41 @@ class CafeteriaSettingHistoryView extends GetView<CafeteriaSettingHistoryControl
                                 ),
                                 boxShadow: [
                                   BoxShadow(
-                                    color: Colors.black.withOpacity(0.25), // Shadow color with transparency
+                                    color: Colors.black.withOpacity(
+                                        0.25), // Shadow color with transparency
                                     blurRadius: 8, // Spread of the shadow
-                                    offset: const Offset(0, 4), // Position of the shadow (x, y)
+                                    offset: const Offset(
+                                        0, 4), // Position of the shadow (x, y)
                                   ),
                                 ],
                               ),
                               child: ClipOval(
                                 child: order.childImageUrl!.isNotEmpty
                                     ? Image.network(
-                                  order.childImageUrl!,
-                                  fit: BoxFit.cover,
-                                  width: double.infinity,
-                                  height: 127,
-                                  loadingBuilder: (context, child, loadingProgress) {
-                                    if (loadingProgress == null) return child;
-                                    return const Center(child: CircularProgressIndicator());
-                                  },
-                                  errorBuilder: (context, error, stackTrace) {
-                                    return const Icon(Icons.error_outline_outlined, size: 20); //_buildPlaceholder();
-                                  },
-                                )
+                                        order.childImageUrl!,
+                                        fit: BoxFit.cover,
+                                        width: double.infinity,
+                                        height: 127,
+                                        loadingBuilder:
+                                            (context, child, loadingProgress) {
+                                          if (loadingProgress == null)
+                                            return child;
+                                          return const Center(
+                                              child:
+                                                  CircularProgressIndicator());
+                                        },
+                                        errorBuilder:
+                                            (context, error, stackTrace) {
+                                          return const Icon(
+                                              Icons.error_outline_outlined,
+                                              size: 20); //_buildPlaceholder();
+                                        },
+                                      )
                                     : Image.asset(
-                                  // 'assets/images/userimg.png', // Replace with the actual image URL
-                                  'assets/images/profile_emoji.png', // Replace with the actual image URL
-                                  fit: BoxFit.cover,
-                                ),
+                                        // 'assets/images/userimg.png', // Replace with the actual image URL
+                                        'assets/images/profile_emoji.png', // Replace with the actual image URL
+                                        fit: BoxFit.cover,
+                                      ),
                               ),
                             ),
                             const SizedBox(width: 16),
@@ -414,11 +425,13 @@ class CafeteriaSettingHistoryView extends GetView<CafeteriaSettingHistoryControl
                                 children: [
                                   // Order Name and Status
                                   Row(
-                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
                                     children: [
                                       Text(
                                         order.childName ?? 'Order',
-                                        style: AppTextStyles.MetropolisMedium.copyWith(
+                                        style: AppTextStyles.MetropolisMedium
+                                            .copyWith(
                                           fontSize: 16,
                                           color: const Color(0xFF2E2E2E),
                                         ),
@@ -457,7 +470,8 @@ class CafeteriaSettingHistoryView extends GetView<CafeteriaSettingHistoryControl
                                   // const SizedBox(height: 8),
                                   // Order Date and Price
                                   Row(
-                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
                                     children: [
                                       Row(
                                         children: [
@@ -478,17 +492,21 @@ class CafeteriaSettingHistoryView extends GetView<CafeteriaSettingHistoryControl
                                           //     color: const Color(0xFF8A8A8A),
                                           //   ),
                                           // ),
-                                          Text(order.schoolName!,
-                                            style: AppTextStyles.MetropolisRegular.copyWith(
-                                                  fontSize: 12,
-                                                  color: const Color(0xFF8A8A8A),
-                                                ),
+                                          Text(
+                                            order.schoolName!,
+                                            style: AppTextStyles
+                                                .MetropolisRegular.copyWith(
+                                              fontSize: 12,
+                                              color: const Color(0xFF8A8A8A),
+                                            ),
                                           )
                                         ],
                                       ),
+                                      // Price
                                       Text(
-                                        '\$${order.selectedMealMenuData![0].mealPrice ?? '0.00'}',
-                                        style: AppTextStyles.MetropolisBold.copyWith(
+                                        'MX\$${order.selectedMealMenuData![0].mealPrice ?? '0.00'}',
+                                        style: AppTextStyles.MetropolisBold
+                                            .copyWith(
                                           fontSize: 16,
                                           color: const Color(0xFF2E2E2E),
                                         ),
@@ -497,8 +515,10 @@ class CafeteriaSettingHistoryView extends GetView<CafeteriaSettingHistoryControl
                                   ),
                                   // const SizedBox(height: 8),
                                   // Order Details
-                                  Text(order.childSchoolID!,
-                                    style: AppTextStyles.MetropolisRegular.copyWith(
+                                  Text(
+                                    order.childSchoolID!,
+                                    style: AppTextStyles.MetropolisRegular
+                                        .copyWith(
                                       fontSize: 12,
                                       color: const Color(0xFF8A8A8A),
                                     ),

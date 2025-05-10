@@ -5,8 +5,9 @@ import 'package:snacktag/services/cefeteria_admin_services/cafeteria_setting_his
 
 class CafeteriaSettingHistoryController extends GetxController {
   final FirebaseAuth _auth = FirebaseAuth.instance;
-  final CafeteriaSettingHistoryService _historyService = CafeteriaSettingHistoryService();
-  
+  final CafeteriaSettingHistoryService _historyService =
+      CafeteriaSettingHistoryService();
+
   var isLoading = false.obs;
   var errorMessage = ''.obs;
   var selectedIndex = 0.obs;
@@ -28,7 +29,7 @@ class CafeteriaSettingHistoryController extends GetxController {
     try {
       isLoading.value = true;
       errorMessage.value = '';
-      
+
       // Get current user ID
       final String? userId = _auth.currentUser?.uid;
       if (userId == null) {
@@ -36,14 +37,20 @@ class CafeteriaSettingHistoryController extends GetxController {
         return;
       }
 
+      print("🔍 Fetching history data for user ID: $userId");
+
       // Fetch order history from service
       final orders = await _historyService.fetchOrderHistory(userId);
-      
+
       // Update the observable list
       orderHistory.assignAll(orders);
-      
+
       print("📋 Fetched ${orders.length} orders successfully");
-      
+
+      // If no orders were found, set a more user-friendly error message
+      if (orders.isEmpty) {
+        print("ℹ️ No orders found for this cafeteria admin");
+      }
     } catch (e) {
       errorMessage.value = 'Error fetching history data: $e';
       print("❌ Error in fetchHistoryData: $e");
