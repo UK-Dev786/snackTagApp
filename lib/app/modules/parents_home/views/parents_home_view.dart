@@ -258,7 +258,7 @@ class ParentsHomeView extends GetView<ParentsHomeController> {
                                             'Monthly Spending',
                                             style:
                                                 AppTextStyles.MetropolisMedium
-                                                    .copyWith(fontSize: 12),
+                                                    .copyWith(fontSize: 8),
                                           ),
                                         ],
                                       )
