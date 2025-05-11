@@ -531,6 +531,91 @@ class ChildVerificationUploadInfoController extends GetxController {
     }
   }
 
+  // Method to fetch all orders for a child for today
+  Future<List<Map<String, dynamic>>> fetchTodayOrdersForChild(String childId) async {
+    try {
+      if (childId.isEmpty) {
+        print("❌ Child ID is empty");
+        return [];
+      }
+      
+      // Get today's date
+      final now = DateTime.now();
+      final startOfDay = DateTime(now.year, now.month, now.day);
+      final endOfDay = startOfDay.add(const Duration(days: 1));
+      
+      // Convert to ISO string format
+      final startOfDayStr = startOfDay.toIso8601String();
+      final endOfDayStr = endOfDay.toIso8601String();
+      
+      print("🔍 Fetching orders for child $childId for today ($startOfDayStr to $endOfDayStr)");
+      
+      // Query Firestore for orders
+      final querySnapshot = await FirebaseFirestore.instance
+          .collection('orderPreparation')
+          .where('childId', isEqualTo: childId)
+          .get();
+      
+      // Filter orders for today
+      List<Map<String, dynamic>> todayOrders = [];
+      
+      for (var doc in querySnapshot.docs) {
+        final data = doc.data();
+        
+        // Skip cancelled orders
+        if (data['status'] == 'cancelled') {
+          continue;
+        }
+        
+        // Check if the order is from today
+        String? orderDate = data['orderPreparationDate'];
+        if (orderDate == null) {
+          continue;
+        }
+        
+        try {
+          DateTime orderDateTime = DateTime.parse(orderDate);
+          bool isToday = orderDateTime.year == now.year && 
+                         orderDateTime.month == now.month && 
+                         orderDateTime.day == now.day;
+          
+          if (isToday) {
+            print("📋 Found order from today: ${doc.id}");
+            todayOrders.add(data);
+          }
+        } catch (e) {
+          print("❌ Error parsing order date: $e");
+        }
+      }
+      
+      print("✅ Found ${todayOrders.length} orders for child $childId for today");
+      return todayOrders;
+    } catch (e) {
+      print("❌ Error fetching today's orders: $e");
+      return [];
+    }
+  }
+
+  // Method to check if a meal is already ordered today
+  bool isMealAlreadyOrderedToday(List<Map<String, dynamic>> todayOrders, String mealName) {
+    for (var order in todayOrders) {
+      final selectedMeals = order['selectedMealMenuData'] as List<dynamic>?;
+      if (selectedMeals == null) {
+        continue;
+      }
+      
+      for (var mealData in selectedMeals) {
+        if (mealData['mealName'] == mealName) {
+          print("✅ Meal $mealName is already ordered today");
+          return true;
+        }
+      }
+    }
+    
+    print("❌ Meal $mealName is NOT already ordered today");
+    return false;
+  }
+
   @override
   void onClose() {
     super.onClose();
