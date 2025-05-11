@@ -266,6 +266,8 @@ class ChildVerificationUploadInfoView extends StatelessWidget {
                           }
 
                           return FutureBuilder<List<Map<String, dynamic>>>(
+                            // Add a key that depends on a value that changes when we want to refresh
+                            key: ValueKey('orders-${controller.updateCounter}'),
                             future:
                                 controller.fetchTodayOrdersForChild(childId),
                             builder: (context, snapshot) {
@@ -479,7 +481,7 @@ class ChildVerificationUploadInfoView extends StatelessWidget {
                                                         const SizedBox(
                                                             height: 4),
                                                         Text(
-                                                          'Already in preparation',
+                                                          ' ',
                                                           style: AppTextStyles
                                                                   .MetropolisRegular
                                                               .copyWith(
@@ -496,7 +498,7 @@ class ChildVerificationUploadInfoView extends StatelessWidget {
 
                                                   // Order Status section (same as your existing code)
                                                   Container(
-                                                    width: 120,
+                                                    width: 160,
                                                     child: Column(
                                                       crossAxisAlignment:
                                                           CrossAxisAlignment
@@ -523,7 +525,7 @@ class ChildVerificationUploadInfoView extends StatelessWidget {
                                                             Column(
                                                               children: [
                                                                 Text(
-                                                                  'Undelivered',
+                                                                  'In Preparation',
                                                                   style: AppTextStyles
                                                                           .MetropolisRegular
                                                                       .copyWith(
@@ -906,6 +908,19 @@ class ChildVerificationUploadInfoView extends StatelessWidget {
                                                       await controller
                                                           .fetchChildParentWallet(
                                                               parentId, meal);
+
+                                                      // After processing, refresh the orders list to update UI
+                                                      if (controller
+                                                              .childrenList
+                                                              .isNotEmpty &&
+                                                          controller
+                                                                  .childrenList
+                                                                  .first
+                                                                  .childId !=
+                                                              null) {
+                                                        // Force rebuild of the widget tree
+                                                        controller.update();
+                                                      }
                                                     } else {
                                                       Get.snackbar('Error',
                                                           'Parent ID not found');
