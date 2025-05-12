@@ -217,7 +217,7 @@ class ChildVerificationUploadInfoView extends StatelessWidget {
                         ),
                         Center(
                           child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.center,
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
                                 controller.childrenList.first.childName ??
@@ -238,6 +238,19 @@ class ChildVerificationUploadInfoView extends StatelessWidget {
                                 ),
                                 textAlign: TextAlign.center,
                               ),
+                              const SizedBox(height: 4),
+                              if (controller
+                                      .childrenList.first.classroomDelivery ==
+                                  'Yes')
+                                Text(
+                                  'Delivery Type: Classroom Delivery',
+                                  style:
+                                      AppTextStyles.MetropolisRegular.copyWith(
+                                    fontSize: 14,
+                                    color: const Color(0xFF858585),
+                                  ),
+                                  textAlign: TextAlign.center,
+                                ),
                             ],
                           ),
                         ),
