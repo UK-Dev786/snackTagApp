@@ -4,7 +4,8 @@ import 'package:intl/intl.dart';
 import 'package:snacktag/config/app_text_style.dart';
 import '../controller/parent_upcoming_order_detail_controller.dart';
 
-class ParentUpcomingOrderDetailView extends GetView<ParentUpcomingOrderDetailController> {
+class ParentUpcomingOrderDetailView
+    extends GetView<ParentUpcomingOrderDetailController> {
   const ParentUpcomingOrderDetailView({Key? key}) : super(key: key);
 
   @override
@@ -16,10 +17,12 @@ class ParentUpcomingOrderDetailView extends GetView<ParentUpcomingOrderDetailCon
         child: SingleChildScrollView(
           child: ConstrainedBox(
             constraints: BoxConstraints(
-              minHeight: MediaQuery.of(context).size.height - MediaQuery.of(context).padding.top,
+              minHeight: MediaQuery.of(context).size.height -
+                  MediaQuery.of(context).padding.top,
             ),
             child: GetBuilder<ParentUpcomingOrderDetailController>(
                 init: ParentUpcomingOrderDetailController(),
+                id: 'parentUpcomingOrderDetailId',
                 builder: (controller) {
                   return Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -38,7 +41,8 @@ class ParentUpcomingOrderDetailView extends GetView<ParentUpcomingOrderDetailCon
                             child: Container(
                               height: 35,
                               width: 35,
-                              margin: const EdgeInsets.only(top: 16), // Add some margin if needed
+                              margin: const EdgeInsets.only(
+                                  top: 16), // Add some margin if needed
                               decoration: BoxDecoration(
                                 shape: BoxShape.circle,
                                 boxShadow: [
@@ -48,7 +52,8 @@ class ParentUpcomingOrderDetailView extends GetView<ParentUpcomingOrderDetailCon
                                     spreadRadius: 2,
                                   ),
                                 ],
-                                color: Colors.white, // Background color for the container
+                                color: Colors
+                                    .white, // Background color for the container
                               ),
                               child: Center(
                                 child: Image.asset(
@@ -79,7 +84,8 @@ class ParentUpcomingOrderDetailView extends GetView<ParentUpcomingOrderDetailCon
                           text: TextSpan(
                             children: [
                               TextSpan(
-                                text: DateFormat('MMMM ').format(DateTime.now()),
+                                text:
+                                    DateFormat('MMMM ').format(DateTime.now()),
                                 style: AppTextStyles.RobotoLight.copyWith(
                                   fontSize: 18,
                                   color: const Color(0xFF2E2E2E),
@@ -102,7 +108,8 @@ class ParentUpcomingOrderDetailView extends GetView<ParentUpcomingOrderDetailCon
                       // List of Orders
                       Obx(() {
                         if (controller.isLoading.value) {
-                          return const Center(child: CircularProgressIndicator());
+                          return const Center(
+                              child: CircularProgressIndicator());
                         }
 
                         if (controller.errorMessage.value.isNotEmpty) {
@@ -138,7 +145,8 @@ class ParentUpcomingOrderDetailView extends GetView<ParentUpcomingOrderDetailCon
                                   ),
                                 ],
                               ),
-                              padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+                              padding: const EdgeInsets.symmetric(
+                                  vertical: 8, horizontal: 16),
                               child: Row(
                                 children: [
                                   Column(
@@ -150,10 +158,12 @@ class ParentUpcomingOrderDetailView extends GetView<ParentUpcomingOrderDetailCon
                                         decoration: BoxDecoration(
                                           color: Colors.white,
                                           shape: BoxShape.circle,
-                                          border: Border.all(color: Colors.white, width: 3),
+                                          border: Border.all(
+                                              color: Colors.white, width: 3),
                                           boxShadow: [
                                             BoxShadow(
-                                              color: Colors.grey.withOpacity(0.3),
+                                              color:
+                                                  Colors.grey.withOpacity(0.3),
                                               spreadRadius: 2,
                                               blurRadius: 6,
                                               offset: const Offset(0, 3),
@@ -161,31 +171,36 @@ class ParentUpcomingOrderDetailView extends GetView<ParentUpcomingOrderDetailCon
                                           ],
                                         ),
                                         child: ClipOval(
-                                          child:
-                                          child.childImageUrl != null && child.childImageUrl!.isNotEmpty
+                                          child: child.childImageUrl != null &&
+                                                  child
+                                                      .childImageUrl!.isNotEmpty
                                               ? Image.network(
-                                            child.childImageUrl!,
-                                            width: double.infinity,
-                                            fit: BoxFit.cover,
-                                            loadingBuilder: (context, child, loadingProgress) {
-                                              if (loadingProgress == null) return child;
-                                              return const Center(
-                                                child: CircularProgressIndicator(),
-                                              );
-                                            },
-                                            errorBuilder: (context, error, stackTrace) {
-                                              return Image.asset(
-                                                'assets/images/profile_emoji.png',
-                                                width: double.infinity,
-                                                fit: BoxFit.cover,
-                                              );
-                                            },
-                                          )
+                                                  child.childImageUrl!,
+                                                  width: double.infinity,
+                                                  fit: BoxFit.cover,
+                                                  loadingBuilder: (context,
+                                                      child, loadingProgress) {
+                                                    if (loadingProgress == null)
+                                                      return child;
+                                                    return const Center(
+                                                      child:
+                                                          CircularProgressIndicator(),
+                                                    );
+                                                  },
+                                                  errorBuilder: (context, error,
+                                                      stackTrace) {
+                                                    return Image.asset(
+                                                      'assets/images/profile_emoji.png',
+                                                      width: double.infinity,
+                                                      fit: BoxFit.cover,
+                                                    );
+                                                  },
+                                                )
                                               : Image.asset(
-                                            'assets/images/profile_emoji.png',
-                                            width: double.infinity,
-                                            fit: BoxFit.cover,
-                                          ),
+                                                  'assets/images/profile_emoji.png',
+                                                  width: double.infinity,
+                                                  fit: BoxFit.cover,
+                                                ),
                                         ),
                                       ),
                                     ],
@@ -193,14 +208,17 @@ class ParentUpcomingOrderDetailView extends GetView<ParentUpcomingOrderDetailCon
                                   const SizedBox(width: 12),
                                   Expanded(
                                     child: Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
                                       children: [
                                         Row(
-                                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceBetween,
                                           children: [
                                             Text(
                                               child.childName ?? "N/A",
-                                              style: AppTextStyles.MetropolisMedium.copyWith(
+                                              style: AppTextStyles
+                                                  .MetropolisMedium.copyWith(
                                                 fontSize: 14,
                                               ),
                                             ),
@@ -208,14 +226,16 @@ class ParentUpcomingOrderDetailView extends GetView<ParentUpcomingOrderDetailCon
                                         ),
                                         Text(
                                           child.schoolName ?? "N/A",
-                                          style: AppTextStyles.MetropolisRegular.copyWith(
+                                          style: AppTextStyles.MetropolisRegular
+                                              .copyWith(
                                             fontSize: 12,
                                             color: const Color(0xFF858585),
                                           ),
                                         ),
                                         Text(
                                           child.childSchoolID ?? "N/A",
-                                          style: AppTextStyles.MetropolisRegular.copyWith(
+                                          style: AppTextStyles.MetropolisRegular
+                                              .copyWith(
                                             fontSize: 12,
                                             color: const Color(0xFF858585),
                                           ),
