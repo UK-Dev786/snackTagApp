@@ -234,149 +234,183 @@ class MenuPageView extends GetView<MenuPageController> {
                                 borderRadius: BorderRadius.circular(20),
                               ),
                               backgroundColor: Colors.white,
-                              child: Column(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  // Row with meal image and meal info
-                                  Row(
-                                    children: [
-                                      // Meal image on the left
-                                      Padding(
-                                        padding: const EdgeInsets.all(15.0),
-                                        child: ClipRRect(
-                                          borderRadius: BorderRadius.all(
-                                            // topLeft: Radius.circular(20),
-                                            // bottomLeft: Radius.circular(20),
-                                            Radius.circular(20),
+                              child: SingleChildScrollView(
+                                child: Column(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    // Row with meal image and meal info
+                                    Row(
+                                      children: [
+                                        // Meal image on the left
+                                        Padding(
+                                          padding: const EdgeInsets.all(15.0),
+                                          child: ClipRRect(
+                                            borderRadius: BorderRadius.all(
+                                              Radius.circular(20),
+                                            ),
+                                            child: meal.imageUrl != null
+                                                ? Image.network(
+                                                    meal.imageUrl!,
+                                                    height: 110,
+                                                    width: 130,
+                                                    fit: BoxFit.cover,
+                                                    errorBuilder: (context,
+                                                        error, stackTrace) {
+                                                      return Image.asset(
+                                                        'assets/images/gravy.png',
+                                                        height: 120,
+                                                        width: 120,
+                                                        fit: BoxFit.cover,
+                                                      );
+                                                    },
+                                                  )
+                                                : Image.asset(
+                                                    'assets/images/gravy.png',
+                                                    height: 120,
+                                                    width: 120,
+                                                    fit: BoxFit.cover,
+                                                  ),
                                           ),
-                                          child: meal.imageUrl != null
-                                              ? Image.network(
-                                                  meal.imageUrl!,
-                                                  height: 110,
-                                                  width: 130,
-                                                  fit: BoxFit.cover,
-                                                  errorBuilder: (context, error,
-                                                      stackTrace) {
-                                                    return Image.asset(
-                                                      'assets/images/gravy.png',
-                                                      height: 120,
-                                                      width: 120,
-                                                      fit: BoxFit.cover,
-                                                    );
-                                                  },
-                                                )
-                                              : Image.asset(
-                                                  'assets/images/gravy.png',
-                                                  height: 120,
-                                                  width: 120,
-                                                  fit: BoxFit.cover,
-                                                ),
                                         ),
-                                      ),
-                                      // Meal info on the right
-                                      Expanded(
-                                        child: Padding(
-                                          padding: const EdgeInsets.only(
-                                              left: 10.0,
-                                              top: 15,
-                                              right: 15,
-                                              bottom: 10),
-                                          child: Column(
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.start,
-                                            children: [
-                                              Align(
-                                                alignment:
-                                                    Alignment.centerRight,
-                                                child: GestureDetector(
-                                                  onTap: () =>
-                                                      Navigator.pop(context),
-                                                  child: Image.asset(
-                                                    AppImages.crossIcon,
-                                                    height: 30,
-                                                    width: 30,
+                                        // Meal info on the right
+                                        Expanded(
+                                          child: Padding(
+                                            padding: const EdgeInsets.only(
+                                                left: 10.0,
+                                                top: 15,
+                                                right: 15,
+                                                bottom: 10),
+                                            child: Column(
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
+                                              children: [
+                                                Align(
+                                                  alignment:
+                                                      Alignment.centerRight,
+                                                  child: GestureDetector(
+                                                    onTap: () =>
+                                                        Navigator.pop(context),
+                                                    child: Image.asset(
+                                                      AppImages.crossIcon,
+                                                      height: 30,
+                                                      width: 30,
+                                                    ),
                                                   ),
                                                 ),
-                                              ),
-                                              Image.asset(
-                                                AppImages.authImg,
-                                                height: 60,
-                                                width: 45,
-                                              ),
-                                              const SizedBox(width: 20),
-                                              Text(
-                                                meal.name ?? 'Unnamed Item',
-                                                style: AppTextStyles
-                                                    .MetropolisBold.copyWith(
-                                                  fontSize: 16,
-                                                  color: Colors.black,
+                                                Image.asset(
+                                                  AppImages.authImg,
+                                                  height: 60,
+                                                  width: 45,
                                                 ),
-                                              ),
-                                            ],
+                                                const SizedBox(width: 20),
+                                                Text(
+                                                  meal.name ?? 'Unnamed Item',
+                                                  style: AppTextStyles
+                                                      .MetropolisBold.copyWith(
+                                                    fontSize: 16,
+                                                    color: Colors.black,
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
                                           ),
                                         ),
-                                      ),
-                                    ],
-                                  ),
-                                  Container(
-                                    padding: const EdgeInsets.only(
-                                        left: 20, right: 20, bottom: 20),
-                                    child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        const Text(
-                                          'Description:',
-                                          style: TextStyle(
-                                            fontSize: 13,
-                                            color: Colors.black,
-                                            fontFamily:
-                                                AppFonts.METROPOLIS_BOLD,
-                                            fontWeight: FontWeight.w700,
-                                          ),
-                                        ),
-                                        const Text(
-                                          'With beans, ham and grilled cheese. Served with pico de Gallo.',
-                                          style: TextStyle(
-                                            fontSize: 13,
-                                            color: Colors.black,
-                                            fontFamily: AppFonts.METROPOLIS,
-                                          ),
-                                        ),
-                                        const SizedBox(height: 15),
-                                        const Text(
-                                          'Nutritional Facts',
-                                          style: TextStyle(
-                                            fontSize: 13,
-                                            color: Colors.black,
-                                            fontWeight: FontWeight.w700,
-                                            fontFamily:
-                                                AppFonts.METROPOLIS_BOLD,
-                                          ),
-                                        ),
-                                        const SizedBox(height: 5),
-                                        _buildNutritionalItem(
-                                            'Calories:', '300-400 kcal'),
-                                        _buildNutritionalItem(
-                                            'Protein:', '24-28 grams'),
-                                        _buildNutritionalItem(
-                                            'Fat:', '14-22 grams'),
-                                        _buildNutritionalItem(
-                                            'Saturated fat:', '3-4 grams'),
-                                        _buildNutritionalItem(
-                                            'Carbohydrates:', '20-25 grams'),
-                                        _buildNutritionalItem(
-                                            'Fiber:', '3 grams'),
-                                        _buildNutritionalItem(
-                                            'Sugars:', '3-7 grams'),
-                                        _buildNutritionalItem(
-                                            'Sodium:', '660-1,000 mg'),
-                                        _buildNutritionalItem(
-                                            'Cholesterol:', '35-45 mg'),
                                       ],
                                     ),
-                                  ),
-                                ],
+                                    Container(
+                                      width: double.infinity,
+                                      padding: const EdgeInsets.only(
+                                          left: 20, right: 20, bottom: 20),
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          // Only show description if it exists
+                                          if (meal.description != null &&
+                                              meal.description!.isNotEmpty) ...[
+                                            const Text(
+                                              'Description:',
+                                              style: TextStyle(
+                                                fontSize: 13,
+                                                color: Colors.black,
+                                                fontFamily:
+                                                    AppFonts.METROPOLIS_BOLD,
+                                                fontWeight: FontWeight.w700,
+                                              ),
+                                            ),
+                                            Text(
+                                              meal.description!,
+                                              style: TextStyle(
+                                                fontSize: 13,
+                                                color: Colors.black,
+                                                fontFamily: AppFonts.METROPOLIS,
+                                              ),
+                                            ),
+                                            const SizedBox(height: 15),
+                                          ],
+
+                                          // Only show nutritional facts section if data exists
+                                          if (meal.nutritionalFacts !=
+                                              null) ...[
+                                            const Text(
+                                              'Nutritional Facts',
+                                              style: TextStyle(
+                                                fontSize: 13,
+                                                color: Colors.black,
+                                                fontWeight: FontWeight.w700,
+                                                fontFamily:
+                                                    AppFonts.METROPOLIS_BOLD,
+                                              ),
+                                            ),
+                                            const SizedBox(height: 5),
+                                            _buildNutritionalItem(
+                                                'Calories:',
+                                                meal.nutritionalFacts!
+                                                        .calories ??
+                                                    'not provided by Cafe'),
+                                            _buildNutritionalItem(
+                                                'Protein:',
+                                                meal.nutritionalFacts!
+                                                        .protein ??
+                                                    'not provided by Cafe'),
+                                            _buildNutritionalItem(
+                                                'Fat:',
+                                                meal.nutritionalFacts!.fat ??
+                                                    'not provided by Cafe'),
+                                            _buildNutritionalItem(
+                                                'Saturated fat:',
+                                                meal.nutritionalFacts!
+                                                        .saturatedFat ??
+                                                    'not provided by Cafe'),
+                                            _buildNutritionalItem(
+                                                'Carbohydrates:',
+                                                meal.nutritionalFacts!
+                                                        .carbohydrates ??
+                                                    'not provided by Cafe'),
+                                            _buildNutritionalItem(
+                                                'Fiber:',
+                                                meal.nutritionalFacts!.fiber ??
+                                                    'not provided by Cafe'),
+                                            _buildNutritionalItem(
+                                                'Sugars:',
+                                                meal.nutritionalFacts!.sugars ??
+                                                    'not provided by Cafe'),
+                                            _buildNutritionalItem(
+                                                'Sodium:',
+                                                meal.nutritionalFacts!.sodium ??
+                                                    'not provided by Cafe'),
+                                            _buildNutritionalItem(
+                                                'Cholesterol:',
+                                                meal.nutritionalFacts!
+                                                        .cholesterol ??
+                                                    'not provided by Cafe'),
+                                          ],
+                                          // Remove the else block completely
+                                        ],
+                                      ),
+                                    ),
+                                  ],
+                                ),
                               ),
                             );
                           },
@@ -781,22 +815,27 @@ class MenuPageView extends GetView<MenuPageController> {
     return Padding(
       padding: const EdgeInsets.only(bottom: 4),
       child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            label,
-            style: TextStyle(
-              fontSize: 13,
-              color: Colors.black,
-              fontFamily: AppFonts.METROPOLIS,
+          SizedBox(
+            width: 100, // Fixed width for labels
+            child: Text(
+              label,
+              style: TextStyle(
+                fontSize: 13,
+                color: Colors.black,
+                fontFamily: AppFonts.METROPOLIS,
+              ),
             ),
           ),
-          const SizedBox(width: 5),
-          Text(
-            value,
-            style: TextStyle(
-              fontSize: 13,
-              color: Colors.black,
-              fontFamily: AppFonts.METROPOLIS,
+          Expanded(
+            child: Text(
+              value,
+              style: TextStyle(
+                fontSize: 13,
+                color: Colors.black,
+                fontFamily: AppFonts.METROPOLIS,
+              ),
             ),
           ),
         ],

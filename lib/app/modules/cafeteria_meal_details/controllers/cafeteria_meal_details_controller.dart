@@ -8,6 +8,7 @@ import 'package:snacktag/app/routes/app_pages.dart';
 // import 'package:snacktag/app/routes/app_routes.dart';t';
 import 'package:snacktag/models/cefeteria_admin/meal_model.dart';
 import 'package:snacktag/models/cefeteria_admin/meal_shedule_model.dart';
+import 'package:snacktag/models/cefeteria_admin/nutritional_facts_model.dart';
 import 'package:snacktag/services/Shared_preference/preferences.dart';
 import 'package:snacktag/services/meal_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -18,6 +19,7 @@ class CafeteriaMealDetailsController extends GetxController {
   final nameController = TextEditingController();
   final availableTimeDateController = TextEditingController();
   final priceController = TextEditingController();
+  final descriptionController = TextEditingController();
   Rx<File?> selectedImage = Rx<File?>(null);
   RxString imageUrl = ''.obs; // Store the network image URL separately
   RxBool isLoading = false.obs;
@@ -27,6 +29,17 @@ class CafeteriaMealDetailsController extends GetxController {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final UserPreferences userPreferences = UserPreferences();
   RxString selectedAvailability = 'available'.obs;
+
+  // Add controllers for nutritional facts
+  final caloriesController = TextEditingController();
+  final proteinController = TextEditingController();
+  final fatController = TextEditingController();
+  final saturatedFatController = TextEditingController();
+  final carbohydratesController = TextEditingController();
+  final fiberController = TextEditingController();
+  final sugarsController = TextEditingController();
+  final sodiumController = TextEditingController();
+  final cholesterolController = TextEditingController();
 
   @override
   void onInit() {
@@ -63,7 +76,23 @@ class CafeteriaMealDetailsController extends GetxController {
       selectedAvailability.value = meal!.availability ?? "available";
       availableTimeDateController.text = meal!.availableTimeDate ?? "";
       priceController.text = meal!.price ?? "";
+      descriptionController.text = meal!.description ?? ""; // Add this line
       imageUrl.value = meal!.imageUrl ?? ""; // Set network image URL
+
+      // Populate nutritional facts if available
+      if (meal!.nutritionalFacts != null) {
+        caloriesController.text = meal!.nutritionalFacts!.calories ?? "";
+        proteinController.text = meal!.nutritionalFacts!.protein ?? "";
+        fatController.text = meal!.nutritionalFacts!.fat ?? "";
+        saturatedFatController.text =
+            meal!.nutritionalFacts!.saturatedFat ?? "";
+        carbohydratesController.text =
+            meal!.nutritionalFacts!.carbohydrates ?? "";
+        fiberController.text = meal!.nutritionalFacts!.fiber ?? "";
+        sugarsController.text = meal!.nutritionalFacts!.sugars ?? "";
+        sodiumController.text = meal!.nutritionalFacts!.sodium ?? "";
+        cholesterolController.text = meal!.nutritionalFacts!.cholesterol ?? "";
+      }
     }
   }
 
@@ -165,6 +194,9 @@ class CafeteriaMealDetailsController extends GetxController {
     String available = availableTimeDateController.text.trim();
     print("[addmeal] 📊 available (trimmed): '$available'");
 
+    String description = descriptionController.text.trim();
+    print("[addmeal] 📊 description (trimmed): '$description'");
+
     print(
         "[addmeal] 📝 Form data: Name=$name, Availability=$availability, Price=$price, AvailableTime=$available");
     print("[addmeal] 📅 Available days: $availableAt");
@@ -205,6 +237,7 @@ class CafeteriaMealDetailsController extends GetxController {
           availability: availability,
           price: price,
           availableTimeDate: available,
+          description: description,
         );
 
         print("[addmeal] 📊 newMeal object:");
@@ -225,6 +258,44 @@ class CafeteriaMealDetailsController extends GetxController {
           print("[addmeal] 📁 Image path: $imagePath");
           print("[addmeal] 📏 Image size: $imageSize bytes");
         }
+
+        // Get nutritional facts values
+        String calories = caloriesController.text.trim();
+        String protein = proteinController.text.trim();
+        String fat = fatController.text.trim();
+        String saturatedFat = saturatedFatController.text.trim();
+        String carbohydrates = carbohydratesController.text.trim();
+        String fiber = fiberController.text.trim();
+        String sugars = sugarsController.text.trim();
+        String sodium = sodiumController.text.trim();
+        String cholesterol = cholesterolController.text.trim();
+
+        // Create nutritional facts model only if at least one field is filled
+        NutritionalFactsModel? nutritionalFacts;
+        if (calories.isNotEmpty ||
+            protein.isNotEmpty ||
+            fat.isNotEmpty ||
+            saturatedFat.isNotEmpty ||
+            carbohydrates.isNotEmpty ||
+            fiber.isNotEmpty ||
+            sugars.isNotEmpty ||
+            sodium.isNotEmpty ||
+            cholesterol.isNotEmpty) {
+          nutritionalFacts = NutritionalFactsModel(
+            calories: calories,
+            protein: protein,
+            fat: fat,
+            saturatedFat: saturatedFat,
+            carbohydrates: carbohydrates,
+            fiber: fiber,
+            sugars: sugars,
+            sodium: sodium,
+            cholesterol: cholesterol,
+          );
+        }
+
+        // Include nutritional facts in the meal model (if provided)
+        newMeal.nutritionalFacts = nutritionalFacts;
 
         // Add meal
         print("[addmeal] 🔄 Calling MealService.addMeal()...");
@@ -291,6 +362,46 @@ class CafeteriaMealDetailsController extends GetxController {
               "[addmeal] 📊 Added imageUrl to updateData: ${updateData['imageUrl']}");
         }
 
+        // Get nutritional facts values
+        String calories = caloriesController.text.trim();
+        String protein = proteinController.text.trim();
+        String fat = fatController.text.trim();
+        String saturatedFat = saturatedFatController.text.trim();
+        String carbohydrates = carbohydratesController.text.trim();
+        String fiber = fiberController.text.trim();
+        String sugars = sugarsController.text.trim();
+        String sodium = sodiumController.text.trim();
+        String cholesterol = cholesterolController.text.trim();
+
+        // Create nutritional facts model only if at least one field is filled
+        NutritionalFactsModel? nutritionalFacts;
+        if (calories.isNotEmpty ||
+            protein.isNotEmpty ||
+            fat.isNotEmpty ||
+            saturatedFat.isNotEmpty ||
+            carbohydrates.isNotEmpty ||
+            fiber.isNotEmpty ||
+            sugars.isNotEmpty ||
+            sodium.isNotEmpty ||
+            cholesterol.isNotEmpty) {
+          nutritionalFacts = NutritionalFactsModel(
+            calories: calories,
+            protein: protein,
+            fat: fat,
+            saturatedFat: saturatedFat,
+            carbohydrates: carbohydrates,
+            fiber: fiber,
+            sugars: sugars,
+            sodium: sodium,
+            cholesterol: cholesterol,
+          );
+        }
+
+        // Include nutritional facts in the update data
+        if (nutritionalFacts != null) {
+          updateData["nutritionalFacts"] = nutritionalFacts.toMap();
+        }
+
         // Update meal
         print("[addmeal] 🔄 Calling MealService.updateMeal() with ID: $mealId");
         await _mealService.updateMeal(mealId, updateData);
@@ -334,5 +445,24 @@ class CafeteriaMealDetailsController extends GetxController {
       print("[addmeal] ❌ Error picking image: $e");
       Get.snackbar("Error", "Failed to pick image. Please try again.");
     }
+  }
+
+  @override
+  void onClose() {
+    // Dispose of controllers
+    nameController.dispose();
+    availableTimeDateController.dispose();
+    priceController.dispose();
+    descriptionController.dispose();
+    caloriesController.dispose();
+    proteinController.dispose();
+    fatController.dispose();
+    saturatedFatController.dispose();
+    carbohydratesController.dispose();
+    fiberController.dispose();
+    sugarsController.dispose();
+    sodiumController.dispose();
+    cholesterolController.dispose();
+    super.onClose();
   }
 }
