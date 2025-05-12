@@ -98,4 +98,10 @@ class CafeteriaController extends GetxController {
     searchText.value = text;
     filterCafeteria();
   }
+
+  void selectCafeteria(int index) {
+    selectedIndexes.clear();
+    selectedIndexes.add(index);
+    update();
+  }
 }

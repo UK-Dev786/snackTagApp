@@ -24,75 +24,15 @@ class ParentsHeader extends StatelessWidget {
         //     fit: BoxFit.contain,
         //   ),
         // ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min, // Use minimum vertical space
-          children: [
-            const SizedBox(height: 50), // Reduced top spacing
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Stack(
-                  children: [
-                    Container(
-                      width: 100, // or a fixed width if needed
-                      height: 45, // adjust height as needed
-                      decoration: BoxDecoration(
-                        image: DecorationImage(
-                          image: AssetImage(AppImages.headerBtn),
-                          fit: BoxFit.cover,
-                        ),
-                      ),
-                    ),
-                    Positioned(
-                      top: 10,
-                      left: 10,
-                      child: Text(
-                        'BALANCE',
-                        style: AppTextStyles.MetropolisRegular.copyWith(
-                            fontWeight: FontWeight.w500,
-                            fontSize: 7,
-                            color: Colors.black.withOpacity(0.7)),
-                      ),
-                    ),
-                    Positioned(
-                      bottom: 15,
-                      right: 10,
-                      child: Obx(() => RichText(
-                            text: TextSpan(
-                              children: [
-                                TextSpan(
-                                  text: 'MX\$ ',
-                                  style:
-                                      AppTextStyles.MetropolisRegular.copyWith(
-                                    fontWeight: FontWeight.w500,
-                                    fontSize: 8,
-                                    color: Colors.black.withOpacity(0.7),
-                                  ),
-                                ),
-                                TextSpan(
-                                  text:
-                                      '${parentController.parentAddWalletModel.value?.amount ?? "0.00"}',
-                                  style:
-                                      AppTextStyles.MetropolisRegular.copyWith(
-                                    fontWeight: FontWeight.w600,
-                                    fontSize: 8,
-                                    color: Colors.black,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          )),
-                    ),
-                  ],
-                ),
-                SizedBox(
-                  width: 8,
-                ),
-                GestureDetector(
-                  onTap: () {
-                    _showAddWalletDialog(context, parentController);
-                  },
-                  child: Stack(
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min, // Use minimum vertical space
+            children: [
+              const SizedBox(height: 50), // Reduced top spacing
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Stack(
                     children: [
                       Container(
                         width: 100, // or a fixed width if needed
@@ -108,7 +48,7 @@ class ParentsHeader extends StatelessWidget {
                         top: 10,
                         left: 10,
                         child: Text(
-                          'WALLET',
+                          'BALANCE',
                           style: AppTextStyles.MetropolisRegular.copyWith(
                               fontWeight: FontWeight.w500,
                               fontSize: 7,
@@ -118,234 +58,300 @@ class ParentsHeader extends StatelessWidget {
                       Positioned(
                         bottom: 15,
                         right: 10,
-                        child: Text(
-                          'ADD',
-                          style: AppTextStyles.MetropolisRegular.copyWith(
-                              fontWeight: FontWeight.w500,
-                              fontSize: 10,
-                              color: Colors.black.withOpacity(0.7)),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                SizedBox(
-                  width: 8,
-                ),
-                Stack(
-                  children: [
-                    Container(
-                      width: 100,
-                      height: 45,
-                      decoration: BoxDecoration(
-                        image: DecorationImage(
-                          image: AssetImage(AppImages.headerBtn),
-                          fit: BoxFit.cover,
-                        ),
-                      ),
-                    ),
-                    Positioned(
-                      top: 10,
-                      left: 15,
-                      child: Image.asset(
-                        AppImages.shopped,
-                        width: 20,
-                        height: 20,
-                        fit: BoxFit.cover,
-                      ),
-                    ),
-                    Positioned(
-                      bottom: 15,
-                      right: 10,
-                      child: Obx(() => RichText(
-                            text: TextSpan(
-                              children: [
-                                TextSpan(
-                                  text: 'MX\$ ',
-                                  style:
-                                      AppTextStyles.MetropolisRegular.copyWith(
-                                    fontWeight: FontWeight.w500,
-                                    fontSize: 8,
-                                    color: Colors.black.withOpacity(0.7),
-                                  ),
-                                ),
-                                TextSpan(
-                                  text:
-                                      '${parentController.parentAddWalletModel.value?.monthlyExpenditures?.toStringAsFixed(2) ?? "0.00"}',
-                                  style:
-                                      AppTextStyles.MetropolisRegular.copyWith(
-                                    fontWeight: FontWeight.w600,
-                                    fontSize: 8,
-                                    color: Colors.black,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          )),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-
-            SizedBox(height: 8),
-            // Parent image with circular container
-            Container(
-              width: 100,
-              height: 100,
-              // decoration: BoxDecoration(
-              //   shape: BoxShape.circle,
-              //   color: Colors.white,
-              //   boxShadow: [
-              //     BoxShadow(
-              //       color: Colors.black.withOpacity(0.1),
-              //       blurRadius: 4,
-              //       offset: const Offset(0, 2),
-              //     ),
-              //   ],
-              // ),
-              child: ClipOval(
-                child: Obx(
-                  () => parentController.parentProfileImage.value != null &&
-                          parentController.parentProfileImage.value!.isNotEmpty
-                      ? Image.network(
-                          parentController.parentProfileImage.value!,
-                          fit: BoxFit.cover,
-                          errorBuilder: (context, error, stackTrace) {
-                            return Image.asset(
-                              AppImages.profile,
-                              fit: BoxFit.cover,
-                            );
-                          },
-                        )
-                      : Image.asset(
-                          AppImages.profile,
-                          fit: BoxFit.cover,
-                        ),
-                ),
-              ),
-            ),
-            const SizedBox(height: 8),
-            Obx(() => Text(
-                parentController.parentName.value ?? 'Parent Name ✏️',
-                style: AppTextStyles.MetropolisRegular.copyWith(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                    color: AppColors.darkBlueColor))),
-            // Child images horizontal list
-            Padding(
-              padding: const EdgeInsets.only(
-                  top: 12.0, left: 20, right: 20, bottom: 10),
-              child: Container(
-                height: 80, // Reduced height
-                child: Obx(
-                  () => parentController.childrenList.isEmpty
-                      ? Center(
-                          child: Text(
-                            'No children added yet',
-                            style: AppTextStyles.MetropolisRegular.copyWith(
-                              fontSize: 12,
-                              color: Colors.grey,
-                            ),
-                          ),
-                        )
-                      : ListView.builder(
-                          scrollDirection: Axis.horizontal,
-                          itemCount: parentController.childrenList.length,
-                          itemBuilder: (context, index) {
-                            final child = parentController.childrenList[index];
-                            return Padding(
-                              padding:
-                                  const EdgeInsets.symmetric(horizontal: 12.0),
-                              child: Column(
-                                mainAxisSize:
-                                    MainAxisSize.min, // Use minimum space
+                        child: Obx(() => RichText(
+                              text: TextSpan(
                                 children: [
-                                  Container(
-                                    width: 55, // Reduced size
-                                    height: 55, // Reduced size
-                                    decoration: BoxDecoration(
-                                      shape: BoxShape.circle,
-                                      color: Colors.white,
-                                      boxShadow: [
-                                        BoxShadow(
-                                          color: Colors.black.withOpacity(0.1),
-                                          blurRadius: 4,
-                                          offset: const Offset(0, 2),
-                                        ),
-                                      ],
-                                    ),
-                                    child: Padding(
-                                      padding: const EdgeInsets.all(3.0),
-                                      child: ClipOval(
-                                        child: child.childImageUrl != null &&
-                                                child.childImageUrl!.isNotEmpty
-                                            ? Image.network(
-                                                child.childImageUrl!,
-                                                fit: BoxFit.cover,
-                                                width: double.infinity,
-                                                height: double.infinity,
-                                                loadingBuilder: (context, child,
-                                                    loadingProgress) {
-                                                  if (loadingProgress == null)
-                                                    return child;
-                                                  return const Center(
-                                                    child:
-                                                        CircularProgressIndicator(
-                                                      strokeWidth: 2,
-                                                    ),
-                                                  );
-                                                },
-                                                errorBuilder: (context, error,
-                                                    stackTrace) {
-                                                  return Image.asset(
-                                                    child.childGender
-                                                                ?.toLowerCase() ==
-                                                            'Male'
-                                                        ? AppImages.maleAvatar
-                                                        : AppImages
-                                                            .femaleAvatar,
-                                                    fit: BoxFit.contain,
-                                                  );
-                                                },
-                                              )
-                                            : Image.asset(
-                                                child.childGender
-                                                            ?.toLowerCase() ==
-                                                        'Female'
-                                                    ? AppImages.femaleAvatar
-                                                    : AppImages.maleAvatar,
-                                                fit: BoxFit.contain,
-                                              ),
-                                      ),
-                                    ),
-                                  ),
-                                  SizedBox(
-                                    height: 3,
-                                  ),
-                                  // Text with constrained height and overflow handling
-                                  Text(
-                                    child.childName ?? 'Child',
+                                  TextSpan(
+                                    text: 'MX\$ ',
                                     style: AppTextStyles.MetropolisRegular
                                         .copyWith(
                                       fontWeight: FontWeight.w500,
-                                      fontSize: 12,
-                                      color: AppColors.blackColor,
+                                      fontSize: 8,
+                                      color: Colors.black.withOpacity(0.7),
                                     ),
-                                    textAlign: TextAlign.center,
-                                    overflow: TextOverflow.ellipsis,
-                                    // maxLines: 1,
+                                  ),
+                                  TextSpan(
+                                    text:
+                                        '${parentController.parentAddWalletModel.value?.amount ?? "0.00"}',
+                                    style: AppTextStyles.MetropolisRegular
+                                        .copyWith(
+                                      fontWeight: FontWeight.w600,
+                                      fontSize: 8,
+                                      color: Colors.black,
+                                    ),
                                   ),
                                 ],
                               ),
-                            );
-                          },
+                            )),
+                      ),
+                    ],
+                  ),
+                  SizedBox(
+                    width: 8,
+                  ),
+                  GestureDetector(
+                    onTap: () {
+                      _showAddWalletDialog(context, parentController);
+                    },
+                    child: Stack(
+                      children: [
+                        Container(
+                          width: 100, // or a fixed width if needed
+                          height: 45, // adjust height as needed
+                          decoration: BoxDecoration(
+                            image: DecorationImage(
+                              image: AssetImage(AppImages.headerBtn),
+                              fit: BoxFit.cover,
+                            ),
+                          ),
                         ),
+                        Positioned(
+                          top: 10,
+                          left: 10,
+                          child: Text(
+                            'WALLET',
+                            style: AppTextStyles.MetropolisRegular.copyWith(
+                                fontWeight: FontWeight.w500,
+                                fontSize: 7,
+                                color: Colors.black.withOpacity(0.7)),
+                          ),
+                        ),
+                        Positioned(
+                          bottom: 15,
+                          right: 10,
+                          child: Text(
+                            'ADD',
+                            style: AppTextStyles.MetropolisRegular.copyWith(
+                                fontWeight: FontWeight.w500,
+                                fontSize: 10,
+                                color: Colors.black.withOpacity(0.7)),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  SizedBox(
+                    width: 8,
+                  ),
+                  Stack(
+                    children: [
+                      Container(
+                        width: 100,
+                        height: 45,
+                        decoration: BoxDecoration(
+                          image: DecorationImage(
+                            image: AssetImage(AppImages.headerBtn),
+                            fit: BoxFit.cover,
+                          ),
+                        ),
+                      ),
+                      Positioned(
+                        top: 10,
+                        left: 15,
+                        child: Image.asset(
+                          AppImages.shopped,
+                          width: 20,
+                          height: 20,
+                          fit: BoxFit.cover,
+                        ),
+                      ),
+                      Positioned(
+                        bottom: 15,
+                        right: 10,
+                        child: Obx(() => RichText(
+                              text: TextSpan(
+                                children: [
+                                  TextSpan(
+                                    text: 'MX\$ ',
+                                    style: AppTextStyles.MetropolisRegular
+                                        .copyWith(
+                                      fontWeight: FontWeight.w500,
+                                      fontSize: 8,
+                                      color: Colors.black.withOpacity(0.7),
+                                    ),
+                                  ),
+                                  TextSpan(
+                                    text:
+                                        '${parentController.parentAddWalletModel.value?.monthlyExpenditures?.toStringAsFixed(2) ?? "0.00"}',
+                                    style: AppTextStyles.MetropolisRegular
+                                        .copyWith(
+                                      fontWeight: FontWeight.w600,
+                                      fontSize: 8,
+                                      color: Colors.black,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            )),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+
+              SizedBox(height: 8),
+              // Parent image with circular container
+              Container(
+                width: 100,
+                height: 100,
+                // decoration: BoxDecoration(
+                //   shape: BoxShape.circle,
+                //   color: Colors.white,
+                //   boxShadow: [
+                //     BoxShadow(
+                //       color: Colors.black.withOpacity(0.1),
+                //       blurRadius: 4,
+                //       offset: const Offset(0, 2),
+                //     ),
+                //   ],
+                // ),
+                child: ClipOval(
+                  child: Obx(
+                    () => parentController.parentProfileImage.value != null &&
+                            parentController
+                                .parentProfileImage.value!.isNotEmpty
+                        ? Image.network(
+                            parentController.parentProfileImage.value!,
+                            fit: BoxFit.cover,
+                            errorBuilder: (context, error, stackTrace) {
+                              return Image.asset(
+                                AppImages.profile,
+                                fit: BoxFit.cover,
+                              );
+                            },
+                          )
+                        : Image.asset(
+                            AppImages.profile,
+                            fit: BoxFit.cover,
+                          ),
+                  ),
                 ),
               ),
-            ),
-            const SizedBox(height: 10), // Bottom padding
-          ],
+              const SizedBox(height: 8),
+              Obx(() => Text(
+                  parentController.parentName.value ?? 'Parent Name ✏️',
+                  style: AppTextStyles.MetropolisRegular.copyWith(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: AppColors.darkBlueColor))),
+              // Child images horizontal list
+              Padding(
+                padding: const EdgeInsets.only(
+                    top: 12.0, left: 20, right: 20, bottom: 10),
+                child: Container(
+                  height: 80, // Reduced height
+                  child: Obx(
+                    () => parentController.childrenList.isEmpty
+                        ? Center(
+                            child: Text(
+                              'No children added yet',
+                              style: AppTextStyles.MetropolisRegular.copyWith(
+                                fontSize: 12,
+                                color: Colors.grey,
+                              ),
+                            ),
+                          )
+                        : ListView.builder(
+                            scrollDirection: Axis.horizontal,
+                            itemCount: parentController.childrenList.length,
+                            itemBuilder: (context, index) {
+                              final child =
+                                  parentController.childrenList[index];
+                              return Padding(
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 12.0),
+                                child: Column(
+                                  mainAxisSize:
+                                      MainAxisSize.min, // Use minimum space
+                                  children: [
+                                    Container(
+                                      width: 55, // Reduced size
+                                      height: 55, // Reduced size
+                                      decoration: BoxDecoration(
+                                        shape: BoxShape.circle,
+                                        color: Colors.white,
+                                        boxShadow: [
+                                          BoxShadow(
+                                            color:
+                                                Colors.black.withOpacity(0.1),
+                                            blurRadius: 4,
+                                            offset: const Offset(0, 2),
+                                          ),
+                                        ],
+                                      ),
+                                      child: Padding(
+                                        padding: const EdgeInsets.all(3.0),
+                                        child: ClipOval(
+                                          child: child.childImageUrl != null &&
+                                                  child
+                                                      .childImageUrl!.isNotEmpty
+                                              ? Image.network(
+                                                  child.childImageUrl!,
+                                                  fit: BoxFit.cover,
+                                                  width: double.infinity,
+                                                  height: double.infinity,
+                                                  loadingBuilder: (context,
+                                                      child, loadingProgress) {
+                                                    if (loadingProgress == null)
+                                                      return child;
+                                                    return const Center(
+                                                      child:
+                                                          CircularProgressIndicator(
+                                                        strokeWidth: 2,
+                                                      ),
+                                                    );
+                                                  },
+                                                  errorBuilder: (context, error,
+                                                      stackTrace) {
+                                                    return Image.asset(
+                                                      child.childGender
+                                                                  ?.toLowerCase() ==
+                                                              'Male'
+                                                          ? AppImages.maleAvatar
+                                                          : AppImages
+                                                              .femaleAvatar,
+                                                      fit: BoxFit.contain,
+                                                    );
+                                                  },
+                                                )
+                                              : Image.asset(
+                                                  child.childGender
+                                                              ?.toLowerCase() ==
+                                                          'Female'
+                                                      ? AppImages.femaleAvatar
+                                                      : AppImages.maleAvatar,
+                                                  fit: BoxFit.contain,
+                                                ),
+                                        ),
+                                      ),
+                                    ),
+                                    SizedBox(
+                                      height: 3,
+                                    ),
+                                    // Text with constrained height and overflow handling
+                                    Text(
+                                      child.childName ?? 'Child',
+                                      style: AppTextStyles.MetropolisRegular
+                                          .copyWith(
+                                        fontWeight: FontWeight.w500,
+                                        fontSize: 12,
+                                        color: AppColors.blackColor,
+                                      ),
+                                      textAlign: TextAlign.center,
+                                      overflow: TextOverflow.ellipsis,
+                                      // maxLines: 1,
+                                    ),
+                                  ],
+                                ),
+                              );
+                            },
+                          ),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 10), // Bottom padding
+            ],
+          ),
         ),
       ),
     );

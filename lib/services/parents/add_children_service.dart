@@ -6,9 +6,12 @@ import 'package:get/get.dart';
 import 'package:snacktag/models/cefeteria_admin/meal_model.dart';
 import 'package:snacktag/models/cefeteria_admin/meal_shedule_model.dart';
 import 'package:snacktag/models/parents_models/add_children.dart';
+import 'package:snacktag/models/parents_models/parent_selected_meals.dart'
+    show Schedule;
 import 'package:snacktag/models/user_model.dart';
 import 'package:snacktag/services/base_service.dart';
 import 'package:snacktag/services/notifications_service/notifications_service.dart';
+import 'package:intl/intl.dart';
 
 class AddChildrenService extends BaseService {
   final FirebaseFirestore firestore = FirebaseFirestore.instance;
@@ -525,9 +528,25 @@ class AddChildrenService extends BaseService {
       // Reference to Firestore document
       print(
           "[UpdatingChildrenMealData] Service: Getting reference to document: $childId");
-      DocumentReference childDocRef = FirebaseFirestore.instance
-          .collection("parentsChildren")
-          .doc(childId); // Access the document directly
+      DocumentReference childDocRef =
+          FirebaseFirestore.instance.collection("parentsChildren").doc(childId);
+
+      // Ensure meal data has scheduled dates
+      if (childData.selectedMealMenuData != null) {
+        for (var meal in childData.selectedMealMenuData!) {
+          if (meal.schedule != null &&
+              (meal.scheduledDates == null || meal.scheduledDates!.isEmpty)) {
+            // Calculate scheduled dates if they're missing
+            print(
+                "[UpdatingChildrenMealData] Service: Recalculating scheduled dates for meal: ${meal.mealName}");
+            List<String> scheduledDates =
+                _calculateScheduledDates(meal.schedule!);
+            meal.scheduledDates = scheduledDates;
+            print(
+                "[UpdatingChildrenMealData] Service: Calculated dates: ${meal.scheduledDates}");
+          }
+        }
+      }
 
       // If a new image is provided, upload it and update the URL
       if (imgUrl != null && imgUrl.isNotEmpty) {
@@ -588,6 +607,54 @@ class AddChildrenService extends BaseService {
           "[UpdatingChildrenMealData] Service: Stack trace: ${StackTrace.current}");
       return false;
     }
+  }
+
+  /// Calculates the scheduled dates for a meal based on its schedule configuration.
+  List<String> _calculateScheduledDates(Schedule schedule) {
+    List<String> scheduledDates = [];
+    DateTime today = DateTime.now();
+
+    // Default to 1 if repeatCount is null or empty
+    int repeatCount = int.tryParse(schedule.repeatCount ?? '1') ?? 1;
+
+    // Get the repeat days
+    List<String> repeatDays = schedule.repeatOn ?? [];
+    if (repeatDays.isEmpty) {
+      print("[CalculateScheduledDates] No repeat days specified");
+      return scheduledDates;
+    }
+
+    // Convert day names to lowercase for case-insensitive comparison
+    List<String> lowerCaseRepeatDays =
+        repeatDays.map((day) => day.toLowerCase()).toList();
+
+    // Calculate end date based on repeat frequency
+    DateTime endDate;
+    if (schedule.repeatEvery == 'week') {
+      endDate = today.add(Duration(days: 7 * repeatCount));
+    } else if (schedule.repeatEvery == 'month') {
+      // Approximate a month as 30 days for simplicity
+      endDate = today.add(Duration(days: 30 * repeatCount));
+    } else {
+      // Default to 1 week if repeatEvery is invalid
+      endDate = today.add(Duration(days: 7));
+    }
+
+    // Loop through each day from today to end date
+    for (DateTime date = today;
+        date.isBefore(endDate);
+        date = date.add(Duration(days: 1))) {
+      // Get the day name for the current date
+      String dayName = DateFormat('EEEE').format(date).toLowerCase();
+
+      // Check if this day is in the repeat days
+      if (lowerCaseRepeatDays.contains(dayName)) {
+        // Add this date to the scheduled dates
+        scheduledDates.add(DateFormat('dd-MM-yyyy').format(date));
+      }
+    }
+
+    return scheduledDates;
   }
 
   //FOR DELETING ALL CHILDREN ON THE BASE  ARE CHILDREN ARE IN SAME SCHOOL(OF YES OR NO)
