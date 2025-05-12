@@ -77,12 +77,14 @@ class ChildVerificationUploadInfoController extends GetxController {
       // First check if this specific meal has already been prepared today
       final childId = childrenList.first.childId;
       if (childId != null && childId.isNotEmpty) {
-        final alreadyPrepared = await isMealAlreadyPreparedToday(childId, meal);
+        final todayOrders = await fetchTodayOrdersForChild(childId);
+        final alreadyOrdered =
+            isMealAlreadyOrderedToday(todayOrders, meal.mealName ?? '');
 
-        if (alreadyPrepared) {
+        if (alreadyOrdered) {
           Get.snackbar(
-            'Already Prepared',
-            'This meal has already been prepared today. You cannot prepare the same meal twice in a day.',
+            'Already Processed',
+            'This meal has already been prepared or delivered today.',
             snackPosition: SnackPosition.TOP,
             backgroundColor: Colors.orange,
             colorText: Colors.white,
@@ -91,6 +93,26 @@ class ChildVerificationUploadInfoController extends GetxController {
           isLoading.value = false;
           return;
         }
+      }
+
+      // Check if the meal is available
+      if (meal.id != null && meal.id!.isNotEmpty) {
+        final isAvailable = await checkMealAvailability(meal.id!);
+
+        if (!isAvailable) {
+          Get.snackbar(
+            'Meal Unavailable',
+            'This meal is currently unavailable. Please contact the cafeteria.',
+            snackPosition: SnackPosition.TOP,
+            backgroundColor: Colors.red,
+            colorText: Colors.white,
+            duration: const Duration(seconds: 3),
+          );
+          isLoading.value = false;
+          return;
+        }
+      } else {
+        print("⚠️ Warning: Meal ID is missing, skipping availability check");
       }
 
       // Continue with the existing wallet balance check and preparation
@@ -642,6 +664,43 @@ class ChildVerificationUploadInfoController extends GetxController {
       print("Error refreshing data: $e");
     } finally {
       isLoading.value = false;
+    }
+  }
+
+  // Add this method to check meal availability
+  Future<bool> checkMealAvailability(String mealId) async {
+    try {
+      if (mealId.isEmpty) {
+        print("❌ Meal ID is empty");
+        return false;
+      }
+
+      print("🔍 Checking availability for meal: $mealId");
+
+      // Query Firestore for the meal
+      final mealDoc = await FirebaseFirestore.instance
+          .collection('meals')
+          .doc(mealId)
+          .get();
+
+      if (!mealDoc.exists) {
+        print("❌ Meal not found in database");
+        return false;
+      }
+
+      final mealData = mealDoc.data();
+      if (mealData == null) {
+        print("❌ Meal data is null");
+        return false;
+      }
+
+      final availability = mealData['availability'] as String? ?? 'unavailable';
+      print("✅ Meal availability: $availability");
+
+      return availability == 'available';
+    } catch (e) {
+      print("❌ Error checking meal availability: $e");
+      return false;
     }
   }
 

@@ -99,7 +99,7 @@ class MenuPageView extends GetView<MenuPageController> {
 
                     // _buildSearchField(textController),
                     const SizedBox(height: 36),
-                    _buildText(),
+                    // _buildText(),
                     _buildCafeteriaList(context),
                     const SizedBox(height: 12),
                   ],
@@ -444,6 +444,7 @@ class MenuPageView extends GetView<MenuPageController> {
                               // Add to selected meals
                               selectedMeals = ParentSelectedMeals(
                                   mealName: meal.name!,
+                                  id: meal.id!,
                                   mealPrice: meal.price,
                                   scheduleStatement: listData,
                                   imageUrl: meal.imageUrl,
@@ -735,7 +736,7 @@ class MenuPageView extends GetView<MenuPageController> {
   // "Congratulations" text in the center
   Widget _buildText() {
     return Center(
-      child: Text('Cafeteria Name',
+      child: Text('',
           style: AppTextStyles.PoppinsBold.copyWith(
             fontSize: 14,
             color: AppColors.blackColor,

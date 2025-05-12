@@ -27,11 +27,9 @@ class CafeteriaStaffListView extends StatelessWidget {
             init: CafeteriaAddStaffController(),
             builder: (addStaffController) {
               return Obx(
-                () =>
-                addStaffController.isLoading.value
+                () => addStaffController.isLoading.value
                     ? const Center(child: CircularProgressIndicator())
-                    :
-                Column(
+                    : Column(
                         children: [
                           Padding(
                             padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -74,7 +72,8 @@ class CafeteriaStaffListView extends StatelessWidget {
                                   alignment: Alignment.center,
                                   child: Text(
                                     'Staff Members',
-                                    style: AppTextStyles.MetropolisBold.copyWith(
+                                    style:
+                                        AppTextStyles.MetropolisBold.copyWith(
                                       color: const Color(0xFF434343),
                                       fontSize: 18,
                                     ),
@@ -84,13 +83,17 @@ class CafeteriaStaffListView extends StatelessWidget {
                                 ListView.separated(
                                   physics: const NeverScrollableScrollPhysics(),
                                   shrinkWrap: true,
-                                  itemCount: addStaffController.staffDataList.length,
-                                  separatorBuilder: (_, __) => const SizedBox(height: 16),
+                                  itemCount:
+                                      addStaffController.staffDataList.length,
+                                  separatorBuilder: (_, __) =>
+                                      const SizedBox(height: 16),
                                   itemBuilder: (context, index) {
                                     return Padding(
-                                      padding: const EdgeInsets.symmetric(horizontal: 4),
+                                      padding: const EdgeInsets.symmetric(
+                                          horizontal: 4),
                                       child: Row(
-                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
                                         children: [
                                           Row(
                                             children: [
@@ -100,14 +103,17 @@ class CafeteriaStaffListView extends StatelessWidget {
                                                   decoration: BoxDecoration(
                                                     color: Colors.white,
                                                     shape: BoxShape.circle,
-                                                    border:
-                                                        Border.all(color: Colors.white, width: 3),
+                                                    border: Border.all(
+                                                        color: Colors.white,
+                                                        width: 3),
                                                     boxShadow: [
                                                       BoxShadow(
-                                                        color: Colors.grey.withOpacity(0.3),
+                                                        color: Colors.grey
+                                                            .withOpacity(0.3),
                                                         spreadRadius: 2,
-                                                        blurRadius: 6,
-                                                        offset: const Offset(0, 3),
+                                                        blurRadius: 2,
+                                                        offset:
+                                                            const Offset(0, 3),
                                                       ),
                                                     ],
                                                   ),
@@ -117,15 +123,22 @@ class CafeteriaStaffListView extends StatelessWidget {
                                                       // backgroundImage: AssetImage(
                                                       //     'assets/images/icecream.png'),
                                                       child: addStaffController
-                                                                  .staffDataList[index].imageUrl !=
+                                                                  .staffDataList[
+                                                                      index]
+                                                                  .imageUrl !=
                                                               null
                                                           ? ClipOval(
-                                                            child: Image.network(
+                                                              child:
+                                                                  Image.network(
                                                                 addStaffController
-                                                                    .staffDataList[index].imageUrl!,
-                                                                width: double.infinity,
+                                                                    .staffDataList[
+                                                                        index]
+                                                                    .imageUrl!,
+                                                                width: double
+                                                                    .infinity,
                                                                 // height: 100,
-                                                                fit: BoxFit.cover,
+                                                                fit: BoxFit
+                                                                    .cover,
                                                                 // errorBuilder: (context, error, stackTrace) {
                                                                 //   return Image.asset(
                                                                 //     'assets/images/icecream.png',
@@ -134,16 +147,24 @@ class CafeteriaStaffListView extends StatelessWidget {
                                                                 //   );
                                                                 // },
                                                               ),
-                                                          )
-                                                          : Image.asset(
-                                                              'assets/images/profile_emoji.png',
-                                                              width: double.infinity,
-                                                              fit: BoxFit.cover,
+                                                            )
+                                                          : ClipOval(
+                                                              child:
+                                                                  Image.asset(
+                                                                'assets/images/profile_emoji.png',
+                                                                width: double
+                                                                    .infinity,
+                                                                fit: BoxFit
+                                                                    .contain,
+                                                              ),
                                                             ))),
                                               const SizedBox(width: 16),
                                               Text(
-                                                addStaffController.staffDataList[index].staffName!,
-                                                style: AppTextStyles.MetropolisMedium.copyWith(
+                                                addStaffController
+                                                    .staffDataList[index]
+                                                    .staffName!,
+                                                style: AppTextStyles
+                                                    .MetropolisMedium.copyWith(
                                                   fontSize: 15,
                                                 ),
                                               ),
@@ -155,17 +176,24 @@ class CafeteriaStaffListView extends StatelessWidget {
                                                 onTap: () {
                                                   // Edit action here
                                                   // controller.updateSelectedIndex(4);
-                                                  Get.toNamed(Routes.CAFETERIA_Edit_STAFF,
+                                                  Get.toNamed(
+                                                      Routes
+                                                          .CAFETERIA_Edit_STAFF,
                                                       arguments: {
                                                         'staffModelL':
-                                                            addStaffController.staffDataList[index],
+                                                            addStaffController
+                                                                    .staffDataList[
+                                                                index],
                                                       });
                                                 },
                                                 child: Text(
                                                   'Edit',
-                                                  style: AppTextStyles.MetropolisRegular.copyWith(
+                                                  style: AppTextStyles
+                                                          .MetropolisRegular
+                                                      .copyWith(
                                                     fontSize: 12,
-                                                    color: const Color(0xFFFF9A0D),
+                                                    color:
+                                                        const Color(0xFFFF9A0D),
                                                   ),
                                                 ),
                                               ),
@@ -173,11 +201,16 @@ class CafeteriaStaffListView extends StatelessWidget {
                                               GestureDetector(
                                                 onTap: () {
                                                   // Delete action here
-                                                  if (addStaffController.staffDataList[index].id !=
+                                                  if (addStaffController
+                                                          .staffDataList[index]
+                                                          .id !=
                                                       null) {
-                                                    addStaffController.deleteStaffData(
-                                                        addStaffController
-                                                            .staffDataList[index].id!);
+                                                    addStaffController
+                                                        .deleteStaffData(
+                                                            addStaffController
+                                                                .staffDataList[
+                                                                    index]
+                                                                .id!);
                                                   }
                                                 },
                                                 child: Image.asset(

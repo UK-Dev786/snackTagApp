@@ -282,6 +282,7 @@ class CafeteriaMenuPageView extends GetView<CafeteriaMenuPageController> {
                     valueListenable: switchController,
                     builder: (context, value, child) {
                       return AdvancedSwitch(
+                        initialValue: meal.availability == 'available',
                         controller: switchController,
                         activeColor: Color(0xFFCCFD00),
                         height: 12,

@@ -4,6 +4,7 @@ class ParentSelectedMeals {
   String? scheduleStatement;
   String? imageUrl;
   Schedule? schedule;
+  String? id;
   List<String>? scheduledDates; // Add this field to store scheduled dates
 
   ParentSelectedMeals({
@@ -12,6 +13,7 @@ class ParentSelectedMeals {
     this.scheduleStatement,
     this.imageUrl,
     this.schedule,
+    this.id,
     this.scheduledDates, // Add to constructor
   });
 
@@ -20,11 +22,11 @@ class ParentSelectedMeals {
     return ParentSelectedMeals(
       mealName: json['mealName'],
       mealPrice: json['mealPrice'],
+       id: json['id'],
       scheduleStatement: json['scheduleStatement'],
       imageUrl: json['imageUrl'],
-      schedule: json['schedule'] != null
-          ? Schedule.fromMap(json['schedule'])
-          : null,
+      schedule:
+          json['schedule'] != null ? Schedule.fromMap(json['schedule']) : null,
       scheduledDates: json['scheduledDates'] != null
           ? List<String>.from(json['scheduledDates'])
           : null,
@@ -34,6 +36,7 @@ class ParentSelectedMeals {
   // Convert ParentSelectedMeals object to Map
   Map<String, dynamic> toMap() {
     return {
+      'id': id,
       'mealName': mealName,
       'mealPrice': mealPrice,
       'scheduleStatement': scheduleStatement,
@@ -43,10 +46,9 @@ class ParentSelectedMeals {
     };
   }
 
-
-@override
+  @override
   String toString() {
-    return 'ParentSelectedMeals(mealNames: $mealName,imageUrls: $imageUrl, mealPrices: $mealPrice, scheduleStatements: $scheduleStatement, schedules: $schedule)';
+    return 'ParentSelectedMeals(mealNames: $mealName,imageUrls: $imageUrl, id: $id, mealPrices: $mealPrice, scheduleStatements: $scheduleStatement, schedules: $schedule)';
   }
 }
 
