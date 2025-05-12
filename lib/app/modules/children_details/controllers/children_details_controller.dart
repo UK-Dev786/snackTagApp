@@ -283,6 +283,7 @@ class ChildrenDetailsController extends GetxController {
             pChildEditController.imageUrl.value,
         schoolName: parentsAddChild.schoolName,
         cafeteriaName: cafeModel[0].cafeteriaName,
+        childGender: parentsAddChild.childGender,
         selectedMealMenuData:
             selectedMealData.isNotEmpty ? selectedMealData : null,
       );
@@ -320,7 +321,7 @@ class ChildrenDetailsController extends GetxController {
 
       isSuccess.value = await addChildrenService.updateChildren(
           user.uid,
-          pChildEditController.childData.id!,
+          pChildEditController.childData.childId!,
           editChildrenData,
           pChildEditController.selectedImage.value?.path ??
               pChildEditController.imageUrl.value);

@@ -124,7 +124,6 @@ class CafeteriaDetailView extends GetView<CafeteriaDetailController> {
                 text: 'CONTINUE',
                 onPressed: () {
                   controller.validateAndContinue();
-                  // Get.toNamed(Routes.CAFETERIA_MEAL_DETAILS);
                 },
                 isLoading: controller.isLoading.value))
           ],
