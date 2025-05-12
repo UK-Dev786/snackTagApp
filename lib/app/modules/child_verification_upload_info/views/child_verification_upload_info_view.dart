@@ -492,40 +492,36 @@ class ChildVerificationUploadInfoView extends StatelessWidget {
                                                   const SizedBox(width: 16),
 
                                                   // Delivered option
-                                                  Expanded(
-                                                    child: Column(
-                                                      children: [
-                                                        Text(
-                                                          'Delivered',
-                                                          style: AppTextStyles
-                                                                  .MetropolisRegular
-                                                              .copyWith(
-                                                            fontSize: 10,
-                                                            color:
-                                                                Colors.black54,
-                                                          ),
+                                                  Column(
+                                                    children: [
+                                                      Text(
+                                                        'Delivered',
+                                                        style: AppTextStyles
+                                                                .MetropolisRegular
+                                                            .copyWith(
+                                                          fontSize: 10,
+                                                          color: Colors.black54,
                                                         ),
-                                                        const SizedBox(
-                                                            height: 4),
-                                                        Container(
-                                                          width: 24,
-                                                          height: 24,
-                                                          decoration:
-                                                              BoxDecoration(
-                                                            shape:
-                                                                BoxShape.circle,
-                                                            color: controller
-                                                                        .getMealStatus(
-                                                                            meal) ==
-                                                                    'Delivered'
-                                                                ? AppColors
-                                                                    .gradientEndColor
-                                                                : Colors
-                                                                    .grey[200],
-                                                          ),
+                                                      ),
+                                                      const SizedBox(height: 4),
+                                                      Container(
+                                                        width: 24,
+                                                        height: 24,
+                                                        decoration:
+                                                            BoxDecoration(
+                                                          shape:
+                                                              BoxShape.circle,
+                                                          color: controller
+                                                                      .getMealStatus(
+                                                                          meal) ==
+                                                                  'Delivered'
+                                                              ? AppColors
+                                                                  .gradientEndColor
+                                                              : Colors
+                                                                  .grey[200],
                                                         ),
-                                                      ],
-                                                    ),
+                                                      ),
+                                                    ],
                                                   ),
                                                 ],
                                               ),

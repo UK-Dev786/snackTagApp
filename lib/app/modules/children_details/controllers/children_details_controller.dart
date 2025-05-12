@@ -14,7 +14,6 @@ import 'package:snacktag/models/parents_models/add_children.dart';
 import 'package:snacktag/models/parents_models/parent_selected_meals.dart';
 import 'package:snacktag/services/parents/add_children_service.dart';
 import 'package:snacktag/services/parents/school_cafaterias_model.dart';
-import 'package:snacktag/app/modules/parents_home/controllers/parents_home_controller.dart';
 
 import '../../../../widgets/custom_dialog_schedule.dart';
 
@@ -241,63 +240,99 @@ class ChildrenDetailsController extends GetxController {
       return;
     }
 
+    print("[UpdatingChildrenMealData] User ID: ${user.uid}");
+    print(
+        "[UpdatingChildrenMealData] All children same school: ${parentController.allChildrenSameSchool.value}");
+    print(
+        "[UpdatingChildrenMealData] Cafeteria name: ${cafeModel[0].cafeteriaName}");
+    print(
+        "[UpdatingChildrenMealData] Selected meal data count: ${selectedMealData.length}");
+    print(
+        "[UpdatingChildrenMealData] Selected classroom delivery: ${selectedClassRoomDeliveryOption.value}");
+
+    var isSuccess = false.obs;
+    ParentsChildrenEditController pChildEditController =
+        Get.find<ParentsChildrenEditController>();
+
+    print("[UpdatingChildrenMealData] Edit controller found");
+    print(
+        "[UpdatingChildrenMealData] Child ID from edit controller: ${pChildEditController.childData.id}");
+    print(
+        "[UpdatingChildrenMealData] Child name: ${parentsAddChild.childName}");
+
+    isLoading.value = true;
+
     try {
-      // Create a direct child ID using the same format as in addChildren method
-      final finalChildId =
-          '${parentsAddChild.schoolName?.replaceAll(' ', '_')}_${parentsAddChild.childSchoolID}';
+      print(
+          "[UpdatingChildrenMealData] Selected image path: ${pChildEditController.selectedImage.value?.path ?? 'No new image'}");
+      print(
+          "[UpdatingChildrenMealData] Current image URL: ${pChildEditController.imageUrl.value}");
 
-      if (finalChildId == null ||
-          finalChildId.isEmpty ||
-          !finalChildId.contains('_') ||
-          parentsAddChild.childSchoolID == null) {
-        print("[UpdatingChildrenMealData] ERROR: Cannot create valid child ID");
-        Get.snackbar(
-            "Error", "Child information is incomplete. Please try again.");
-        return;
-      }
-
-      print("[UpdatingChildrenMealData] Using child ID: $finalChildId");
-
-      isLoading.value = true;
-
-      // Create the data model for updating a child
       ParentsAddChildren editChildrenData = ParentsAddChildren(
+        id: pChildEditController.childData.id,
         parentId: user.uid,
-        childId: finalChildId,
         classroomDelivery: selectedClassRoomDeliveryOption.value,
-        numberOfChildren: parentController.numberOfChildren.value.toString(),
+        numberOfChildren: pChildEditController.childData.numberOfChildren,
         allChildrenAreInSameSchool:
             parentController.allChildrenSameSchool.value,
+        childId: pChildEditController.childData.childId,
         childName: parentsAddChild.childName,
+        date: DateTime.now().toIso8601String(),
         childSchoolID: parentsAddChild.childSchoolID,
-        childImageUrl: parentsAddChild.childImageUrl,
-        childGender:
-            parentsAddChild.childGender ?? 'Male', // Provide default if null
+        childImageUrl: pChildEditController.selectedImage.value?.path ??
+            pChildEditController.imageUrl.value,
         schoolName: parentsAddChild.schoolName,
-        cafeteriaName: cafeModel.isNotEmpty ? cafeModel[0].cafeteriaName : '',
+        cafeteriaName: cafeModel[0].cafeteriaName,
         selectedMealMenuData:
             selectedMealData.isNotEmpty ? selectedMealData : null,
-        date: DateTime.now().toIso8601String(),
       );
 
-      var isSuccess = await addChildrenService.updateChildren(user.uid,
-          finalChildId, editChildrenData, parentsAddChild.childImageUrl);
+      print(
+          "[UpdatingChildrenMealData] Child data prepared for Firestore update:");
+      print("[UpdatingChildrenMealData] Document ID: ${editChildrenData.id}");
+      print("[UpdatingChildrenMealData] Child ID: ${editChildrenData.childId}");
+      print(
+          "[UpdatingChildrenMealData] Child name: ${editChildrenData.childName}");
+      print(
+          "[UpdatingChildrenMealData] School name: ${editChildrenData.schoolName}");
+      print(
+          "[UpdatingChildrenMealData] School ID: ${editChildrenData.childSchoolID}");
+      print(
+          "[UpdatingChildrenMealData] Classroom delivery: ${editChildrenData.classroomDelivery}");
+      print("[UpdatingChildrenMealData] Date: ${editChildrenData.date}");
 
-      if (isSuccess) {
+      if (selectedMealData.isNotEmpty) {
+        for (int i = 0; i < selectedMealData.length; i++) {
+          print("[UpdatingChildrenMealData] Selected meal #${i + 1}:");
+          print(
+              "[UpdatingChildrenMealData]   - Name: ${selectedMealData[i].mealName}");
+          print(
+              "[UpdatingChildrenMealData]   - Price: ${selectedMealData[i].mealPrice}");
+          print(
+              "[UpdatingChildrenMealData]   - Schedule: ${selectedMealData[i].scheduleStatement}");
+        }
+      } else {
+        print("[UpdatingChildrenMealData] No meals selected for update");
+      }
+
+      print(
+          "[UpdatingChildrenMealData] Calling addChildrenService.updateChildren()");
+
+      isSuccess.value = await addChildrenService.updateChildren(
+          user.uid,
+          pChildEditController.childData.id!,
+          editChildrenData,
+          pChildEditController.selectedImage.value?.path ??
+              pChildEditController.imageUrl.value);
+
+      print(
+          "[UpdatingChildrenMealData] updateChildren result: ${isSuccess.value}");
+
+      if (isSuccess.value) {
         print("[UpdatingChildrenMealData] Child updated successfully");
-
-        // Show success message
+        print("[UpdatingChildrenMealData] Navigating to landing page");
+        Get.offNamed(Routes.LANDING_PAGE);
         Get.snackbar("Success", "Child updated successfully!");
-
-        // Delay slightly to allow the snackbar to be visible
-        await Future.delayed(Duration(milliseconds: 500));
-
-        // Clear the navigation stack and go to the home page first
-        await Get.offAllNamed(Routes.PARENTS_HOME);
-
-        // Then navigate to the children details page
-        await Future.delayed(Duration(milliseconds: 300));
-        Get.toNamed(Routes.PARENTS_CHILDREN_DETAILS);
       } else {
         print("[UpdatingChildrenMealData] ERROR: Failed to update child");
         Get.snackbar("Error", "Failed to update child. Please try again.");

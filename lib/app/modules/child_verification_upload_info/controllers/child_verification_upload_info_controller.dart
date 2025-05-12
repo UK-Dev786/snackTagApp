@@ -26,6 +26,7 @@ class ChildVerificationUploadInfoController extends GetxController {
   StaffModel? staffModel;
   // Add this property to track meal statuses
   final mealStatuses = RxMap<String, RxString>();
+  RxInt updateCounter = 0.obs;
 
   @override
   void onInit() {
@@ -76,12 +77,14 @@ class ChildVerificationUploadInfoController extends GetxController {
       // First check if this specific meal has already been prepared today
       final childId = childrenList.first.childId;
       if (childId != null && childId.isNotEmpty) {
-        final alreadyPrepared = await isMealAlreadyPreparedToday(childId, meal);
+        final todayOrders = await fetchTodayOrdersForChild(childId);
+        final alreadyOrdered =
+            isMealAlreadyOrderedToday(todayOrders, meal.mealName ?? '');
 
-        if (alreadyPrepared) {
+        if (alreadyOrdered) {
           Get.snackbar(
-            'Already Prepared',
-            'This meal has already been prepared today. You cannot prepare the same meal twice in a day.',
+            'Already Processed',
+            'This meal has already been prepared or delivered today.',
             snackPosition: SnackPosition.TOP,
             backgroundColor: Colors.orange,
             colorText: Colors.white,
@@ -90,6 +93,26 @@ class ChildVerificationUploadInfoController extends GetxController {
           isLoading.value = false;
           return;
         }
+      }
+
+      // Check if the meal is available
+      if (meal.id != null && meal.id!.isNotEmpty) {
+        final isAvailable = await checkMealAvailability(meal.id!);
+
+        if (!isAvailable) {
+          Get.snackbar(
+            'Meal Unavailable',
+            'This meal is currently unavailable. Please contact the cafeteria.',
+            snackPosition: SnackPosition.TOP,
+            backgroundColor: Colors.red,
+            colorText: Colors.white,
+            duration: const Duration(seconds: 3),
+          );
+          isLoading.value = false;
+          return;
+        }
+      } else {
+        print("⚠️ Warning: Meal ID is missing, skipping availability check");
       }
 
       // Continue with the existing wallet balance check and preparation
@@ -103,9 +126,10 @@ class ChildVerificationUploadInfoController extends GetxController {
 
       isLoading.value = false;
     } catch (e) {
-      isLoading.value = false;
       print("Error fetching wallet: $e");
-      Get.snackbar('Error', 'Failed to fetch wallet data');
+      Get.snackbar('Error', 'Failed to process meal: $e');
+    } finally {
+      isLoading.value = false;
     }
   }
 
@@ -308,8 +332,8 @@ class ChildVerificationUploadInfoController extends GetxController {
         historyController.updateSelectedIndex(0);
 
         // Navigate to landing page
-        await Get.offAllNamed(Routes.STAFF_LANDING_PAGE,
-            arguments: {'initialIndex': 1});
+        // await Get.offAllNamed(Routes.STAFF_LANDING_PAGE,
+        // arguments: {'initialIndex': 1});
       } else {
         Get.snackbar('Error', 'Failed to start order preparation',
             snackPosition: SnackPosition.TOP
@@ -528,6 +552,155 @@ class ChildVerificationUploadInfoController extends GetxController {
     } catch (e) {
       print("Error checking if meal already prepared: $e");
       return false; // Default to false if there's an error
+    }
+  }
+
+  // Method to fetch all orders for a child for today
+  Future<List<Map<String, dynamic>>> fetchTodayOrdersForChild(
+      String childId) async {
+    try {
+      if (childId.isEmpty) {
+        print("❌ Child ID is empty");
+        return [];
+      }
+
+      // Get today's date
+      final now = DateTime.now();
+      final startOfDay = DateTime(now.year, now.month, now.day);
+      final endOfDay = startOfDay.add(const Duration(days: 1));
+
+      // Convert to ISO string format
+      final startOfDayStr = startOfDay.toIso8601String();
+      final endOfDayStr = endOfDay.toIso8601String();
+
+      print(
+          "🔍 Fetching orders for child $childId for today ($startOfDayStr to $endOfDayStr)");
+
+      // Query Firestore for orders
+      final querySnapshot = await FirebaseFirestore.instance
+          .collection('orderPreparation')
+          .where('childId', isEqualTo: childId)
+          .get();
+
+      // Filter orders for today
+      List<Map<String, dynamic>> todayOrders = [];
+
+      for (var doc in querySnapshot.docs) {
+        final data = doc.data();
+
+        // Skip cancelled orders
+        if (data['status'] == 'cancelled') {
+          continue;
+        }
+
+        // Check if the order is from today
+        String? orderDate = data['orderPreparationDate'];
+        if (orderDate == null) {
+          continue;
+        }
+
+        try {
+          DateTime orderDateTime = DateTime.parse(orderDate);
+          bool isToday = orderDateTime.year == now.year &&
+              orderDateTime.month == now.month &&
+              orderDateTime.day == now.day;
+
+          if (isToday) {
+            print("📋 Found order from today: ${doc.id}");
+            todayOrders.add(data);
+          }
+        } catch (e) {
+          print("❌ Error parsing order date: $e");
+        }
+      }
+
+      print(
+          "✅ Found ${todayOrders.length} orders for child $childId for today");
+      return todayOrders;
+    } catch (e) {
+      print("❌ Error fetching today's orders: $e");
+      return [];
+    }
+  }
+
+  // Method to check if a meal is already ordered today
+  bool isMealAlreadyOrderedToday(
+      List<Map<String, dynamic>> todayOrders, String mealName) {
+    for (var order in todayOrders) {
+      final selectedMeals = order['selectedMealMenuData'] as List<dynamic>?;
+      if (selectedMeals == null) {
+        continue;
+      }
+
+      for (var mealData in selectedMeals) {
+        if (mealData['mealName'] == mealName) {
+          print("✅ Meal $mealName is already ordered today");
+          return true;
+        }
+      }
+    }
+
+    print("❌ Meal $mealName is NOT already ordered today");
+    return false;
+  }
+
+  // Method to refresh the UI and data
+  void refreshData() async {
+    try {
+      isLoading.value = true;
+
+      // Increment counter to force rebuild
+      updateCounter.value++;
+
+      // Refresh child data if needed
+      if (childrenList.isNotEmpty && childrenList.first.childId != null) {
+        // Refresh today's orders
+        await fetchTodayOrdersForChild(childrenList.first.childId!);
+      }
+
+      // Force UI update
+      update();
+    } catch (e) {
+      print("Error refreshing data: $e");
+    } finally {
+      isLoading.value = false;
+    }
+  }
+
+  // Add this method to check meal availability
+  Future<bool> checkMealAvailability(String mealId) async {
+    try {
+      if (mealId.isEmpty) {
+        print("❌ Meal ID is empty");
+        return false;
+      }
+
+      print("🔍 Checking availability for meal: $mealId");
+
+      // Query Firestore for the meal
+      final mealDoc = await FirebaseFirestore.instance
+          .collection('meals')
+          .doc(mealId)
+          .get();
+
+      if (!mealDoc.exists) {
+        print("❌ Meal not found in database");
+        return false;
+      }
+
+      final mealData = mealDoc.data();
+      if (mealData == null) {
+        print("❌ Meal data is null");
+        return false;
+      }
+
+      final availability = mealData['availability'] as String? ?? 'unavailable';
+      print("✅ Meal availability: $availability");
+
+      return availability == 'available';
+    } catch (e) {
+      print("❌ Error checking meal availability: $e");
+      return false;
     }
   }
 
