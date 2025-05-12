@@ -21,33 +21,38 @@ class StaffHistoryCalenderView extends StatelessWidget {
       backgroundColor: Colors.white,
       body: GetBuilder<StaffHistoryCalenderController>(
           init: StaffHistoryCalenderController(),
-          id: staffHistorySelectDataId,
+          id: 'staffHistorySelectDataId',
           builder: (staffHistoryController) {
+            print("DEBUG: Building StaffHistoryCalenderView");
+            print(
+                "DEBUG: isLoading: ${staffHistoryController.isLoading.value}");
+            print(
+                "DEBUG: upComingMealOrderList length: ${staffHistoryController.upComingMealOrderList.length}");
             if (staffHistoryController.isLoading.value) {
               return const Center(child: CircularProgressIndicator());
             }
-            // if (staffHistoryController.upComingMealOrderList.isEmpty) {
-            //   return Center(
-            //     child: Column(
-            //       mainAxisAlignment: MainAxisAlignment.center,
-            //       children: [
-            //         const Icon(
-            //           Icons.calendar_today_outlined,
-            //           size: 48,
-            //           color: Colors.grey,
-            //         ),
-            //         const SizedBox(height: 16),
-            //         Text(
-            //           'No Upcoming Orders',
-            //           style: AppTextStyles.PoppinsMedium.copyWith(
-            //             fontSize: 16,
-            //             color: Colors.grey,
-            //           ),
-            //         ),
-            //       ],
-            //     ),
-            //   );
-            // }
+            if (staffHistoryController.upComingMealOrderList.isEmpty) {
+              return Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Icon(
+                      Icons.calendar_today_outlined,
+                      size: 48,
+                      color: Colors.grey,
+                    ),
+                    const SizedBox(height: 16),
+                    Text(
+                      'No Upcoming Orders',
+                      style: AppTextStyles.PoppinsMedium.copyWith(
+                        fontSize: 16,
+                        color: Colors.grey,
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            }
             return Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -263,28 +268,28 @@ class StaffHistoryCalenderView extends StatelessWidget {
                 ),
 
                 // Test button for Order Details Screen
-                Padding(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                  child: ElevatedButton(
-                    onPressed: () {
-                      Get.toNamed(Routes.STAFF_ORDER_DETAILS);
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFFCCFF00),
-                      foregroundColor: Colors.black,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                    ),
-                    child: Text(
-                      'View Order Details',
-                      style: AppTextStyles.MetropolisBold.copyWith(
-                        fontSize: 14,
-                      ),
-                    ),
-                  ),
-                ),
+                // Padding(
+                //   padding:
+                //       const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                //   child: ElevatedButton(
+                //     onPressed: () {
+                //       Get.toNamed(Routes.STAFF_ORDER_DETAILS);
+                //     },
+                //     style: ElevatedButton.styleFrom(
+                //       backgroundColor: const Color(0xFFCCFF00),
+                //       foregroundColor: Colors.black,
+                //       shape: RoundedRectangleBorder(
+                //         borderRadius: BorderRadius.circular(8),
+                //       ),
+                //     ),
+                //     child: Text(
+                //       'View Order Details',
+                //       style: AppTextStyles.MetropolisBold.copyWith(
+                //         fontSize: 14,
+                //       ),
+                //     ),
+                //   ),
+                // ),
 
                 // Upcoming Orders Section
                 Expanded(
@@ -312,50 +317,54 @@ Widget _buildOrderCard(
     BuildContext context,
     StaffHistoryCalenderController cafateriaHSDCont,
     UpcomingMealOrder upcomingOrderCount) {
+  print("DEBUG: Building order card for meal: ${upcomingOrderCount.itemName}");
+  print("DEBUG: Expected students: ${upcomingOrderCount.expectedStudent}");
+  print("DEBUG: Student IDs: ${upcomingOrderCount.studentIds}");
   return GestureDetector(
-    onTap: () {
-      print("List of student IDs: ${upcomingOrderCount.studentIds}");
+    // onTap: () {
+    //   print("List of student IDs: ${upcomingOrderCount.studentIds}");
 
-      // Show dialog to choose between different screens
-      Get.dialog(
-        AlertDialog(
-          title: Text(
-            'Choose View',
-            style: AppTextStyles.MetropolisBold.copyWith(fontSize: 18),
-          ),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              ElevatedButton(
-                onPressed: () {
-                  Get.back(); // Close dialog
-                  Get.toNamed(Routes.STAFF_HISTORY_DETAIL, arguments: {
-                    "orderStudentIds": upcomingOrderCount.studentIds,
-                  });
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.blue,
-                  foregroundColor: Colors.white,
-                ),
-                child: Text('Standard View'),
-              ),
-              SizedBox(height: 10),
-              ElevatedButton(
-                onPressed: () {
-                  Get.back(); // Close dialog
-                  Get.toNamed(Routes.STAFF_ORDER_DETAILS);
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFFCCFF00),
-                  foregroundColor: Colors.black,
-                ),
-                child: Text('Order Details View'),
-              ),
-            ],
-          ),
-        ),
-      );
-    },
+    //   // Show dialog to choose between different screens
+    //   Get.dialog(
+    //     AlertDialog(
+    //       title: Text(
+    //         'Choose View',
+    //         style: AppTextStyles.MetropolisBold.copyWith(fontSize: 18),
+    //       ),
+    //       content: Column(
+    //         mainAxisSize: MainAxisSize.min,
+    //         children: [
+    //           ElevatedButton(
+    //             onPressed: () {
+    //               Get.back(); // Close dialog
+    //               Get.toNamed(Routes.STAFF_HISTORY_DETAIL, arguments: {
+    //                 "orderStudentIds": upcomingOrderCount.studentIds,
+    //               });
+    //             },
+    //             style: ElevatedButton.styleFrom(
+    //               backgroundColor: Colors.blue,
+    //               foregroundColor: Colors.white,
+    //             ),
+    //             child: Text('Standard View'),
+    //           ),
+    //           SizedBox(height: 10),
+    //           ElevatedButton(
+    //             onPressed: () {
+    //               Get.back(); // Close dialog
+    //               Get.toNamed(Routes.STAFF_ORDER_DETAILS);
+    //             },
+    //             style: ElevatedButton.styleFrom(
+    //               backgroundColor: const Color(0xFFCCFF00),
+    //               foregroundColor: Colors.black,
+    //             ),
+    //             child: Text('Order Details View'),
+    //           ),
+    //         ],
+    //       ),
+    //     ),
+    //   );
+    // },
+
     child: Container(
       height: 72, // Fixed height for each item
       width: double.infinity, // Infinite width
@@ -487,16 +496,21 @@ Widget _buildOrderCard(
               child: Column(
                 children: [
                   Text(
-                    upcomingOrderCount.expectedStudent.toString(),
+                    // Use expectedStudent if studentIds is empty
+                    ((upcomingOrderCount.studentIds?.isEmpty ?? true)
+                                ? upcomingOrderCount.expectedStudent
+                                : upcomingOrderCount.studentIds?.length)
+                            ?.toString() ??
+                        "0",
                     style: AppTextStyles.PoppinsMedium.copyWith(
                       fontSize: 27,
                     ),
                   ),
-                  Text("Expected",
+                  Text("Number of",
                       style: AppTextStyles.PoppinsMedium.copyWith(
                         fontSize: 11,
                       )),
-                  Text("No of Students",
+                  Text("Students",
                       style: AppTextStyles.PoppinsMedium.copyWith(
                         fontSize: 11,
                       )),

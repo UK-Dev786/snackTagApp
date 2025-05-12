@@ -4,6 +4,7 @@ import 'package:snacktag/app/modules/staff_history_detail/views/staff_history_de
 import 'package:snacktag/app/modules/staff_history_list/views/staff_history_list_view.dart';
 import 'package:snacktag/app/modules/staff_preparing/views/staff_preparing_view.dart';
 import 'package:snacktag/config/app_colors.dart';
+import 'package:snacktag/config/app_images.dart';
 import 'package:snacktag/config/app_text_style.dart';
 
 import '../controllers/staff_history_controller.dart';
@@ -37,25 +38,17 @@ class StaffHistoryView extends GetView<StaffHistoryController> {
                         height: 40,
                         width: MediaQuery.of(context).size.width * 0.4,
                         decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(20),
-                          gradient: controller.selectedIndex.value == 0
-                              ? const LinearGradient(
-                                  colors: [AppColors.gradientStartColor, AppColors.gradientEndColor],
-                                  begin: Alignment.centerLeft,
-                                  end: Alignment.centerRight,
-                                )
-                              : null,
-                          color: controller.selectedIndex.value == 0
-                              ? null
-                              : const Color(0xFFF5F5F5),
-                        ),
+                            image: DecorationImage(
+                                image: AssetImage(
+                          AppImages.baseButton,
+                        ))),
                         child: Center(
                           child: Text(
                             'Preparing',
                             style: controller.selectedIndex.value == 0
                                 ? AppTextStyles.MetropolisBold.copyWith(
                                     fontSize: 16,
-                                    color: Colors.white,
+                                    color: Colors.black,
                                   )
                                 : AppTextStyles.MetropolisRegular.copyWith(
                                     fontSize: 16,
@@ -75,32 +68,21 @@ class StaffHistoryView extends GetView<StaffHistoryController> {
                         height: 40,
                         width: MediaQuery.of(context).size.width * 0.4,
                         decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(20),
-                          gradient: controller.selectedIndex.value == 1
-                              ? const LinearGradient(
-                                  colors: [AppColors.gradientStartColor, AppColors.gradientEndColor],
-                                  begin: Alignment.centerLeft,
-                                  end: Alignment.centerRight,
-                                )
-                              : null,
-                          color: controller.selectedIndex.value == 1
-                              ? null
-                              : const Color(0xFFF5F5F5),
-                        ),
+                            image: DecorationImage(
+                                image: AssetImage(AppImages.baseButton))),
                         child: Center(
-                          child: Text(
-                            'History',
-                            style: controller.selectedIndex.value == 1
-                                ? AppTextStyles.MetropolisBold.copyWith(
-                                    fontSize: 16,
-                                    color: Colors.white,
-                                  )
-                                : AppTextStyles.MetropolisRegular.copyWith(
-                                    fontSize: 16,
-                                    color: Colors.black,
-                                  ),
-                          ),
-                        ),
+                            child: Text(
+                          'History',
+                          style: controller.selectedIndex.value == 1
+                              ? AppTextStyles.MetropolisBold.copyWith(
+                                  fontSize: 16,
+                                  color: Colors.black,
+                                )
+                              : AppTextStyles.MetropolisRegular.copyWith(
+                                  fontSize: 16,
+                                  color: Colors.black,
+                                ),
+                        )),
                       ),
                     ),
                   ],
