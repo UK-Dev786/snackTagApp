@@ -33,130 +33,127 @@ class MenuPageView extends GetView<MenuPageController> {
       child: Scaffold(
         backgroundColor: Colors.white, // Set the background color to white
 
-        body: SingleChildScrollView(
-          padding: const EdgeInsets.only(
-            top: 42,
-            bottom: 24,
-            left: 4,
-            right: 4,
-          ),
-          child: Column(
-            children: [
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  children: [
-                    Align(
-                      alignment: Alignment.topLeft,
-                      child: GestureDetector(
-                        onTap: () {
-                          Get.back(); // Navigate back to the previous screen
-                        },
-                        child: Container(
-                          height: 35,
-                          width: 35,
-                          margin: const EdgeInsets.only(
-                              top: 16), // Add some margin if needed
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.grey.withOpacity(0.2),
-                                blurRadius: 4,
-                                spreadRadius: 2,
+        body: Obx(() => SingleChildScrollView(
+              padding: const EdgeInsets.only(
+                top: 42,
+                bottom: 24,
+                left: 4,
+                right: 4,
+              ),
+              child: Column(
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: [
+                        Align(
+                          alignment: Alignment.topLeft,
+                          child: GestureDetector(
+                            onTap: () {
+                              Get.back(); // Navigate back to the previous screen
+                            },
+                            child: Container(
+                              height: 35,
+                              width: 35,
+                              margin: const EdgeInsets.only(
+                                  top: 16), // Add some margin if needed
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.grey.withOpacity(0.2),
+                                    blurRadius: 4,
+                                    spreadRadius: 2,
+                                  ),
+                                ],
+                                color: Colors
+                                    .white, // Background color for the container
                               ),
-                            ],
-                            color: Colors
-                                .white, // Background color for the container
-                          ),
-                          child: Center(
-                            child: Image.asset(
-                              "assets/icon/back.png",
-                              height: 15, // Set the height to 15
-                              width: 10, // Set the width to 15
+                              child: Center(
+                                child: Image.asset(
+                                  "assets/icon/back.png",
+                                  height: 15, // Set the height to 15
+                                  width: 10, // Set the width to 15
+                                ),
+                              ),
                             ),
                           ),
                         ),
-                      ),
-                    ),
-                    const SizedBox(
-                      height: 8,
-                    ),
-                    Align(
-                      alignment: Alignment.center,
-                      child: Text(
-                        'SELECT MEAL',
-                        style: AppTextStyles.MetropolisMedium.copyWith(
-                            color: Color(0xFF434343), fontSize: 18),
-                      ),
-                    ),
-                    const SizedBox(
-                      height: 36,
-                    ),
-                    _buildSearchField(controller.searchTextController),
+                        const SizedBox(
+                          height: 8,
+                        ),
+                        Align(
+                          alignment: Alignment.center,
+                          child: Text(
+                            'SELECT MEAL',
+                            style: AppTextStyles.MetropolisMedium.copyWith(
+                                color: Color(0xFF434343), fontSize: 18),
+                          ),
+                        ),
+                        const SizedBox(
+                          height: 36,
+                        ),
+                        _buildSearchField(controller.searchTextController),
 
-                    // _buildSearchField(textController),
-                    const SizedBox(height: 36),
-                    _buildText(),
-                    _buildCafeteriaList(context),
-                    const SizedBox(height: 12),
-                  ],
-                ),
+                        // _buildSearchField(textController),
+                        const SizedBox(height: 36),
+                        _buildText(),
+                        _buildCafeteriaList(context),
+                        const SizedBox(height: 12),
+                      ],
+                    ),
+                  ),
+                  _buildBottomFixedButton(),
+                ],
               ),
-              _buildBottomFixedButton(),
-            ],
-          ),
-        ),
+            )),
       ),
     );
   }
 
   Widget _buildCafeteriaList(BuildContext context) {
-    return Obx(
-      () => controller.isLoading.value
-          ? const Center(child: CircularProgressIndicator())
-          : controller.isDataFound.value == true
-              ? Center(
-                  child: Text(
-                    'Data Not Found!',
+    return controller.isLoading.value
+        ? const Center(child: CircularProgressIndicator())
+        : controller.isDataFound.value == true
+            ? Center(
+                child: Text(
+                  'Data Not Found!',
+                  style: AppTextStyles.PoppinsBold.copyWith(
+                    fontSize: 14,
+                    color: AppColors.blackColor,
+                  ),
+                ),
+              )
+            : controller.filteredMeals.isEmpty
+                ? Text(
+                    'Meal Not Available',
                     style: AppTextStyles.PoppinsBold.copyWith(
                       fontSize: 14,
                       color: AppColors.blackColor,
                     ),
-                  ),
-                )
-              : controller.meals.isEmpty
-                  ? Text(
-                      'Meal Not Available',
-                      style: AppTextStyles.PoppinsBold.copyWith(
-                        fontSize: 14,
-                        color: AppColors.blackColor,
-                      ),
-                    )
-                  : LayoutBuilder(
-                      builder: (context, constraints) {
-                        return GridView.builder(
-                          shrinkWrap: true,
-                          physics: const NeverScrollableScrollPhysics(),
-                          gridDelegate:
-                              SliverGridDelegateWithFixedCrossAxisCount(
-                            crossAxisCount: 3,
-                            mainAxisSpacing: 14,
-                            crossAxisSpacing: 8,
-                            childAspectRatio: constraints.maxWidth /
-                                (constraints.maxWidth * 1.42),
-                          ),
-                          itemCount: controller.filteredMeals.length,
-                          itemBuilder: (context, index) {
-                            return Obx(() => _buildGridMenuItem(index, context,
-                                controller.filteredMeals[index]));
-                          },
-                        );
-                      },
-                    ),
-    );
+                  )
+                : LayoutBuilder(
+                    builder: (context, constraints) {
+                      return GridView.builder(
+                        shrinkWrap: true,
+                        physics: const NeverScrollableScrollPhysics(),
+                        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: 3,
+                          mainAxisSpacing: 14,
+                          crossAxisSpacing: 8,
+                          childAspectRatio: constraints.maxWidth /
+                              (constraints.maxWidth * 1.42),
+                        ),
+                        itemCount: controller.filteredMeals.length,
+                        itemBuilder: (context, index) {
+                          return _buildGridMenuItem(
+                              index, context, controller.filteredMeals[index]);
+                        },
+                      );
+                    },
+                  );
   }
 
   Widget _buildGridMenuItem(int index, BuildContext context, MealModel meal) {
@@ -705,19 +702,12 @@ class MenuPageView extends GetView<MenuPageController> {
 
   // Search TextField Widget (moved slightly down)
   Widget _buildSearchField(TextEditingController textController) {
-    // return TextFieldWidget(
-    //   text: 'Search Meal',
-    //   textController: textController,
-    //   path: 'assets/icon/search.png',
-    //   isBGChangeColor: true,
-    //   height: 40,
-    //   isSuffixBG: true,
-    //   onChanged: (value) => controller.updateSearchText(value),
-    // );
     return SearchTextFieldWidget(
       hintText: 'Search Meal',
       textController: textController,
-      onChanged: (value) => controller.updateSearchText(value),
+      onChanged: (value) {
+        controller.updateSearchText(value);
+      },
     );
   }
   // Widget _buildSearchField(TextEditingController textController) {
