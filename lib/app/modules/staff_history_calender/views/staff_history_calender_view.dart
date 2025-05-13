@@ -29,7 +29,10 @@ class StaffHistoryCalenderView extends StatelessWidget {
             print(
                 "DEBUG: upComingMealOrderList length: ${staffHistoryController.upComingMealOrderList.length}");
             if (staffHistoryController.isLoading.value) {
-              return const Center(child: CircularProgressIndicator());
+              return const Center(
+                  child: CircularProgressIndicator(
+                color: AppColors.baseColor,
+              ));
             }
             if (staffHistoryController.upComingMealOrderList.isEmpty) {
               return Center(
