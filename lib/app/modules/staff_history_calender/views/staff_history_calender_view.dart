@@ -321,50 +321,49 @@ Widget _buildOrderCard(
   print("DEBUG: Expected students: ${upcomingOrderCount.expectedStudent}");
   print("DEBUG: Student IDs: ${upcomingOrderCount.studentIds}");
   return GestureDetector(
-    // onTap: () {
-    //   print("List of student IDs: ${upcomingOrderCount.studentIds}");
+    onTap: () {
+      print("List of student IDs: ${upcomingOrderCount.studentIds}");
 
-    //   // Show dialog to choose between different screens
-    //   Get.dialog(
-    //     AlertDialog(
-    //       title: Text(
-    //         'Choose View',
-    //         style: AppTextStyles.MetropolisBold.copyWith(fontSize: 18),
-    //       ),
-    //       content: Column(
-    //         mainAxisSize: MainAxisSize.min,
-    //         children: [
-    //           ElevatedButton(
-    //             onPressed: () {
-    //               Get.back(); // Close dialog
-    //               Get.toNamed(Routes.STAFF_HISTORY_DETAIL, arguments: {
-    //                 "orderStudentIds": upcomingOrderCount.studentIds,
-    //               });
-    //             },
-    //             style: ElevatedButton.styleFrom(
-    //               backgroundColor: Colors.blue,
-    //               foregroundColor: Colors.white,
-    //             ),
-    //             child: Text('Standard View'),
-    //           ),
-    //           SizedBox(height: 10),
-    //           ElevatedButton(
-    //             onPressed: () {
-    //               Get.back(); // Close dialog
-    //               Get.toNamed(Routes.STAFF_ORDER_DETAILS);
-    //             },
-    //             style: ElevatedButton.styleFrom(
-    //               backgroundColor: const Color(0xFFCCFF00),
-    //               foregroundColor: Colors.black,
-    //             ),
-    //             child: Text('Order Details View'),
-    //           ),
-    //         ],
-    //       ),
-    //     ),
-    //   );
-    // },
-
+      //   // Show dialog to choose between different screens
+      //   Get.dialog(
+      //     AlertDialog(
+      //       title: Text(
+      //         'Choose View',
+      //         style: AppTextStyles.MetropolisBold.copyWith(fontSize: 18),
+      //       ),
+      //       content: Column(
+      //         mainAxisSize: MainAxisSize.min,
+      //         children: [
+      //           ElevatedButton(
+      //             onPressed: () {
+      //               Get.back(); // Close dialog
+      Get.toNamed(
+        Routes.STAFF_HISTORY_DETAIL,
+      );
+      //             },
+      //             style: ElevatedButton.styleFrom(
+      //               backgroundColor: Colors.blue,
+      //               foregroundColor: Colors.white,
+      //             ),
+      //             child: Text('Standard View'),
+      //           ),
+      //           SizedBox(height: 10),
+      //           ElevatedButton(
+      //             onPressed: () {
+      //               Get.back(); // Close dialog
+      // Get.toNamed(Routes.STAFF_ORDER_DETAILS);
+      //             },
+      //             style: ElevatedButton.styleFrom(
+      //               backgroundColor: const Color(0xFFCCFF00),
+      //               foregroundColor: Colors.black,
+      //             ),
+      //             child: Text('Order Details View'),
+      //           ),
+      //         ],
+      //       ),
+      //     ),
+      //   );
+    },
     child: Container(
       height: 72, // Fixed height for each item
       width: double.infinity, // Infinite width
