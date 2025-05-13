@@ -244,11 +244,13 @@ Widget _buildOrderCard(
     UpcomingMealOrder upcomingOrderCount) {
   return GestureDetector(
     onTap: () {
-      print("List of st kjkkkkkhudent IDs: ${upcomingOrderCount.studentIds}");
+      print("List of student IDs: ${upcomingOrderCount.studentIds}");
+      print("Meal name: ${upcomingOrderCount.itemName}");
+
       Get.toNamed(Routes.CAFETERIA_UPCOMING_DETAIL, arguments: {
         "orderStudentIds": upcomingOrderCount.studentIds,
+        "mealName": upcomingOrderCount.itemName,
       });
-      // historyController.updateSelectedIndex(1);
     },
     child: Container(
       height: 72, // Fixed height for each item
@@ -313,8 +315,7 @@ Widget _buildOrderCard(
                                 loadingBuilder:
                                     (context, child, loadingProgress) {
                                   if (loadingProgress == null) return child;
-                                  return const Center(
-                                      child: CircularProgressIndicator());
+                                  return Center(child: Container());
                                 },
                                 errorBuilder: (context, error, stackTrace) {
                                   return const Icon(

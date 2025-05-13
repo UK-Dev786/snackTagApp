@@ -4,7 +4,7 @@ import 'package:snacktag/models/cefeteria_admin/meal_model.dart';
 import 'package:snacktag/models/parents_models/add_children.dart';
 import 'package:snacktag/services/base_service.dart';
 
-class CafeteriaUpcomingDetailService extends BaseService{
+class CafeteriaUpcomingDetailService extends BaseService {
   final FirebaseFirestore firestore = FirebaseFirestore.instance;
 //
 //   Future<List<ParentsAddChildren>> fetchChildrenByCafateriaName(
@@ -52,16 +52,41 @@ class CafeteriaUpcomingDetailService extends BaseService{
 //       return [];
 //     }
 //   }
-  Future<List<ParentsAddChildren>> fetchChildrenByIds(List<String> studentIds) async {
+  Future<List<ParentsAddChildren>> fetchChildrenByIds(
+      List<String> studentIds) async {
     try {
       print("Fetching children for IDs: $studentIds");
 
+      // First try to fetch by childId
       QuerySnapshot<Map<String, dynamic>> querySnapshot = await firestore
           .collection("parentsChildren")
-          .where("id", whereIn: studentIds)
+          .where("childId", whereIn: studentIds)
           .get();
 
-      print("Found ${querySnapshot.docs.length} documents");
+      // If no results, try with document ID
+      if (querySnapshot.docs.isEmpty) {
+        print("No documents found with childId, trying with document IDs");
+
+        // Get documents by their IDs directly
+        List<ParentsAddChildren> children = [];
+        for (String id in studentIds) {
+          try {
+            DocumentSnapshot<Map<String, dynamic>> doc =
+                await firestore.collection("parentsChildren").doc(id).get();
+
+            if (doc.exists) {
+              print("Found document with ID: ${doc.id}");
+              children.add(ParentsAddChildren.fromJson(doc.data()!));
+            }
+          } catch (e) {
+            print("Error fetching document with ID $id: $e");
+          }
+        }
+
+        return children;
+      }
+
+      print("Found ${querySnapshot.docs.length} documents with childId");
 
       List<ParentsAddChildren> children = querySnapshot.docs.map((doc) {
         var data = doc.data();
@@ -75,6 +100,4 @@ class CafeteriaUpcomingDetailService extends BaseService{
       throw Exception("Failed to fetch children data: $e");
     }
   }
-
-
 }
