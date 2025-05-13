@@ -217,7 +217,7 @@ class ChildVerificationUploadInfoView extends StatelessWidget {
                         ),
                         Center(
                           child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.center,
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
                                 controller.childrenList.first.childName ??
@@ -238,6 +238,19 @@ class ChildVerificationUploadInfoView extends StatelessWidget {
                                 ),
                                 textAlign: TextAlign.center,
                               ),
+                              const SizedBox(height: 4),
+                              if (controller
+                                      .childrenList.first.classroomDelivery ==
+                                  'Yes')
+                                Text(
+                                  'Delivery Type: Classroom Delivery',
+                                  style:
+                                      AppTextStyles.MetropolisRegular.copyWith(
+                                    fontSize: 14,
+                                    color: const Color(0xFF858585),
+                                  ),
+                                  textAlign: TextAlign.center,
+                                ),
                             ],
                           ),
                         ),
@@ -252,377 +265,701 @@ class ChildVerificationUploadInfoView extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      // Section title
-                      // Padding(
-                      //   padding: const EdgeInsets.only(
-                      //       bottom: 4), // Reduced from 12 to 4
-                      //   child: Text(
-                      //     'Today\'s Meals',
-                      //     style: AppTextStyles.MetropolisMedium.copyWith(
-                      //       fontSize: 16,
-                      //       color: const Color(0xFF434343),
-                      //     ),
-                      //   ),
-                      // ),
-
-                      // List of today's meals
+                      // First builder to fetch today's orders
                       Builder(
                         builder: (context) {
-                          // Filter meals for today
-                          final todayMeals = controller
-                                      .childrenList.isNotEmpty &&
-                                  controller.childrenList.first
-                                          .selectedMealMenuData !=
-                                      null
-                              ? controller
-                                  .childrenList.first.selectedMealMenuData!
-                                  .where((meal) {
-                                  // Skip meals with no schedule or scheduled dates
-                                  if (meal.scheduledDates == null ||
-                                      meal.scheduledDates!.isEmpty) {
-                                    return false;
-                                  }
+                          final childId = controller.childrenList.isNotEmpty
+                              ? controller.childrenList.first.childId ?? ''
+                              : '';
 
-                                  // Format today's date in the same format as scheduledDates (dd-MM-yyyy)
-                                  final today = DateTime.now();
-                                  final formattedToday =
-                                      DateFormat('dd-MM-yyyy').format(today);
-
-                                  // Check if today's date exists in the scheduledDates list
-                                  bool isTodayScheduled = meal.scheduledDates!
-                                      .contains(formattedToday);
-
-                                  if (isTodayScheduled) {
-                                    print(
-                                        "Meal ${meal.mealName} is scheduled for today ($formattedToday)");
-                                  }
-
-                                  return isTodayScheduled;
-                                }).toList()
-                              : [];
-
-                          if (todayMeals.isEmpty) {
-                            return Container(
-                              padding: const EdgeInsets.all(16),
-                              decoration: BoxDecoration(
-                                color: Colors.grey[100],
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                              child: Center(
-                                child: Column(
-                                  children: [
-                                    Icon(Icons.calendar_today_outlined,
-                                        size: 40, color: Colors.grey[500]),
-                                    const SizedBox(height: 12),
-                                    Text(
-                                      'No meals scheduled for today',
-                                      style: AppTextStyles.MetropolisRegular
-                                          .copyWith(
-                                        fontSize: 14,
-                                        color: Colors.grey[600],
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
+                          if (childId.isEmpty) {
+                            return const Center(
+                              child: Text('No child information available'),
                             );
                           }
 
-                          return ListView.builder(
-                            shrinkWrap: true,
-                            physics: const NeverScrollableScrollPhysics(),
-                            itemCount: todayMeals.length,
-                            padding: EdgeInsets
-                                .zero, // Remove all padding from ListView
-                            itemBuilder: (context, index) {
-                              final meal = todayMeals[index];
-                              return Container(
-                                margin: index == 0
-                                    ? EdgeInsets
-                                        .zero // No margin for first item
-                                    : const EdgeInsets.only(
-                                        top:
-                                            16), // Only add margin between items
-                                child: Column(
-                                  children: [
-                                    // Meal info row
-                                    Row(
-                                      children: [
-                                        // Meal image
-                                        ClipRRect(
-                                          borderRadius:
-                                              BorderRadius.circular(8),
-                                          child: meal.imageUrl != null &&
-                                                  meal.imageUrl!.isNotEmpty
-                                              ? Image.network(
-                                                  meal.imageUrl!,
-                                                  width: 60,
-                                                  height: 50,
-                                                  fit: BoxFit.cover,
-                                                  loadingBuilder: (context,
-                                                      child, loadingProgress) {
-                                                    if (loadingProgress == null)
-                                                      return child;
-                                                    return const SizedBox(
-                                                      width: 60,
-                                                      height: 50,
-                                                      child: Center(
-                                                          child:
-                                                              CircularProgressIndicator()),
-                                                    );
-                                                  },
-                                                  errorBuilder: (context, error,
-                                                      stackTrace) {
-                                                    return Container(
-                                                      width: 60,
-                                                      height: 50,
-                                                      color: Colors.grey[200],
-                                                      child: const Icon(
-                                                        Icons
-                                                            .image_not_supported,
-                                                        size: 30,
-                                                        color: Colors.grey,
-                                                      ),
-                                                    );
-                                                  },
-                                                )
-                                              : Container(
-                                                  width: 60,
-                                                  height: 50,
-                                                  color: Colors.grey[200],
-                                                  child: const Icon(
-                                                    Icons.image_not_supported,
-                                                    size: 30,
-                                                    color: Colors.grey,
-                                                  ),
-                                                ),
-                                        ),
+                          return FutureBuilder<List<Map<String, dynamic>>>(
+                            // Add a key that depends on a value that changes when we want to refresh
+                            key: ValueKey('orders-${controller.updateCounter}'),
+                            future:
+                                controller.fetchTodayOrdersForChild(childId),
+                            builder: (context, snapshot) {
+                              if (snapshot.connectionState ==
+                                  ConnectionState.waiting) {
+                                return const Center(
+                                  child: CircularProgressIndicator(),
+                                );
+                              }
 
-                                        const SizedBox(width: 12),
+                              final todayOrders = snapshot.data ?? [];
 
-                                        // Meal name and time
-                                        Expanded(
-                                          child: Column(
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.start,
-                                            children: [
-                                              Text(
-                                                meal.mealName ?? 'Unnamed Meal',
-                                                style: AppTextStyles
-                                                    .MetropolisMedium.copyWith(
-                                                  fontSize: 18,
-                                                  color: Colors.black,
-                                                ),
-                                                maxLines: 1,
-                                                overflow: TextOverflow.ellipsis,
+                              // Second builder to display meals
+                              return Builder(
+                                builder: (context) {
+                                  // Filter meals for today
+                                  final todayMeals = controller
+                                              .childrenList.isNotEmpty &&
+                                          controller.childrenList.first
+                                                  .selectedMealMenuData !=
+                                              null
+                                      ? controller.childrenList.first
+                                          .selectedMealMenuData!
+                                          .where((meal) {
+                                          // Skip meals with no schedule or scheduled dates
+                                          if (meal.scheduledDates == null ||
+                                              meal.scheduledDates!.isEmpty) {
+                                            return false;
+                                          }
+
+                                          // Format today's date in the same format as scheduledDates (dd-MM-yyyy)
+                                          final today = DateTime.now();
+                                          final formattedToday =
+                                              DateFormat('dd-MM-yyyy')
+                                                  .format(today);
+
+                                          // Check if today's date exists in the scheduledDates list
+                                          bool isTodayScheduled = meal
+                                              .scheduledDates!
+                                              .contains(formattedToday);
+
+                                          if (isTodayScheduled) {
+                                            print(
+                                                "Meal ${meal.mealName} is scheduled for today ($formattedToday)");
+                                          }
+
+                                          return isTodayScheduled;
+                                        }).toList()
+                                      : [];
+
+                                  if (todayMeals.isEmpty) {
+                                    return Container(
+                                      padding: const EdgeInsets.all(16),
+                                      decoration: BoxDecoration(
+                                        color: Colors.grey[100],
+                                        borderRadius: BorderRadius.circular(12),
+                                      ),
+                                      child: Center(
+                                        child: Column(
+                                          children: [
+                                            Icon(Icons.calendar_today_outlined,
+                                                size: 40,
+                                                color: Colors.grey[500]),
+                                            const SizedBox(height: 12),
+                                            Text(
+                                              'No meals scheduled for today',
+                                              style: AppTextStyles
+                                                  .MetropolisRegular.copyWith(
+                                                fontSize: 14,
+                                                color: Colors.grey[600],
                                               ),
-                                              const SizedBox(height: 4),
-                                              if (meal.schedule != null &&
-                                                  meal.schedule!.availableAt !=
-                                                      null &&
-                                                  meal.schedule!.availableAt!
-                                                      .isNotEmpty)
-                                                Text(
-                                                  meal.schedule!.availableAt!
-                                                      .join(", "),
-                                                  style: AppTextStyles
-                                                          .MetropolisRegular
-                                                      .copyWith(
-                                                    fontSize: 14,
-                                                    color: Colors.grey[600],
-                                                  ),
-                                                ),
-                                            ],
-                                          ),
+                                            ),
+                                          ],
                                         ),
+                                      ),
+                                    );
+                                  }
 
-                                        // Order Status section
-                                        Container(
-                                          width: 120,
+                                  return ListView.builder(
+                                    shrinkWrap: true,
+                                    physics:
+                                        const NeverScrollableScrollPhysics(),
+                                    itemCount: todayMeals.length,
+                                    padding: EdgeInsets.zero,
+                                    itemBuilder: (context, index) {
+                                      final meal = todayMeals[index];
+
+                                      // Check if this meal is already ordered today
+                                      final isAlreadyOrdered =
+                                          controller.isMealAlreadyOrderedToday(
+                                              todayOrders, meal.mealName ?? '');
+
+                                      // If the meal is already ordered, show it with a disabled state
+                                      if (isAlreadyOrdered) {
+                                        return Container(
+                                          margin:
+                                              const EdgeInsets.only(bottom: 16),
                                           child: Column(
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.center,
                                             children: [
-                                              Text(
-                                                'Order Status',
-                                                style: AppTextStyles
-                                                    .MetropolisRegular.copyWith(
-                                                  fontSize: 12,
-                                                  color: Colors.black87,
-                                                ),
-                                              ),
-                                              const SizedBox(height: 8),
+                                              // Meal info row
                                               Row(
-                                                mainAxisAlignment:
-                                                    MainAxisAlignment.center,
                                                 children: [
-                                                  // Undelivered option
-                                                  Column(
-                                                    children: [
-                                                      Text(
-                                                        'Undelivered',
-                                                        style: AppTextStyles
-                                                                .MetropolisRegular
-                                                            .copyWith(
-                                                          fontSize: 10,
-                                                          color: Colors.black54,
-                                                        ),
-                                                      ),
-                                                      const SizedBox(height: 4),
-                                                      Container(
-                                                        width: 24,
-                                                        height: 24,
-                                                        decoration:
-                                                            BoxDecoration(
-                                                          shape:
-                                                              BoxShape.circle,
-                                                          color: controller
-                                                                      .getMealStatus(
-                                                                          meal) !=
-                                                                  'Delivered'
-                                                              ? AppColors
-                                                                  .gradientEndColor
-                                                              : Colors
-                                                                  .grey[200],
-                                                        ),
-                                                      ),
-                                                    ],
+                                                  // Meal image
+                                                  ClipRRect(
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            8),
+                                                    child: meal.imageUrl !=
+                                                                null &&
+                                                            meal.imageUrl!
+                                                                .isNotEmpty
+                                                        ? Image.network(
+                                                            meal.imageUrl!,
+                                                            width: 60,
+                                                            height: 50,
+                                                            fit: BoxFit.cover,
+                                                            loadingBuilder:
+                                                                (context, child,
+                                                                    loadingProgress) {
+                                                              if (loadingProgress ==
+                                                                  null)
+                                                                return child;
+                                                              return const SizedBox(
+                                                                width: 60,
+                                                                height: 50,
+                                                                child: Center(
+                                                                    child:
+                                                                        CircularProgressIndicator()),
+                                                              );
+                                                            },
+                                                            errorBuilder:
+                                                                (context, error,
+                                                                    stackTrace) {
+                                                              return Container(
+                                                                width: 60,
+                                                                height: 50,
+                                                                color: Colors
+                                                                    .grey[200],
+                                                                child:
+                                                                    const Icon(
+                                                                  Icons
+                                                                      .image_not_supported,
+                                                                  size: 30,
+                                                                  color: Colors
+                                                                      .grey,
+                                                                ),
+                                                              );
+                                                            },
+                                                          )
+                                                        : Container(
+                                                            width: 60,
+                                                            height: 50,
+                                                            color: Colors
+                                                                .grey[200],
+                                                            child: const Icon(
+                                                              Icons
+                                                                  .image_not_supported,
+                                                              size: 30,
+                                                              color:
+                                                                  Colors.grey,
+                                                            ),
+                                                          ),
                                                   ),
 
-                                                  const SizedBox(width: 16),
+                                                  const SizedBox(width: 12),
 
-                                                  // Delivered option
-                                                  Column(
-                                                    children: [
-                                                      Text(
-                                                        'Delivered',
-                                                        style: AppTextStyles
-                                                                .MetropolisRegular
-                                                            .copyWith(
-                                                          fontSize: 10,
-                                                          color: Colors.black54,
+                                                  // Meal name and time
+                                                  Expanded(
+                                                    child: Column(
+                                                      crossAxisAlignment:
+                                                          CrossAxisAlignment
+                                                              .start,
+                                                      children: [
+                                                        Text(
+                                                          meal.mealName ??
+                                                              'Unnamed Meal',
+                                                          style: AppTextStyles
+                                                                  .MetropolisMedium
+                                                              .copyWith(
+                                                            fontSize: 18,
+                                                            color:
+                                                                Colors.black54,
+                                                          ),
+                                                          maxLines: 1,
+                                                          overflow: TextOverflow
+                                                              .ellipsis,
                                                         ),
-                                                      ),
-                                                      const SizedBox(height: 4),
-                                                      Container(
-                                                        width: 24,
-                                                        height: 24,
-                                                        decoration:
-                                                            BoxDecoration(
-                                                          shape:
-                                                              BoxShape.circle,
-                                                          color: controller
-                                                                      .getMealStatus(
-                                                                          meal) ==
-                                                                  'Delivered'
-                                                              ? AppColors
-                                                                  .gradientEndColor
-                                                              : Colors
-                                                                  .grey[200],
+                                                        const SizedBox(
+                                                            height: 4),
+                                                        if (meal.schedule !=
+                                                                null &&
+                                                            meal.schedule!
+                                                                    .availableAt !=
+                                                                null &&
+                                                            meal
+                                                                .schedule!
+                                                                .availableAt!
+                                                                .isNotEmpty)
+                                                          Text(
+                                                            meal.schedule!
+                                                                .availableAt!
+                                                                .join(", "),
+                                                            style: AppTextStyles
+                                                                    .MetropolisRegular
+                                                                .copyWith(
+                                                              fontSize: 14,
+                                                              color: Colors
+                                                                  .grey[600],
+                                                            ),
+                                                          ),
+                                                        const SizedBox(
+                                                            height: 4),
+                                                        Text(
+                                                          ' ',
+                                                          style: AppTextStyles
+                                                                  .MetropolisRegular
+                                                              .copyWith(
+                                                            fontSize: 14,
+                                                            color:
+                                                                Colors.orange,
+                                                            fontWeight:
+                                                                FontWeight.bold,
+                                                          ),
                                                         ),
-                                                      ),
-                                                    ],
+                                                      ],
+                                                    ),
+                                                  ),
+
+                                                  // Order Status section (same as your existing code)
+                                                  Container(
+                                                    width: 160,
+                                                    child: Column(
+                                                      crossAxisAlignment:
+                                                          CrossAxisAlignment
+                                                              .center,
+                                                      children: [
+                                                        Text(
+                                                          'Order Status',
+                                                          style: AppTextStyles
+                                                                  .MetropolisRegular
+                                                              .copyWith(
+                                                            fontSize: 12,
+                                                            color:
+                                                                Colors.black87,
+                                                          ),
+                                                        ),
+                                                        const SizedBox(
+                                                            height: 8),
+                                                        Row(
+                                                          mainAxisAlignment:
+                                                              MainAxisAlignment
+                                                                  .center,
+                                                          children: [
+                                                            // Undelivered option
+                                                            Column(
+                                                              children: [
+                                                                Text(
+                                                                  'In Preparation',
+                                                                  style: AppTextStyles
+                                                                          .MetropolisRegular
+                                                                      .copyWith(
+                                                                    fontSize:
+                                                                        10,
+                                                                    color: Colors
+                                                                        .black54,
+                                                                  ),
+                                                                ),
+                                                                const SizedBox(
+                                                                    height: 4),
+                                                                Container(
+                                                                  width: 24,
+                                                                  height: 24,
+                                                                  decoration:
+                                                                      BoxDecoration(
+                                                                    shape: BoxShape
+                                                                        .circle,
+                                                                    color: controller.getMealStatus(meal) !=
+                                                                            'Delivered'
+                                                                        ? AppColors
+                                                                            .gradientEndColor
+                                                                        : Colors
+                                                                            .grey[200],
+                                                                  ),
+                                                                ),
+                                                              ],
+                                                            ),
+
+                                                            const SizedBox(
+                                                                width: 16),
+
+                                                            // Delivered option
+                                                            Column(
+                                                              children: [
+                                                                Text(
+                                                                  'Delivered',
+                                                                  style: AppTextStyles
+                                                                          .MetropolisRegular
+                                                                      .copyWith(
+                                                                    fontSize:
+                                                                        10,
+                                                                    color: Colors
+                                                                        .black54,
+                                                                  ),
+                                                                ),
+                                                                const SizedBox(
+                                                                    height: 4),
+                                                                Container(
+                                                                  width: 24,
+                                                                  height: 24,
+                                                                  decoration:
+                                                                      BoxDecoration(
+                                                                    shape: BoxShape
+                                                                        .circle,
+                                                                    color: controller.getMealStatus(meal) ==
+                                                                            'Delivered'
+                                                                        ? AppColors
+                                                                            .gradientEndColor
+                                                                        : Colors
+                                                                            .grey[200],
+                                                                  ),
+                                                                ),
+                                                              ],
+                                                            ),
+                                                          ],
+                                                        ),
+                                                      ],
+                                                    ),
                                                   ),
                                                 ],
                                               ),
                                             ],
                                           ),
+                                        );
+                                      }
+
+                                      // If the meal is available, show the normal card with START button
+                                      return Container(
+                                        margin: index == 0
+                                            ? EdgeInsets.zero
+                                            : const EdgeInsets.only(top: 16),
+                                        child: Column(
+                                          children: [
+                                            // Meal info row
+                                            Row(
+                                              children: [
+                                                // Meal image
+                                                ClipRRect(
+                                                  borderRadius:
+                                                      BorderRadius.circular(8),
+                                                  child: meal.imageUrl !=
+                                                              null &&
+                                                          meal.imageUrl!
+                                                              .isNotEmpty
+                                                      ? Image.network(
+                                                          meal.imageUrl!,
+                                                          width: 60,
+                                                          height: 50,
+                                                          fit: BoxFit.cover,
+                                                          loadingBuilder: (context,
+                                                              child,
+                                                              loadingProgress) {
+                                                            if (loadingProgress ==
+                                                                null)
+                                                              return child;
+                                                            return const SizedBox(
+                                                              width: 60,
+                                                              height: 50,
+                                                              child: Center(
+                                                                  child:
+                                                                      CircularProgressIndicator()),
+                                                            );
+                                                          },
+                                                          errorBuilder:
+                                                              (context, error,
+                                                                  stackTrace) {
+                                                            return Container(
+                                                              width: 60,
+                                                              height: 50,
+                                                              color: Colors
+                                                                  .grey[200],
+                                                              child: const Icon(
+                                                                Icons
+                                                                    .image_not_supported,
+                                                                size: 30,
+                                                                color:
+                                                                    Colors.grey,
+                                                              ),
+                                                            );
+                                                          },
+                                                        )
+                                                      : Container(
+                                                          width: 60,
+                                                          height: 50,
+                                                          color:
+                                                              Colors.grey[200],
+                                                          child: const Icon(
+                                                            Icons
+                                                                .image_not_supported,
+                                                            size: 30,
+                                                            color: Colors.grey,
+                                                          ),
+                                                        ),
+                                                ),
+
+                                                const SizedBox(width: 12),
+
+                                                // Meal name and time
+                                                Expanded(
+                                                  child: Column(
+                                                    crossAxisAlignment:
+                                                        CrossAxisAlignment
+                                                            .start,
+                                                    children: [
+                                                      Text(
+                                                        meal.mealName ??
+                                                            'Unnamed Meal',
+                                                        style: AppTextStyles
+                                                                .MetropolisMedium
+                                                            .copyWith(
+                                                          fontSize: 18,
+                                                          color: Colors.black,
+                                                        ),
+                                                        maxLines: 1,
+                                                        overflow: TextOverflow
+                                                            .ellipsis,
+                                                      ),
+                                                      const SizedBox(height: 4),
+                                                      if (meal.schedule !=
+                                                              null &&
+                                                          meal.schedule!
+                                                                  .availableAt !=
+                                                              null &&
+                                                          meal
+                                                              .schedule!
+                                                              .availableAt!
+                                                              .isNotEmpty)
+                                                        Text(
+                                                          meal.schedule!
+                                                              .availableAt!
+                                                              .join(", "),
+                                                          style: AppTextStyles
+                                                                  .MetropolisRegular
+                                                              .copyWith(
+                                                            fontSize: 14,
+                                                            color: Colors
+                                                                .grey[600],
+                                                          ),
+                                                        ),
+                                                    ],
+                                                  ),
+                                                ),
+
+                                                // Order Status section
+                                                Container(
+                                                  width: 120,
+                                                  child: Column(
+                                                    crossAxisAlignment:
+                                                        CrossAxisAlignment
+                                                            .center,
+                                                    children: [
+                                                      Text(
+                                                        'Order Status',
+                                                        style: AppTextStyles
+                                                                .MetropolisRegular
+                                                            .copyWith(
+                                                          fontSize: 12,
+                                                          color: Colors.black87,
+                                                        ),
+                                                      ),
+                                                      const SizedBox(height: 8),
+                                                      Row(
+                                                        mainAxisAlignment:
+                                                            MainAxisAlignment
+                                                                .center,
+                                                        children: [
+                                                          // Undelivered option
+                                                          Column(
+                                                            children: [
+                                                              Text(
+                                                                'Undelivered',
+                                                                style: AppTextStyles
+                                                                        .MetropolisRegular
+                                                                    .copyWith(
+                                                                  fontSize: 10,
+                                                                  color: Colors
+                                                                      .black54,
+                                                                ),
+                                                              ),
+                                                              const SizedBox(
+                                                                  height: 4),
+                                                              Container(
+                                                                width: 24,
+                                                                height: 24,
+                                                                decoration:
+                                                                    BoxDecoration(
+                                                                  shape: BoxShape
+                                                                      .circle,
+                                                                  color: controller.getMealStatus(
+                                                                              meal) !=
+                                                                          'Delivered'
+                                                                      ? AppColors
+                                                                          .gradientEndColor
+                                                                      : Colors.grey[
+                                                                          200],
+                                                                ),
+                                                              ),
+                                                            ],
+                                                          ),
+
+                                                          const SizedBox(
+                                                              width: 16),
+
+                                                          // Delivered option
+                                                          Column(
+                                                            children: [
+                                                              Text(
+                                                                'Delivered',
+                                                                style: AppTextStyles
+                                                                        .MetropolisRegular
+                                                                    .copyWith(
+                                                                  fontSize: 10,
+                                                                  color: Colors
+                                                                      .black54,
+                                                                ),
+                                                              ),
+                                                              const SizedBox(
+                                                                  height: 4),
+                                                              Container(
+                                                                width: 24,
+                                                                height: 24,
+                                                                decoration:
+                                                                    BoxDecoration(
+                                                                  shape: BoxShape
+                                                                      .circle,
+                                                                  color: controller.getMealStatus(
+                                                                              meal) ==
+                                                                          'Delivered'
+                                                                      ? AppColors
+                                                                          .gradientEndColor
+                                                                      : Colors.grey[
+                                                                          200],
+                                                                ),
+                                                              ),
+                                                            ],
+                                                          ),
+                                                        ],
+                                                      ),
+                                                    ],
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+
+                                            // Start Preparation button
+                                            Align(
+                                              alignment: Alignment.centerRight,
+                                              child: CustomButton1(
+                                                fontSize: 10,
+                                                height: 30,
+                                                width: 100,
+                                                padding:
+                                                    const EdgeInsets.symmetric(
+                                                        vertical: 0),
+                                                text: 'START',
+                                                onPressed: () async {
+                                                  // Your existing onPressed code
+                                                  bool isWithinTimeWindow =
+                                                      false;
+                                                  String timeMessage = "";
+
+                                                  if (meal.schedule != null &&
+                                                      meal.schedule!
+                                                              .availableAt !=
+                                                          null &&
+                                                      meal
+                                                          .schedule!
+                                                          .availableAt!
+                                                          .isNotEmpty) {
+                                                    final now = DateTime.now();
+                                                    final currentHour =
+                                                        now.hour;
+
+                                                    // Check each available time
+                                                    for (String timeStr in meal
+                                                        .schedule!
+                                                        .availableAt!) {
+                                                      int scheduledHour = 0;
+
+                                                      // Parse the time string (e.g., "9am", "2pm")
+                                                      if (timeStr
+                                                          .contains('am')) {
+                                                        scheduledHour =
+                                                            int.parse(timeStr
+                                                                .replaceAll(
+                                                                    'am', ''));
+                                                        // Handle 12am as 0 hour
+                                                        if (scheduledHour == 12)
+                                                          scheduledHour = 0;
+                                                      } else if (timeStr
+                                                          .contains('pm')) {
+                                                        scheduledHour =
+                                                            int.parse(timeStr
+                                                                .replaceAll(
+                                                                    'pm', ''));
+                                                        // Add 12 for PM times, except 12pm
+                                                        if (scheduledHour != 12)
+                                                          scheduledHour += 12;
+                                                      }
+
+                                                      // Check if current time is within ±1 hour window
+                                                      if (currentHour >=
+                                                              scheduledHour -
+                                                                  24 &&
+                                                          currentHour <=
+                                                              scheduledHour +
+                                                                  24) {
+                                                        isWithinTimeWindow =
+                                                            true;
+                                                        break;
+                                                      }
+                                                    }
+
+                                                    if (!isWithinTimeWindow) {
+                                                      timeMessage =
+                                                          "This meal can only be prepared within 1 hour of its scheduled time.";
+                                                    }
+                                                  } else {
+                                                    // If no schedule is defined, allow preparation at any time
+                                                    isWithinTimeWindow = true;
+                                                  }
+
+                                                  if (isWithinTimeWindow) {
+                                                    final parentId = controller
+                                                        .childrenList
+                                                        .first
+                                                        .parentId;
+                                                    if (parentId != null) {
+                                                      await controller
+                                                          .fetchChildParentWallet(
+                                                              parentId, meal);
+
+                                                      // After processing, refresh the orders list to update UI
+                                                      if (controller
+                                                              .childrenList
+                                                              .isNotEmpty &&
+                                                          controller
+                                                                  .childrenList
+                                                                  .first
+                                                                  .childId !=
+                                                              null) {
+                                                        // Force rebuild of the widget tree
+                                                        controller.update();
+                                                      }
+                                                    } else {
+                                                      Get.snackbar('Error',
+                                                          'Parent ID not found');
+                                                    }
+                                                  } else {
+                                                    Get.snackbar(
+                                                      'Outside Preparation Window',
+                                                      timeMessage,
+                                                      backgroundColor:
+                                                          Colors.orange,
+                                                      colorText: Colors.white,
+                                                      duration: const Duration(
+                                                          seconds: 3),
+                                                    );
+                                                  }
+                                                },
+                                                isLoading:
+                                                    controller.isLoading.value,
+                                              ),
+                                            ),
+                                          ],
                                         ),
-                                      ],
-                                    ),
-
-                                    // Start Preparation button
-                                    Align(
-                                      alignment: Alignment.centerRight,
-                                      child: CustomButton1(
-                                        fontSize: 10,
-                                        height: 30,
-                                        width: 100,
-                                        padding: const EdgeInsets.symmetric(
-                                            vertical: 0),
-                                        text: 'START',
-                                        onPressed: () async {
-                                          // Check if current time is within the allowed preparation window
-                                          bool isWithinTimeWindow = false;
-                                          String timeMessage = "";
-
-                                          if (meal.schedule != null &&
-                                              meal.schedule!.availableAt !=
-                                                  null &&
-                                              meal.schedule!.availableAt!
-                                                  .isNotEmpty) {
-                                            final now = DateTime.now();
-                                            final currentHour = now.hour;
-
-                                            // Check each available time
-                                            for (String timeStr in meal
-                                                .schedule!.availableAt!) {
-                                              int scheduledHour = 0;
-
-                                              // Parse the time string (e.g., "9am", "2pm")
-                                              if (timeStr.contains('am')) {
-                                                scheduledHour = int.parse(
-                                                    timeStr.replaceAll(
-                                                        'am', ''));
-                                                // Handle 12am as 0 hour
-                                                if (scheduledHour == 12)
-                                                  scheduledHour = 0;
-                                              } else if (timeStr
-                                                  .contains('pm')) {
-                                                scheduledHour = int.parse(
-                                                    timeStr.replaceAll(
-                                                        'pm', ''));
-                                                // Add 12 for PM times, except 12pm
-                                                if (scheduledHour != 12)
-                                                  scheduledHour += 12;
-                                              }
-
-                                              // Check if current time is within ±1 hour window
-                                              if (currentHour >=
-                                                      scheduledHour - 24 &&
-                                                  currentHour <=
-                                                      scheduledHour + 24) {
-                                                isWithinTimeWindow = true;
-                                                break;
-                                              }
-                                            }
-
-                                            if (!isWithinTimeWindow) {
-                                              timeMessage =
-                                                  "This meal can only be prepared within 1 hour of its scheduled time.";
-                                            }
-                                          } else {
-                                            // If no schedule is defined, allow preparation at any time
-                                            isWithinTimeWindow = true;
-                                          }
-
-                                          if (isWithinTimeWindow) {
-                                            final parentId = controller
-                                                .childrenList.first.parentId;
-                                            if (parentId != null) {
-                                              await controller
-                                                  .fetchChildParentWallet(
-                                                      parentId, meal);
-                                            } else {
-                                              Get.snackbar('Error',
-                                                  'Parent ID not found');
-                                            }
-                                          } else {
-                                            Get.snackbar(
-                                              'Outside Preparation Window',
-                                              timeMessage,
-                                              backgroundColor: Colors.orange,
-                                              colorText: Colors.white,
-                                              duration:
-                                                  const Duration(seconds: 3),
-                                            );
-                                          }
-                                        },
-                                        isLoading: controller.isLoading.value,
-                                      ),
-                                    ),
-                                  ],
-                                ),
+                                      );
+                                    },
+                                  );
+                                },
                               );
                             },
                           );

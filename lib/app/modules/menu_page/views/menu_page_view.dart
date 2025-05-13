@@ -768,13 +768,7 @@ class MenuPageView extends GetView<MenuPageController> {
 
   // "Congratulations" text in the center
   Widget _buildText() {
-    return Center(
-      child: Text('Cafeteria Name',
-          style: AppTextStyles.PoppinsBold.copyWith(
-            fontSize: 14,
-            color: AppColors.blackColor,
-          )),
-    );
+    return Container();
   }
 
   // Bottom Fixed Button

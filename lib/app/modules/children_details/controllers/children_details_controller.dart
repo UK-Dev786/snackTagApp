@@ -320,7 +320,7 @@ class ChildrenDetailsController extends GetxController {
 
       isSuccess.value = await addChildrenService.updateChildren(
           user.uid,
-          pChildEditController.childData.id!,
+          pChildEditController.childData.childId!,
           editChildrenData,
           pChildEditController.selectedImage.value?.path ??
               pChildEditController.imageUrl.value);
