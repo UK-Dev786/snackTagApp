@@ -13,7 +13,7 @@ class ParentsHistorySelectDateController extends GetxController {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
   final ParentsHistorySelectDateService parentsHistorySelectDateService =
-  ParentsHistorySelectDateService();
+      ParentsHistorySelectDateService();
 
   //TODO: Implement CafeteriaHistorySelectDateController
 
@@ -23,19 +23,29 @@ class ParentsHistorySelectDateController extends GetxController {
   var childrenList = <ParentsAddChildren>[].obs;
   var meals = <MealModel>[].obs;
   var upComingMealOrderList = <UpcomingMealOrder>[].obs;
-    var parentAddWalletModel = Rxn<ParentAddWalletModel>(); // Observable wallet model
-
+  var filteredUpComingMealOrderList = <UpcomingMealOrder>[].obs;
+  var parentAddWalletModel =
+      Rxn<ParentAddWalletModel>(); // Observable wallet model
+  var selectedDate = DateTime.now().obs; // Track selected date
 
   @override
-  void onInit()  {
+  void onInit() {
     // await fetchCafeteriaName();
-        listenToWalletChanges(); // Start listening for real-time updates
+    listenToWalletChanges(); // Start listening for real-time updates
 
     fetchParentsChildren();
     _fetchCafeteriaMeals();
 
+    // After data is loaded, filter orders for the current date
+    ever(upComingMealOrderList, (_) {
+      if (upComingMealOrderList.isNotEmpty) {
+        filterUpcomingOrdersByDate(selectedDate.value);
+      }
+    });
+
     super.onInit();
   }
+
   void listenToWalletChanges() {
     final currentUser = FirebaseAuth.instance.currentUser;
     if (currentUser == null) {
@@ -45,10 +55,12 @@ class ParentsHistorySelectDateController extends GetxController {
 
     print("🚀 Listening for wallet updates for Parent ID: ${currentUser.uid}");
 
-    parentsHistorySelectDateService.fetchWalletStreamByParentId(currentUser.uid).listen(
+    parentsHistorySelectDateService
+        .fetchWalletStreamByParentId(currentUser.uid)
+        .listen(
       (wallet) {
         if (wallet != null) {
-        parentAddWalletModel.value = wallet as ParentAddWalletModel;
+          parentAddWalletModel.value = wallet as ParentAddWalletModel;
         }
         print("🔄 Wallet data updated: ${wallet?.toString()}");
       },
@@ -70,17 +82,18 @@ class ParentsHistorySelectDateController extends GetxController {
 
     try {
       // ✅ Fetch meals once instead of using a stream
-      List<MealModel> fetchedMeals = await parentsHistorySelectDateService.getMealsByUser(userId);
+      List<MealModel> fetchedMeals =
+          await parentsHistorySelectDateService.getMealsByUser(userId);
 
       // ✅ Update the observable list manually
       meals.value = fetchedMeals;
-
     } catch (e) {
       print("❌ Error fetching meals: $e");
     }
 
     isLoading.value = false;
   }
+
   String checkIfDateHasMeal(DateTime day) {
     DateTime today = DateTime.now();
 
@@ -106,14 +119,15 @@ class ParentsHistorySelectDateController extends GetxController {
 
         if (schedule == null ||
             schedule.repeatOn == null ||
-            (schedule.repeatEvery != 'week' && schedule.repeatEvery != 'month') ||
+            (schedule.repeatEvery != 'week' &&
+                schedule.repeatEvery != 'month') ||
             schedule.repeatCount == null) {
           continue;
         }
 
         String currentDayName = DateFormat('EEEE').format(day);
         List<String> scheduledDays =
-        schedule.repeatOn!.map((d) => d.trim()).toList();
+            schedule.repeatOn!.map((d) => d.trim()).toList();
 
         bool isDayScheduled = scheduledDays.contains(currentDayName);
 
@@ -125,15 +139,13 @@ class ParentsHistorySelectDateController extends GetxController {
             int weekNumber = daysSinceStart ~/ 7;
             if (weekNumber < repeatCount) {
               if (day.isAfter(DateTime.now())) {
-
                 return "✔️ Meal Available •"; // Dot after the current date
-              }}
+              }
+            }
             // if (weekNumber < repeatCount) {
             //   return day.isAfter(DateTime.now()) ? "✔️ Meal Available •" : "✔️ Meal Available";
             // }
-          }
-
-          else if (schedule.repeatEvery == 'month') {
+          } else if (schedule.repeatEvery == 'month') {
             // Calculate months since start, including the initial month
             int monthsSinceStart = (day.year - orderDate.year) * 12 +
                 (day.month - orderDate.month);
@@ -141,24 +153,16 @@ class ParentsHistorySelectDateController extends GetxController {
             // Specific check for exact day match and within repeat count
             if (monthsSinceStart >= 0 && monthsSinceStart < repeatCount) {
               // Ensure the exact day matches the original order date
-              if (
-              day.isAfter(DateTime.now())) {
+              if (day.isAfter(DateTime.now())) {
                 return "✔️ Meal Available •"; // Dot after the current date
               }
-
-
             }
           }
-
-
         }
       }
     }
     return "";
   }
-
-
-
 
   ///Check if two dates are the same (ignores time)**
   bool isSameDay(DateTime date1, DateTime date2) {
@@ -194,15 +198,16 @@ class ParentsHistorySelectDateController extends GetxController {
       isLoading.value = false;
       return;
     }
-    List<ParentsAddChildren> children = await parentsHistorySelectDateService
-        .fetchChildrenByParentId(userId);
+    List<ParentsAddChildren> children =
+        await parentsHistorySelectDateService.fetchChildrenByParentId(userId);
     childrenList.assignAll(children);
     print("children data lenght  ${children.length}");
-    await  getUpcomingOrders(); // Call function after updating meals list
+    await getUpcomingOrders(); // Call function after updating meals list
 
     isLoading.value = false;
     update(['parentsHistorySelectDataId']);
   }
+
   Future<void> getUpcomingOrders() async {
     await Future.delayed(Duration(milliseconds: 1));
 
@@ -213,13 +218,18 @@ class ParentsHistorySelectDateController extends GetxController {
     print("🔍 Starting getUpcomingOrders() method");
     print("Current Date: $today");
 
+    // Clear the filtered list before populating it
+    filteredUpComingMealOrderList.clear();
+
     for (var child in childrenList) {
       for (var meal in child.selectedMealMenuData ?? []) {
         var schedule = meal.schedule;
         print("\n🍽️ Checking Meal: ${meal.mealName}");
 
-        if (schedule == null || schedule.repeatOn == null ||
-            (schedule.repeatEvery != 'week' && schedule.repeatEvery != 'month') ||
+        if (schedule == null ||
+            schedule.repeatOn == null ||
+            (schedule.repeatEvery != 'week' &&
+                schedule.repeatEvery != 'month') ||
             schedule.repeatCount == null) {
           print("❌ Invalid schedule data, skipping meal: ${meal.mealName}");
           continue;
@@ -248,7 +258,8 @@ class ParentsHistorySelectDateController extends GetxController {
             for (int j = 0; j < 7; j++) {
               futureDate = orderDate.add(Duration(days: j));
 
-              String futureDayName = DateFormat('EEEE').format(futureDate).toLowerCase();
+              String futureDayName =
+                  DateFormat('EEEE').format(futureDate).toLowerCase();
               List<dynamic> scheduledDays = (schedule.repeatOn ?? [])
                   .map((d) => d.toString().toLowerCase().trim())
                   .toList();
@@ -257,23 +268,24 @@ class ParentsHistorySelectDateController extends GetxController {
               print("  - Future Day Name: $futureDayName");
               print("  - Scheduled Days: $scheduledDays");
 
-              if (futureDate.isAfter(today) && scheduledDays.contains(futureDayName)) {
+              if (futureDate.isAfter(today) &&
+                  scheduledDays.contains(futureDayName)) {
                 print("✅ Scheduled Meal Found on $futureDate");
                 futureOrderDates.add(futureDate);
               }
             }
-          }
-
-          else if (schedule.repeatEvery == 'month') {
+          } else if (schedule.repeatEvery == 'month') {
             // Check all future occurrences in the current and next months
             for (int j = 0; j < 31; j++) {
               try {
-                futureDate = DateTime(orderDate.year, orderDate.month, orderDate.day + j);
+                futureDate = DateTime(
+                    orderDate.year, orderDate.month, orderDate.day + j);
               } catch (e) {
                 continue; // Skip invalid dates
               }
 
-              String futureDayName = DateFormat('EEEE').format(futureDate).toLowerCase();
+              String futureDayName =
+                  DateFormat('EEEE').format(futureDate).toLowerCase();
               List<dynamic> scheduledDays = (schedule.repeatOn ?? [])
                   .map((d) => d.toString().toLowerCase().trim())
                   .toList();
@@ -282,7 +294,8 @@ class ParentsHistorySelectDateController extends GetxController {
               print("  - Future Day Name: $futureDayName");
               print("  - Scheduled Days: $scheduledDays");
 
-              if (futureDate.isAfter(today) && scheduledDays.contains(futureDayName)) {
+              if (futureDate.isAfter(today) &&
+                  scheduledDays.contains(futureDayName)) {
                 print("✅ Scheduled Meal Found on $futureDate");
                 futureOrderDates.add(futureDate);
                 break; // Stop checking once we find a valid date
@@ -291,7 +304,8 @@ class ParentsHistorySelectDateController extends GetxController {
           }
         }
 
-        print("\n📋 Future Order Dates for ${meal.mealName}: $futureOrderDates");
+        print(
+            "\n📋 Future Order Dates for ${meal.mealName}: $futureOrderDates");
 
         if (futureOrderDates.isNotEmpty) {
           if (!mealData.containsKey(meal.mealName)) {
@@ -304,9 +318,10 @@ class ParentsHistorySelectDateController extends GetxController {
           }
 
           mealData[meal.mealName]!['count'] += 1;
-          
+
           // Get the existing studentIds list
-          var studentIds = mealData[meal.mealName]!['studentIds'] as List<dynamic>;
+          var studentIds =
+              mealData[meal.mealName]!['studentIds'] as List<dynamic>;
           // Add the new ID
           studentIds.add(child.id?.toString() ?? '');
           // Update the map with the new list
@@ -319,7 +334,6 @@ class ParentsHistorySelectDateController extends GetxController {
 
     // Clear existing list
     upComingMealOrderList.clear();
-
 
     for (var entry in mealData.entries) {
       String mealName = entry.key;
@@ -351,8 +365,12 @@ class ParentsHistorySelectDateController extends GetxController {
     }
 
     // Sort the list
-    upComingMealOrderList.sort((a, b) => 
-        (b.expectedStudent ?? 0).compareTo(a.expectedStudent ?? 0));
+    upComingMealOrderList.sort(
+        (a, b) => (b.expectedStudent ?? 0).compareTo(a.expectedStudent ?? 0));
+
+    // Filter orders for the selected date
+    filterUpcomingOrdersByDate(selectedDate.value);
+
     update(['parentsHistorySelectDataId']);
 
     print("✅ Sorted Meal List Updated!");
@@ -369,4 +387,136 @@ class ParentsHistorySelectDateController extends GetxController {
   }
 
   void increment() => count.value++;
+
+  // Method to update the selected date and filter orders
+  void updateSelectedDate(DateTime date) {
+    selectedDate.value = date;
+    filterUpcomingOrdersByDate(date);
+    update(['parentsHistorySelectDataId']);
+  }
+
+  // Filter upcoming orders based on selected date
+  void filterUpcomingOrdersByDate(DateTime selectedDate) {
+    // Normalize the selected date (remove time component)
+    DateTime normalizedSelectedDate =
+        DateTime(selectedDate.year, selectedDate.month, selectedDate.day);
+
+    // Clear the filtered list
+    filteredUpComingMealOrderList.clear();
+
+    // If no upcoming orders, return early
+    if (upComingMealOrderList.isEmpty) {
+      return;
+    }
+
+    // Check each child's meal schedule to see if it matches the selected date
+    for (var child in childrenList) {
+      if (child.selectedMealMenuData == null ||
+          child.selectedMealMenuData!.isEmpty) {
+        continue;
+      }
+
+      DateTime orderDate;
+      try {
+        orderDate = DateTime.parse(child.date!);
+        orderDate = DateTime(orderDate.year, orderDate.month, orderDate.day);
+      } catch (e) {
+        continue;
+      }
+
+      for (var mealData in child.selectedMealMenuData!) {
+        var schedule = mealData.schedule;
+
+        if (schedule == null ||
+            schedule.repeatOn == null ||
+            (schedule.repeatEvery != 'week' &&
+                schedule.repeatEvery != 'month') ||
+            schedule.repeatCount == null) {
+          continue;
+        }
+
+        String selectedDayName =
+            DateFormat('EEEE').format(normalizedSelectedDate);
+        List<String> scheduledDays =
+            schedule.repeatOn!.map((d) => d.trim()).toList();
+
+        bool isDayScheduled = scheduledDays.contains(selectedDayName);
+
+        if (isDayScheduled &&
+            normalizedSelectedDate.compareTo(orderDate) >= 0) {
+          int repeatCount = int.tryParse(schedule.repeatCount!) ?? 1;
+
+          if (schedule.repeatEvery == 'week') {
+            int daysSinceStart =
+                normalizedSelectedDate.difference(orderDate).inDays;
+            int weekNumber = daysSinceStart ~/ 7;
+
+            if (weekNumber < repeatCount) {
+              // Add this meal to the filtered list if not already added
+              _addMealToFilteredList(mealData, child.id);
+            }
+          } else if (schedule.repeatEvery == 'month') {
+            int monthsSinceStart =
+                (normalizedSelectedDate.year - orderDate.year) * 12 +
+                    (normalizedSelectedDate.month - orderDate.month);
+
+            if (monthsSinceStart >= 0 && monthsSinceStart < repeatCount) {
+              // Add this meal to the filtered list if not already added
+              _addMealToFilteredList(mealData, child.id);
+            }
+          }
+        }
+      }
+    }
+
+    // Sort the filtered list
+    filteredUpComingMealOrderList.sort(
+        (a, b) => (b.expectedStudent ?? 0).compareTo(a.expectedStudent ?? 0));
+  }
+
+  // Helper method to add a meal to the filtered list
+  void _addMealToFilteredList(var mealData, String? childId) {
+    // Check if this meal is already in the filtered list
+    bool mealExists = filteredUpComingMealOrderList
+        .any((meal) => meal.itemName == mealData.mealName);
+
+    if (!mealExists) {
+      // Create a new UpcomingMealOrder for this meal
+      filteredUpComingMealOrderList.add(
+        UpcomingMealOrder(
+          image: mealData.imageUrl,
+          itemName: mealData.mealName,
+          weekday: DateFormat('EEEE').format(selectedDate.value),
+          itemPrice: mealData.mealPrice,
+          expectedStudent: 1,
+          studentIds: childId != null ? [childId] : [],
+        ),
+      );
+    } else {
+      // Update the existing meal in the filtered list
+      int index = filteredUpComingMealOrderList
+          .indexWhere((meal) => meal.itemName == mealData.mealName);
+
+      if (index != -1) {
+        UpcomingMealOrder existingMeal = filteredUpComingMealOrderList[index];
+        List<String> updatedStudentIds =
+            List<String>.from(existingMeal.studentIds ?? []);
+
+        // Add the child ID if not already in the list
+        if (childId != null && !updatedStudentIds.contains(childId)) {
+          updatedStudentIds.add(childId);
+        }
+
+        // Create an updated meal with incremented student count
+        filteredUpComingMealOrderList[index] = UpcomingMealOrder(
+          image: existingMeal.image,
+          itemName: existingMeal.itemName,
+          weekday: existingMeal.weekday,
+          itemPrice: existingMeal.itemPrice,
+          expectedStudent: (existingMeal.expectedStudent ?? 0) + 1,
+          studentIds: updatedStudentIds,
+        );
+      }
+    }
+  }
 }

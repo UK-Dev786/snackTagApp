@@ -8,8 +8,15 @@ import 'package:snacktag/config/app_colors.dart';
 import 'package:snacktag/config/app_text_style.dart';
 import 'package:snacktag/models/cefeteria_admin/upcoming_meal_order.dart';
 import 'package:table_calendar/table_calendar.dart';
-
 import '../controllers/parents_history_select_date_controller.dart';
+
+// Helper function to check if two dates are the same day
+bool isSameDay(DateTime? a, DateTime? b) {
+  if (a == null || b == null) {
+    return false;
+  }
+  return a.year == b.year && a.month == b.month && a.day == b.day;
+}
 
 class ParentsHistorySelectDateView
     extends GetView<ParentsHistorySelectDateController> {
@@ -56,90 +63,234 @@ class ParentsHistorySelectDateView
                   TableCalendar(
                     firstDay: DateTime.utc(2020, 1, 1),
                     lastDay: DateTime.utc(2030, 12, 31),
-                    focusedDay: DateTime.now(), // Current visible month
+                    focusedDay: parentsHSDCont.selectedDate.value,
+                    selectedDayPredicate: (day) {
+                      return isSameDay(day, parentsHSDCont.selectedDate.value);
+                    },
+                    onDaySelected: (selectedDay, focusedDay) {
+                      // Update the selected date in the controller
+                      parentsHSDCont.updateSelectedDate(selectedDay);
+                    },
                     calendarBuilders: CalendarBuilders(
                       defaultBuilder: (context, day, focusedDay) {
                         String hasMealToday =
                             parentsHSDCont.checkIfDateHasMeal(day); // Pass day
 
-                        return Center(
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Text(
-                                '${day.day}',
-                                style: AppTextStyles.RobotoRegular.copyWith(
-                                  fontSize: 13,
-                                  color: const Color(0xFF2E2E2E),
-                                ),
-                              ),
-                              if (hasMealToday.isNotEmpty)
-                                Container(
-                                  width: 5,
-                                  height: 5,
-                                  decoration: const BoxDecoration(
-                                    color: AppColors.gradientEndColor,
-                                    shape: BoxShape.circle,
+                        // Check if this day is selected
+                        bool isSelected =
+                            isSameDay(day, parentsHSDCont.selectedDate.value);
+
+                        return GestureDetector(
+                          onTap: () {
+                            parentsHSDCont.updateSelectedDate(day);
+                          },
+                          child: Center(
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Text(
+                                  '${day.day}',
+                                  style: AppTextStyles.RobotoRegular.copyWith(
+                                    fontSize: 13,
+                                    color: isSelected
+                                        ? AppColors.gradientEndColor
+                                        : const Color(0xFF2E2E2E),
+                                    fontWeight: isSelected
+                                        ? FontWeight.bold
+                                        : FontWeight.normal,
                                   ),
                                 ),
-                            ],
+                                if (hasMealToday.isNotEmpty)
+                                  Container(
+                                    width: 5,
+                                    height: 5,
+                                    decoration: BoxDecoration(
+                                      color: isSelected
+                                          ? Colors.white
+                                          : AppColors.gradientEndColor,
+                                      shape: BoxShape.circle,
+                                    ),
+                                  ),
+                              ],
+                            ),
                           ),
                         );
                       },
                       todayBuilder: (context, day, focusedDay) {
-                        return Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Container(
-                              padding: const EdgeInsets.symmetric(
-                                  vertical: 6.0, horizontal: 10.0),
-                              decoration: BoxDecoration(
-                                gradient: const LinearGradient(
-                                  colors: [
-                                    AppColors.gradientEndColor,
-                                    AppColors.gradientStartColor
-                                  ],
-                                  begin: Alignment.topRight,
-                                  end: Alignment.bottomLeft,
-                                ),
-                                borderRadius: BorderRadius.circular(
-                                    8.0), // Rounded corners
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: Colors.grey.withOpacity(0.2),
-                                    blurRadius: 2,
-                                    spreadRadius: 1,
-                                    offset: const Offset(0, 3),
+                        // Check if today is also selected
+                        bool isSelected =
+                            isSameDay(day, parentsHSDCont.selectedDate.value);
+
+                        return GestureDetector(
+                          onTap: () {
+                            parentsHSDCont.updateSelectedDate(day);
+                          },
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Container(
+                                padding: const EdgeInsets.symmetric(
+                                    vertical: 6.0, horizontal: 10.0),
+                                decoration: BoxDecoration(
+                                  gradient: LinearGradient(
+                                    colors: isSelected
+                                        ? [
+                                            AppColors.gradientEndColor,
+                                            AppColors.gradientStartColor
+                                          ]
+                                        : [
+                                            AppColors.gradientEndColor,
+                                            AppColors.gradientStartColor
+                                          ],
+                                    begin: Alignment.topRight,
+                                    end: Alignment.bottomLeft,
                                   ),
-                                ],
+                                  borderRadius: BorderRadius.circular(
+                                      8.0), // Rounded corners
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: Colors.grey.withOpacity(0.2),
+                                      blurRadius: 2,
+                                      spreadRadius: 1,
+                                      offset: const Offset(0, 3),
+                                    ),
+                                  ],
+                                ),
+                                child: Column(
+                                  children: [
+                                    Text(
+                                      '${day.day}', // Display the day number
+                                      style: AppTextStyles.RobotoBold.copyWith(
+                                        fontSize: 16,
+                                        color: Colors.white,
+                                      ),
+                                    ),
+                                    Text(
+                                        [
+                                          'SUN',
+                                          'MON',
+                                          'TUE',
+                                          'WED',
+                                          'THU',
+                                          'FRI',
+                                          'SAT'
+                                        ][day.weekday % 7], // Display weekday
+                                        style:
+                                            AppTextStyles.RobotoLight.copyWith(
+                                          fontSize: 12,
+                                          color: Colors.white,
+                                        )),
+                                  ],
+                                ),
                               ),
-                              child: Column(
-                                children: [
-                                  Text(
-                                    '${day.day}', // Display the day number
+                            ],
+                          ),
+                        );
+                      },
+                      selectedBuilder: (context, day, focusedDay) {
+                        // Special case: if the selected day is also today
+                        if (isSameDay(day, DateTime.now())) {
+                          return GestureDetector(
+                            onTap: () {
+                              parentsHSDCont.updateSelectedDate(day);
+                            },
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Container(
+                                  padding: const EdgeInsets.symmetric(
+                                      vertical: 6.0, horizontal: 10.0),
+                                  decoration: BoxDecoration(
+                                    gradient: const LinearGradient(
+                                      colors: [
+                                        AppColors.gradientEndColor,
+                                        AppColors.gradientStartColor
+                                      ],
+                                      begin: Alignment.topRight,
+                                      end: Alignment.bottomLeft,
+                                    ),
+                                    borderRadius: BorderRadius.circular(8.0),
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: Colors.grey.withOpacity(0.2),
+                                        blurRadius: 2,
+                                        spreadRadius: 1,
+                                        offset: const Offset(0, 3),
+                                      ),
+                                    ],
+                                  ),
+                                  child: Column(
+                                    children: [
+                                      Text(
+                                        '${day.day}',
+                                        style:
+                                            AppTextStyles.RobotoBold.copyWith(
+                                          fontSize: 16,
+                                          color: Colors.white,
+                                        ),
+                                      ),
+                                      Text(
+                                          [
+                                            'SUN',
+                                            'MON',
+                                            'TUE',
+                                            'WED',
+                                            'THU',
+                                            'FRI',
+                                            'SAT'
+                                          ][day.weekday % 7],
+                                          style: AppTextStyles.RobotoLight
+                                              .copyWith(
+                                            fontSize: 12,
+                                            color: Colors.white,
+                                          )),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                          );
+                        }
+
+                        // For other selected days
+                        String hasMealToday =
+                            parentsHSDCont.checkIfDateHasMeal(day);
+
+                        return GestureDetector(
+                          onTap: () {
+                            parentsHSDCont.updateSelectedDate(day);
+                          },
+                          child: Center(
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Container(
+                                  padding: const EdgeInsets.all(8),
+                                  decoration: BoxDecoration(
+                                    color: AppColors.gradientEndColor
+                                        .withOpacity(0.2),
+                                    shape: BoxShape.circle,
+                                  ),
+                                  child: Text(
+                                    '${day.day}',
                                     style: AppTextStyles.RobotoBold.copyWith(
-                                      fontSize: 16,
-                                      color: Colors.white,
+                                      fontSize: 14,
+                                      color: AppColors.gradientEndColor,
                                     ),
                                   ),
-                                  Text(
-                                      [
-                                        'SUN',
-                                        'MON',
-                                        'TUE',
-                                        'WED',
-                                        'THU',
-                                        'FRI',
-                                        'SAT'
-                                      ][day.weekday % 7], // Display weekday
-                                      style: AppTextStyles.RobotoLight.copyWith(
-                                        fontSize: 12,
-                                        color: Colors.white,
-                                      )),
-                                ],
-                              ),
+                                ),
+                                if (hasMealToday.isNotEmpty)
+                                  Container(
+                                    width: 5,
+                                    height: 5,
+                                    decoration: const BoxDecoration(
+                                      color: AppColors.gradientEndColor,
+                                      shape: BoxShape.circle,
+                                    ),
+                                  ),
+                              ],
                             ),
-                          ],
+                          ),
                         );
                       },
                     ),
@@ -155,6 +306,8 @@ class ParentsHistorySelectDateView
                         fontSize: 13,
                         color: const Color(0xFF2E2E2E),
                       ),
+                      selectedTextStyle: const TextStyle(
+                          color: Colors.transparent), // Hide default styling
                     ),
                     headerStyle: HeaderStyle(
                       headerPadding: const EdgeInsets.symmetric(
@@ -168,7 +321,6 @@ class ParentsHistorySelectDateView
                       leftChevronVisible: false,
                       rightChevronVisible: false,
                     ),
-
                     daysOfWeekStyle: DaysOfWeekStyle(
                       weekdayStyle: AppTextStyles.RobotoRegular.copyWith(
                         fontSize: 11,
@@ -227,18 +379,57 @@ class ParentsHistorySelectDateView
                   ),
 
                   // Upcoming Orders Section - No longer in an Expanded widget
-                  ListView.builder(
-                    physics: const NeverScrollableScrollPhysics(),
-                    shrinkWrap: true,
-                    itemCount: parentsHSDCont.upComingMealOrderList.length,
-                    padding: const EdgeInsets.only(top: 0),
-                    itemBuilder: (context, index) {
-                      return _buildOrderCard(
-                        context,
-                        parentsHSDCont.upComingMealOrderList[index],
+                  Obx(() {
+                    // Initialize the filtered list when the view is first loaded
+                    if (parentsHSDCont.filteredUpComingMealOrderList.isEmpty &&
+                        parentsHSDCont.upComingMealOrderList.isNotEmpty) {
+                      parentsHSDCont.filterUpcomingOrdersByDate(
+                          parentsHSDCont.selectedDate.value);
+                    }
+
+                    // If there are no filtered orders, show a message
+                    if (parentsHSDCont.filteredUpComingMealOrderList.isEmpty) {
+                      return Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 20.0),
+                        child: Center(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              const Icon(
+                                Icons.calendar_today_outlined,
+                                size: 48,
+                                color: Colors.grey,
+                              ),
+                              const SizedBox(height: 16),
+                              Text(
+                                'No Upcoming Orders for ${DateFormat('MMMM d, yyyy').format(parentsHSDCont.selectedDate.value)}',
+                                style: AppTextStyles.PoppinsMedium.copyWith(
+                                  fontSize: 16,
+                                  color: Colors.grey,
+                                ),
+                                textAlign: TextAlign.center,
+                              ),
+                            ],
+                          ),
+                        ),
                       );
-                    },
-                  ),
+                    }
+
+                    // Otherwise, show the filtered orders
+                    return ListView.builder(
+                      physics: const NeverScrollableScrollPhysics(),
+                      shrinkWrap: true,
+                      itemCount:
+                          parentsHSDCont.filteredUpComingMealOrderList.length,
+                      padding: const EdgeInsets.only(top: 0),
+                      itemBuilder: (context, index) {
+                        return _buildOrderCard(
+                          context,
+                          parentsHSDCont.filteredUpComingMealOrderList[index],
+                        );
+                      },
+                    );
+                  }),
                 ],
               ),
             );
