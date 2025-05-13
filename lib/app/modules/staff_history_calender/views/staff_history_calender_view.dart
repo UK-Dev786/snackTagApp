@@ -324,45 +324,26 @@ Widget _buildOrderCard(
     onTap: () {
       print("List of student IDs: ${upcomingOrderCount.studentIds}");
 
-      //   // Show dialog to choose between different screens
-      //   Get.dialog(
-      //     AlertDialog(
-      //       title: Text(
-      //         'Choose View',
-      //         style: AppTextStyles.MetropolisBold.copyWith(fontSize: 18),
-      //       ),
-      //       content: Column(
-      //         mainAxisSize: MainAxisSize.min,
-      //         children: [
-      //           ElevatedButton(
-      //             onPressed: () {
-      //               Get.back(); // Close dialog
-      Get.toNamed(
-        Routes.STAFF_HISTORY_DETAIL,
-      );
-      //             },
-      //             style: ElevatedButton.styleFrom(
-      //               backgroundColor: Colors.blue,
-      //               foregroundColor: Colors.white,
-      //             ),
-      //             child: Text('Standard View'),
-      //           ),
-      //           SizedBox(height: 10),
-      //           ElevatedButton(
-      //             onPressed: () {
-      //               Get.back(); // Close dialog
-      // Get.toNamed(Routes.STAFF_ORDER_DETAILS);
-      //             },
-      //             style: ElevatedButton.styleFrom(
-      //               backgroundColor: const Color(0xFFCCFF00),
-      //               foregroundColor: Colors.black,
-      //             ),
-      //             child: Text('Order Details View'),
-      //           ),
-      //         ],
-      //       ),
-      //     ),
-      //   );
+      // Check if studentIds is not null and not empty
+      if (upcomingOrderCount.studentIds != null &&
+          upcomingOrderCount.studentIds!.isNotEmpty) {
+        // Navigate to detail view with student IDs and meal name
+        Get.toNamed(
+          Routes.STAFF_HISTORY_DETAIL,
+          arguments: {
+            "orderStudentIds": upcomingOrderCount.studentIds,
+            "mealName": upcomingOrderCount.itemName,
+          },
+        );
+      } else {
+        // Show a snackbar if no student IDs are found
+        Get.snackbar(
+          "No Students Found",
+          "No child IDs found for this order",
+          snackPosition: SnackPosition.BOTTOM,
+          duration: const Duration(seconds: 3),
+        );
+      }
     },
     child: Container(
       height: 72, // Fixed height for each item
@@ -495,10 +476,10 @@ Widget _buildOrderCard(
               child: Column(
                 children: [
                   Text(
-                    // Use expectedStudent if studentIds is empty
-                    ((upcomingOrderCount.studentIds?.isEmpty ?? true)
-                                ? upcomingOrderCount.expectedStudent
-                                : upcomingOrderCount.studentIds?.length)
+                    // Always use the actual student IDs length if available
+                    ((upcomingOrderCount.studentIds?.isNotEmpty ?? false)
+                                ? upcomingOrderCount.studentIds?.length
+                                : upcomingOrderCount.expectedStudent)
                             ?.toString() ??
                         "0",
                     style: AppTextStyles.PoppinsMedium.copyWith(
