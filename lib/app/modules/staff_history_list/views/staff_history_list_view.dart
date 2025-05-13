@@ -7,7 +7,6 @@ import 'package:snacktag/config/app_colors.dart';
 import 'package:snacktag/config/app_text_style.dart';
 import 'package:snacktag/models/parents_models/add_children.dart';
 
-
 import '../controllers/staff_history_list_controller.dart';
 
 class StaffHistoryListView extends GetView<StaffHistoryListController> {
@@ -40,20 +39,24 @@ class StaffHistoryListView extends GetView<StaffHistoryListController> {
                             itemCount: controller.deliveredOrdersList.length,
                             padding: const EdgeInsets.only(top: 8),
                             itemBuilder: (context, index) {
-                              final preparingOrder = controller.deliveredOrdersList[index];
-                            
+                              final preparingOrder =
+                                  controller.deliveredOrdersList[index];
+
                               return GestureDetector(
                                 onTap: () {
-                                   Get.toNamed(
-                                Routes.STAFF_DELIVERED_ORDER_HISTORY_DETAILS,
-                                arguments: {
-                                  "DeliveredOrderData": controller.deliveredOrdersList[index],
-                                },
-                              );
+                                  Get.toNamed(
+                                    Routes
+                                        .STAFF_DELIVERED_ORDER_HISTORY_DETAILS,
+                                    arguments: {
+                                      "DeliveredOrderData":
+                                          controller.deliveredOrdersList[index],
+                                    },
+                                  );
                                 },
                                 child: Container(
                                   height: 117,
-                                  margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                                  margin: const EdgeInsets.symmetric(
+                                      horizontal: 16, vertical: 8),
                                   decoration: BoxDecoration(
                                     color: Colors.white,
                                     borderRadius: BorderRadius.circular(12),
@@ -66,25 +69,28 @@ class StaffHistoryListView extends GetView<StaffHistoryListController> {
                                       ),
                                     ],
                                   ),
-                                  padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+                                  padding: const EdgeInsets.symmetric(
+                                      vertical: 8, horizontal: 16),
                                   child: Row(
                                     children: [
                                       // Profile image
                                       _buildProfileImage(preparingOrder),
                                       const SizedBox(width: 12),
-                                
+
                                       // Details
                                       Expanded(
-                                        child: _buildDetailsColumn(preparingOrder, controller),
+                                        child: _buildDetailsColumn(
+                                            preparingOrder, controller),
                                       ),
-                                
+
                                       // Divider
                                       Container(
                                         width: 1,
                                         color: Colors.black.withOpacity(0.1),
-                                        margin: const EdgeInsets.only(left: 6, right: 10),
+                                        margin: const EdgeInsets.only(
+                                            left: 6, right: 10),
                                       ),
-                                
+
                                       // Meal image
                                       _buildMealImage(preparingOrder),
                                     ],
@@ -116,7 +122,6 @@ class StaffHistoryListView extends GetView<StaffHistoryListController> {
                               ],
                             ),
                           );
-                    
                   }),
                 ),
               ],
@@ -146,7 +151,8 @@ class StaffHistoryListView extends GetView<StaffHistoryListController> {
             ],
           ),
           child: ClipOval(
-            child: preparingOrder.childImageUrl != null && preparingOrder.childImageUrl!.isNotEmpty
+            child: preparingOrder.childImageUrl != null &&
+                    preparingOrder.childImageUrl!.isNotEmpty
                 ? Image.network(
                     preparingOrder.childImageUrl!,
                     width: double.infinity,
@@ -172,7 +178,8 @@ class StaffHistoryListView extends GetView<StaffHistoryListController> {
     );
   }
 
-  Widget _buildDetailsColumn(ParentsAddChildren preparingOrder, StaffHistoryListController controller) {
+  Widget _buildDetailsColumn(ParentsAddChildren preparingOrder,
+      StaffHistoryListController controller) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -273,7 +280,7 @@ class StaffHistoryListView extends GetView<StaffHistoryListController> {
         const SizedBox(height: 8),
         const SizedBox(height: 4),
         Text(
-          "\$${preparingOrder.selectedMealMenuData![0].mealPrice.toString()}",
+          "MX\$${preparingOrder.selectedMealMenuData![0].mealPrice.toString()}",
           style: AppTextStyles.MetropolisMedium.copyWith(
             fontSize: 16,
             color: Colors.black,
