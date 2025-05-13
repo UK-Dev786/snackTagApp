@@ -23,10 +23,8 @@ class ParentsHistorySelectDateController extends GetxController {
   var childrenList = <ParentsAddChildren>[].obs;
   var meals = <MealModel>[].obs;
   var upComingMealOrderList = <UpcomingMealOrder>[].obs;
-  var filteredUpComingMealOrderList = <UpcomingMealOrder>[].obs;
   var parentAddWalletModel =
       Rxn<ParentAddWalletModel>(); // Observable wallet model
-  var selectedDate = DateTime.now().obs; // Track selected date
 
   @override
   void onInit() {
@@ -35,13 +33,6 @@ class ParentsHistorySelectDateController extends GetxController {
 
     fetchParentsChildren();
     _fetchCafeteriaMeals();
-
-    // After data is loaded, filter orders for the current date
-    ever(upComingMealOrderList, (_) {
-      if (upComingMealOrderList.isNotEmpty) {
-        filterUpcomingOrdersByDate(selectedDate.value);
-      }
-    });
 
     super.onInit();
   }
@@ -218,9 +209,6 @@ class ParentsHistorySelectDateController extends GetxController {
     print("🔍 Starting getUpcomingOrders() method");
     print("Current Date: $today");
 
-    // Clear the filtered list before populating it
-    filteredUpComingMealOrderList.clear();
-
     for (var child in childrenList) {
       for (var meal in child.selectedMealMenuData ?? []) {
         var schedule = meal.schedule;
@@ -367,10 +355,6 @@ class ParentsHistorySelectDateController extends GetxController {
     // Sort the list
     upComingMealOrderList.sort(
         (a, b) => (b.expectedStudent ?? 0).compareTo(a.expectedStudent ?? 0));
-
-    // Filter orders for the selected date
-    filterUpcomingOrdersByDate(selectedDate.value);
-
     update(['parentsHistorySelectDataId']);
 
     print("✅ Sorted Meal List Updated!");
@@ -387,136 +371,4 @@ class ParentsHistorySelectDateController extends GetxController {
   }
 
   void increment() => count.value++;
-
-  // Method to update the selected date and filter orders
-  void updateSelectedDate(DateTime date) {
-    selectedDate.value = date;
-    filterUpcomingOrdersByDate(date);
-    update(['parentsHistorySelectDataId']);
-  }
-
-  // Filter upcoming orders based on selected date
-  void filterUpcomingOrdersByDate(DateTime selectedDate) {
-    // Normalize the selected date (remove time component)
-    DateTime normalizedSelectedDate =
-        DateTime(selectedDate.year, selectedDate.month, selectedDate.day);
-
-    // Clear the filtered list
-    filteredUpComingMealOrderList.clear();
-
-    // If no upcoming orders, return early
-    if (upComingMealOrderList.isEmpty) {
-      return;
-    }
-
-    // Check each child's meal schedule to see if it matches the selected date
-    for (var child in childrenList) {
-      if (child.selectedMealMenuData == null ||
-          child.selectedMealMenuData!.isEmpty) {
-        continue;
-      }
-
-      DateTime orderDate;
-      try {
-        orderDate = DateTime.parse(child.date!);
-        orderDate = DateTime(orderDate.year, orderDate.month, orderDate.day);
-      } catch (e) {
-        continue;
-      }
-
-      for (var mealData in child.selectedMealMenuData!) {
-        var schedule = mealData.schedule;
-
-        if (schedule == null ||
-            schedule.repeatOn == null ||
-            (schedule.repeatEvery != 'week' &&
-                schedule.repeatEvery != 'month') ||
-            schedule.repeatCount == null) {
-          continue;
-        }
-
-        String selectedDayName =
-            DateFormat('EEEE').format(normalizedSelectedDate);
-        List<String> scheduledDays =
-            schedule.repeatOn!.map((d) => d.trim()).toList();
-
-        bool isDayScheduled = scheduledDays.contains(selectedDayName);
-
-        if (isDayScheduled &&
-            normalizedSelectedDate.compareTo(orderDate) >= 0) {
-          int repeatCount = int.tryParse(schedule.repeatCount!) ?? 1;
-
-          if (schedule.repeatEvery == 'week') {
-            int daysSinceStart =
-                normalizedSelectedDate.difference(orderDate).inDays;
-            int weekNumber = daysSinceStart ~/ 7;
-
-            if (weekNumber < repeatCount) {
-              // Add this meal to the filtered list if not already added
-              _addMealToFilteredList(mealData, child.id);
-            }
-          } else if (schedule.repeatEvery == 'month') {
-            int monthsSinceStart =
-                (normalizedSelectedDate.year - orderDate.year) * 12 +
-                    (normalizedSelectedDate.month - orderDate.month);
-
-            if (monthsSinceStart >= 0 && monthsSinceStart < repeatCount) {
-              // Add this meal to the filtered list if not already added
-              _addMealToFilteredList(mealData, child.id);
-            }
-          }
-        }
-      }
-    }
-
-    // Sort the filtered list
-    filteredUpComingMealOrderList.sort(
-        (a, b) => (b.expectedStudent ?? 0).compareTo(a.expectedStudent ?? 0));
-  }
-
-  // Helper method to add a meal to the filtered list
-  void _addMealToFilteredList(var mealData, String? childId) {
-    // Check if this meal is already in the filtered list
-    bool mealExists = filteredUpComingMealOrderList
-        .any((meal) => meal.itemName == mealData.mealName);
-
-    if (!mealExists) {
-      // Create a new UpcomingMealOrder for this meal
-      filteredUpComingMealOrderList.add(
-        UpcomingMealOrder(
-          image: mealData.imageUrl,
-          itemName: mealData.mealName,
-          weekday: DateFormat('EEEE').format(selectedDate.value),
-          itemPrice: mealData.mealPrice,
-          expectedStudent: 1,
-          studentIds: childId != null ? [childId] : [],
-        ),
-      );
-    } else {
-      // Update the existing meal in the filtered list
-      int index = filteredUpComingMealOrderList
-          .indexWhere((meal) => meal.itemName == mealData.mealName);
-
-      if (index != -1) {
-        UpcomingMealOrder existingMeal = filteredUpComingMealOrderList[index];
-        List<String> updatedStudentIds =
-            List<String>.from(existingMeal.studentIds ?? []);
-
-        // Add the child ID if not already in the list
-        if (childId != null && !updatedStudentIds.contains(childId)) {
-          updatedStudentIds.add(childId);
-        }
-
-        // Create an updated meal with incremented student count
-        filteredUpComingMealOrderList[index] = UpcomingMealOrder(
-          image: existingMeal.image,
-          itemName: existingMeal.itemName,
-          weekday: existingMeal.weekday,
-          itemPrice: existingMeal.itemPrice,
-          expectedStudent: (existingMeal.expectedStudent ?? 0) + 1,
-          studentIds: updatedStudentIds,
-        );
-      }
-    }
-  }
 }
