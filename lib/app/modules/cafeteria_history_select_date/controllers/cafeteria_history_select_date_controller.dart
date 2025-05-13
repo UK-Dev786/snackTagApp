@@ -26,6 +26,9 @@ class CafeteriaHistorySelectDateController extends GetxController {
   var meals = <MealModel>[].obs;
   var upComingMealOrderList = <UpcomingMealOrder>[].obs;
 
+  // Selected date for filtering upcoming orders
+  Rx<DateTime> selectedDate = DateTime.now().obs;
+
   @override
   void onInit() async {
     await fetchCafateriaName();
@@ -254,6 +257,13 @@ class CafeteriaHistorySelectDateController extends GetxController {
     update(['cafateriaHistorySelectDataId']);
   }
 
+  // Method to update the selected date and filter upcoming orders
+  void updateSelectedDate(DateTime date) {
+    selectedDate.value = date;
+    getUpcomingOrders(); // Refresh the upcoming orders list with the new date
+    update(['cafateriaHistorySelectDataId']);
+  }
+
   /// get the upcoming orders
   // Future<void> getUpcomingOrders() async {
   //   await Future.delayed(Duration(milliseconds: 1)); // Ensures async execution if needed
@@ -395,9 +405,12 @@ class CafeteriaHistorySelectDateController extends GetxController {
               print("  - Future Day Name: $futureDayName");
               print("  - Scheduled Days: $scheduledDays");
 
-              if (futureDate.isAfter(today) &&
-                  scheduledDays.contains(futureDayName)) {
-                print("✅ Scheduled Meal Found on $futureDate");
+              // Check if the date matches the selected date or is after today if no date is selected
+              bool dateMatches = isSameDay(futureDate, selectedDate.value);
+
+              if (dateMatches && scheduledDays.contains(futureDayName)) {
+                print(
+                    "✅ Scheduled Meal Found on $futureDate (matches selected date)");
                 futureOrderDates.add(futureDate);
               }
             }
@@ -421,9 +434,12 @@ class CafeteriaHistorySelectDateController extends GetxController {
               print("  - Future Day Name: $futureDayName");
               print("  - Scheduled Days: $scheduledDays");
 
-              if (futureDate.isAfter(today) &&
-                  scheduledDays.contains(futureDayName)) {
-                print("✅ Scheduled Meal Found on $futureDate");
+              // Check if the date matches the selected date
+              bool dateMatches = isSameDay(futureDate, selectedDate.value);
+
+              if (dateMatches && scheduledDays.contains(futureDayName)) {
+                print(
+                    "✅ Scheduled Meal Found on $futureDate (matches selected date)");
                 futureOrderDates.add(futureDate);
                 break; // Stop checking once we find a valid date
               }

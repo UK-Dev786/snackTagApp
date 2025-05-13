@@ -31,7 +31,17 @@ class CafeteriaHistorySelectDateView extends StatelessWidget {
                 TableCalendar(
                   firstDay: DateTime.utc(2020, 1, 1),
                   lastDay: DateTime.utc(2030, 12, 31),
-                  focusedDay: DateTime.now(), // Current visible month
+                  focusedDay:
+                      cafateriaHSDCont.selectedDate.value, // Use selected date
+                  selectedDayPredicate: (day) {
+                    // Use isSameDay to check if a day is selected
+                    return cafateriaHSDCont.isSameDay(
+                        day, cafateriaHSDCont.selectedDate.value);
+                  },
+                  onDaySelected: (selectedDay, focusedDay) {
+                    // Update the selected date in the controller
+                    cafateriaHSDCont.updateSelectedDate(selectedDay);
+                  },
                   calendarBuilders: CalendarBuilders(
                     defaultBuilder: (context, day, focusedDay) {
                       String hasMealToday =
@@ -180,14 +190,29 @@ class CafeteriaHistorySelectDateView extends StatelessWidget {
                   padding: const EdgeInsets.only(
                     left: 16,
                     top: 8,
+                    right: 16,
                   ),
-                  child: Text(
-                    'Upcoming',
-                    style: AppTextStyles.RobotoRegular.copyWith(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w500,
-                      color: const Color(0xFFBFBFBF),
-                    ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        'Upcoming',
+                        style: AppTextStyles.RobotoRegular.copyWith(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w500,
+                          color: const Color(0xFFBFBFBF),
+                        ),
+                      ),
+                      // Show selected date
+                      Obx(() => Text(
+                            'Selected: ${DateFormat('MMM d, yyyy').format(cafateriaHSDCont.selectedDate.value)}',
+                            style: AppTextStyles.RobotoRegular.copyWith(
+                              fontSize: 12,
+                              fontWeight: FontWeight.w500,
+                              color: const Color(0xFF2E2E2E),
+                            ),
+                          )),
+                    ],
                   ),
                 ),
 
