@@ -56,21 +56,44 @@ class ParentsHistorySelectDateView
                   TableCalendar(
                     firstDay: DateTime.utc(2020, 1, 1),
                     lastDay: DateTime.utc(2030, 12, 31),
-                    focusedDay: DateTime.now(), // Current visible month
+                    focusedDay:
+                        parentsHSDCont.selectedDate.value, // Use selected date
+                    selectedDayPredicate: (day) {
+                      return parentsHSDCont.isDateSelected.value &&
+                          parentsHSDCont.isSameDay(
+                              day, parentsHSDCont.selectedDate.value);
+                    },
+                    onDaySelected: parentsHSDCont.onDaySelected,
                     calendarBuilders: CalendarBuilders(
                       defaultBuilder: (context, day, focusedDay) {
                         String hasMealToday =
                             parentsHSDCont.checkIfDateHasMeal(day); // Pass day
+                        bool isSelected = parentsHSDCont.isDateSelected.value &&
+                            parentsHSDCont.isSameDay(
+                                day, parentsHSDCont.selectedDate.value);
 
                         return Center(
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              Text(
-                                '${day.day}',
-                                style: AppTextStyles.RobotoRegular.copyWith(
-                                  fontSize: 13,
-                                  color: const Color(0xFF2E2E2E),
+                              Container(
+                                padding: const EdgeInsets.symmetric(
+                                    vertical: 4.0, horizontal: 6.0),
+                                decoration: isSelected
+                                    ? BoxDecoration(
+                                        color: AppColors.gradientEndColor,
+                                        borderRadius:
+                                            BorderRadius.circular(4.0),
+                                      )
+                                    : null,
+                                child: Text(
+                                  '${day.day}',
+                                  style: AppTextStyles.RobotoRegular.copyWith(
+                                    fontSize: 13,
+                                    color: isSelected
+                                        ? Colors.white
+                                        : const Color(0xFF2E2E2E),
+                                  ),
                                 ),
                               ),
                               if (hasMealToday.isNotEmpty)
@@ -87,6 +110,10 @@ class ParentsHistorySelectDateView
                         );
                       },
                       todayBuilder: (context, day, focusedDay) {
+                        bool isSelected = parentsHSDCont.isDateSelected.value &&
+                            parentsHSDCont.isSameDay(
+                                day, parentsHSDCont.selectedDate.value);
+
                         return Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
@@ -112,6 +139,12 @@ class ParentsHistorySelectDateView
                                     offset: const Offset(0, 3),
                                   ),
                                 ],
+                                border: isSelected
+                                    ? Border.all(
+                                        color: Colors.white,
+                                        width: 2.0,
+                                      )
+                                    : null,
                               ),
                               child: Column(
                                 children: [
@@ -217,7 +250,9 @@ class ParentsHistorySelectDateView
                       top: 8,
                     ),
                     child: Text(
-                      'Upcoming',
+                      parentsHSDCont.isDateSelected.value
+                          ? 'Orders for ${DateFormat('MMMM d, yyyy').format(parentsHSDCont.selectedDate.value)}'
+                          : 'Upcoming',
                       style: AppTextStyles.RobotoRegular.copyWith(
                         fontSize: 12,
                         fontWeight: FontWeight.w500,
@@ -227,18 +262,70 @@ class ParentsHistorySelectDateView
                   ),
 
                   // Upcoming Orders Section - No longer in an Expanded widget
-                  ListView.builder(
-                    physics: const NeverScrollableScrollPhysics(),
-                    shrinkWrap: true,
-                    itemCount: parentsHSDCont.upComingMealOrderList.length,
-                    padding: const EdgeInsets.only(top: 0),
-                    itemBuilder: (context, index) {
-                      return _buildOrderCard(
-                        context,
-                        parentsHSDCont.upComingMealOrderList[index],
-                      );
-                    },
-                  ),
+                  if (parentsHSDCont.isDateSelected.value &&
+                      parentsHSDCont.filteredUpComingMealOrderList.isEmpty)
+                    Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 20.0),
+                      child: Center(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            const Icon(
+                              Icons.calendar_today_outlined,
+                              size: 48,
+                              color: Colors.grey,
+                            ),
+                            const SizedBox(height: 16),
+                            Text(
+                              'No orders for ${DateFormat('MMMM d, yyyy').format(parentsHSDCont.selectedDate.value)}',
+                              style: AppTextStyles.PoppinsMedium.copyWith(
+                                fontSize: 16,
+                                color: Colors.grey,
+                              ),
+                            ),
+                            const SizedBox(height: 8),
+                            TextButton(
+                              onPressed: () {
+                                parentsHSDCont.isDateSelected.value = false;
+                                parentsHSDCont.filteredUpComingMealOrderList
+                                    .clear();
+                                parentsHSDCont
+                                    .update(['parentsHistorySelectDataId']);
+                              },
+                              child: Text(
+                                'Show all upcoming orders',
+                                style: AppTextStyles.PoppinsMedium.copyWith(
+                                  fontSize: 14,
+                                  color: AppColors.gradientEndColor,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    )
+                  else
+                    ListView.builder(
+                      physics: const NeverScrollableScrollPhysics(),
+                      shrinkWrap: true,
+                      itemCount: parentsHSDCont.isDateSelected.value &&
+                              parentsHSDCont
+                                  .filteredUpComingMealOrderList.isNotEmpty
+                          ? parentsHSDCont.filteredUpComingMealOrderList.length
+                          : parentsHSDCont.upComingMealOrderList.length,
+                      padding: const EdgeInsets.only(top: 0),
+                      itemBuilder: (context, index) {
+                        return _buildOrderCard(
+                          context,
+                          parentsHSDCont.isDateSelected.value &&
+                                  parentsHSDCont
+                                      .filteredUpComingMealOrderList.isNotEmpty
+                              ? parentsHSDCont
+                                  .filteredUpComingMealOrderList[index]
+                              : parentsHSDCont.upComingMealOrderList[index],
+                        );
+                      },
+                    ),
                 ],
               ),
             );
