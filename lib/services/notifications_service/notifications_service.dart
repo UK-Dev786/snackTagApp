@@ -501,7 +501,38 @@ class NotificationService {
       final data = jsonDecode(payload);
 
       if (data['type'] == 'order_prepared') {
-        Get.toNamed('/order-details', arguments: data['orderId']);
+        // Check if this is a parent notification
+        final userId = data['userId'] ?? FirebaseAuth.instance.currentUser?.uid;
+        if (userId != null) {
+          final userDoc = await FirebaseFirestore.instance
+              .collection('users')
+              .doc(userId)
+              .get();
+
+          if (userDoc.exists &&
+              userDoc.data() != null &&
+              userDoc.data()!['role'] != 'cafeteriaAdmin' &&
+              userDoc.data()!['role'] != 'staff') {
+            // This is a parent, navigate to the parent order preparation details
+            print(
+                "🔄 Parent preparation notification - navigating to parent order preparation details");
+            Get.toNamed(
+              '/parent-order-preparation-details',
+              arguments: {
+                'orderId': data['orderId'],
+                'preparedBy': data['preparedBy'] ?? 'Staff',
+                'childName': data['childName'] ?? 'Student',
+                'childImageUrl': data['childImageUrl'],
+              },
+            );
+          } else {
+            // This is a staff or cafe owner, navigate to the regular order details
+            Get.toNamed('/order-details', arguments: data['orderId']);
+          }
+        } else {
+          // Fallback to regular order details
+          Get.toNamed('/order-details', arguments: data['orderId']);
+        }
       } else if (data['type'] == 'order_delivered') {
         // Check if this is a cafe owner notification
         final userId = data['userId'] ?? FirebaseAuth.instance.currentUser?.uid;

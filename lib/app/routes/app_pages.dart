@@ -142,6 +142,8 @@ import '../modules/cafe_owner_order_delivery_details/bindings/cafe_owner_order_d
 import '../modules/cafe_owner_order_delivery_details/views/cafe_owner_order_delivery_details_view.dart';
 import '../modules/parent_order_delivery_details/bindings/parent_order_delivery_details_binding.dart';
 import '../modules/parent_order_delivery_details/views/parent_order_delivery_details_view.dart';
+import '../modules/parent_order_preparation_details/bindings/parent_order_preparation_details_binding.dart';
+import '../modules/parent_order_preparation_details/views/parent_order_preparation_details_view.dart';
 
 part 'app_routes.dart';
 
@@ -533,6 +535,12 @@ class AppPages {
       name: _Paths.PARENT_ORDER_DELIVERY_DETAILS,
       page: () => const ParentOrderDeliveryDetailsView(),
       binding: ParentOrderDeliveryDetailsBinding(),
+      transition: Transition.fadeIn,
+    ),
+    GetPage(
+      name: _Paths.PARENT_ORDER_PREPARATION_DETAILS,
+      page: () => const ParentOrderPreparationDetailsView(),
+      binding: ParentOrderPreparationDetailsBinding(),
       transition: Transition.fadeIn,
     ),
   ];

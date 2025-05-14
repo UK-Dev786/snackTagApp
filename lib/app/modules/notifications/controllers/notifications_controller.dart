@@ -322,9 +322,48 @@ class NotificationsController extends GetxController {
       switch (notification.type) {
         case 'order_prepared':
           print(
-              "🔄 Navigating to order details with ID: ${notification.data['orderId']}");
-          Get.toNamed('/order-details',
-              arguments: notification.data['orderId']);
+              "🔄 Navigating to order preparation details with ID: ${notification.data['orderId']}");
+
+          // Check if this is a parent notification by checking the user type
+          final firebaseUser = FirebaseAuth.instance.currentUser;
+          String userType = '';
+
+          if (firebaseUser != null) {
+            try {
+              // Get user document from Firestore
+              DocumentSnapshot<Map<String, dynamic>> userDoc = await _firestore
+                  .collection('users')
+                  .doc(firebaseUser.uid)
+                  .get();
+
+              if (userDoc.exists && userDoc.data() != null) {
+                userType = userDoc.data()?['role'] ?? '';
+                print(
+                    "User role for preparation notification handling: $userType");
+              }
+            } catch (e) {
+              print("Error getting user role: $e");
+            }
+          }
+
+          if (userType != 'cafeteriaAdmin' && userType != 'staff') {
+            // This is a parent, navigate to the parent order preparation details
+            print(
+                "🔄 Parent preparation notification - navigating to parent order preparation details");
+            Get.toNamed(
+              '/parent-order-preparation-details',
+              arguments: {
+                'orderId': notification.data['orderId'],
+                'preparedBy': notification.data['preparedBy'] ?? 'Staff',
+                'childName': notification.data['childName'] ?? 'Student',
+                'childImageUrl': notification.data['childImageUrl'],
+              },
+            );
+          } else {
+            // This is a staff or cafe owner, navigate to the regular order details
+            Get.toNamed('/order-details',
+                arguments: notification.data['orderId']);
+          }
           break;
         case 'order_delivered':
           print(
@@ -428,6 +467,7 @@ class NotificationsController extends GetxController {
       data: {
         'orderId': orderId,
         'preparedBy': preparedBy,
+        'childName': childName, // Include child name in notification data
         'childImageUrl':
             childImageUrl, // Include child image URL in notification data
       },
@@ -463,6 +503,7 @@ class NotificationsController extends GetxController {
       data: {
         'orderId': orderId,
         'deliveredBy': deliveredBy,
+        'childName': childName, // Include child name in notification data
         'childImageUrl':
             childImageUrl, // Include child image URL in notification data
       },

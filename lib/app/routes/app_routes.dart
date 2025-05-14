@@ -83,6 +83,10 @@ abstract class Routes {
   static const PARENTS_ORDERS_HISTORY = _Paths.PARENTS_ORDERS_HISTORY;
   static const CAFE_OWNER_ORDER_DELIVERY_DETAILS =
       _Paths.CAFE_OWNER_ORDER_DELIVERY_DETAILS;
+  static const PARENT_ORDER_DELIVERY_DETAILS =
+      _Paths.PARENT_ORDER_DELIVERY_DETAILS;
+  static const PARENT_ORDER_PREPARATION_DETAILS =
+      _Paths.PARENT_ORDER_PREPARATION_DETAILS;
 }
 
 abstract class _Paths {
@@ -162,4 +166,6 @@ abstract class _Paths {
   static const CAFE_OWNER_ORDER_DELIVERY_DETAILS =
       '/cafe-owner-order-delivery-details';
   static const PARENT_ORDER_DELIVERY_DETAILS = '/parent-order-delivery-details';
+  static const PARENT_ORDER_PREPARATION_DETAILS =
+      '/parent-order-preparation-details';
 }
