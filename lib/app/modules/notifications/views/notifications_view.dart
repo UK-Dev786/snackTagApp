@@ -224,9 +224,88 @@ class NotificationItem extends StatelessWidget {
       children: [
         InkWell(
           onTap: () {
-            // Call the controller's handleNotificationTap method
-            Get.find<NotificationsController>()
-                .handleNotificationTap(notification);
+            // Check if this is a low_balance notification
+            if (notification.type == 'low_balance') {
+              // Show a friendly popup instead of navigating
+              Get.dialog(
+                AlertDialog(
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(15),
+                  ),
+                  title: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        'Low Balance Alert',
+                        style: AppTextStyles.MetropolisBold.copyWith(
+                          color: Colors.red[700],
+                        ),
+                      ),
+                      IconButton(
+                        icon: Icon(Icons.close, color: Colors.grey[600]),
+                        onPressed: () => Get.back(),
+                        padding: EdgeInsets.zero,
+                        constraints: BoxConstraints(),
+                      ),
+                    ],
+                  ),
+                  content: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(
+                        Icons.account_balance_wallet,
+                        size: 50,
+                        color: Colors.amber,
+                      ),
+                      SizedBox(height: 15),
+                      Text(
+                        'Your wallet balance is insufficient for meal orders.',
+                        style: AppTextStyles.MetropolisRegular,
+                        textAlign: TextAlign.center,
+                      ),
+                      SizedBox(height: 10),
+                      Text(
+                        'Please add funds to your wallet to continue placing orders.',
+                        style: AppTextStyles.MetropolisRegular,
+                        textAlign: TextAlign.center,
+                      ),
+                      SizedBox(height: 20),
+                      ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.green,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          minimumSize: Size(double.infinity, 45),
+                        ),
+                        onPressed: () {
+                          Get.back();
+                          // Navigate to wallet with required amount
+                          Get.toNamed('/wallet', arguments: {
+                            'showTopUp': true,
+                            'requiredAmount':
+                                notification.data['requiredAmount'] ?? 0,
+                          });
+                        },
+                        child: Text(
+                          'Add Funds Now',
+                          style: AppTextStyles.MetropolisBold.copyWith(
+                            color: Colors.white,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  contentPadding: EdgeInsets.fromLTRB(20, 20, 20, 25),
+                  actionsPadding: EdgeInsets.zero,
+                  actions: [],
+                ),
+              );
+            } else {
+              // For all other notification types, use the normal handler
+              Get.find<NotificationsController>()
+                  .handleNotificationTap(notification);
+            }
           },
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16),

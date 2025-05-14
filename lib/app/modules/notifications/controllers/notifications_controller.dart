@@ -430,11 +430,9 @@ class NotificationsController extends GetxController {
           break;
         case 'low_balance':
           print(
-              "🔄 Navigating to wallet with required amount: ${notification.data['requiredAmount']}");
-          Get.toNamed('/wallet', arguments: {
-            'showTopUp': true,
-            'requiredAmount': notification.data['requiredAmount'] ?? 0,
-          });
+              "🔄 Low balance notification tapped - showing dialog instead of direct navigation");
+          // We'll handle this in the NotificationItem widget instead
+          // This case is now handled in the view to show a dialog first
           break;
         case 'new_message':
           print(

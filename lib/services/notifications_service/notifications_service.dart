@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:get/get.dart';
@@ -174,10 +175,43 @@ class NotificationService {
         });
         break;
       case 'low_balance':
-        Get.toNamed('/wallet', arguments: {
-          'showTopUp': true,
-          'requiredAmount': double.parse(message.data['requiredAmount'] ?? '0'),
-        });
+        // Show a dialog instead of direct navigation
+        Get.dialog(
+          AlertDialog(
+            title: Text('Low Balance Alert'),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Your wallet balance is insufficient for meal orders.',
+                ),
+                SizedBox(height: 10),
+                Text(
+                  'Please add funds to your wallet to continue placing orders.',
+                ),
+              ],
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Get.back(),
+                child: Text('Close'),
+              ),
+              TextButton(
+                onPressed: () {
+                  Get.back();
+                  // Navigate to wallet with required amount
+                  Get.toNamed('/wallet', arguments: {
+                    'showTopUp': true,
+                    'requiredAmount':
+                        double.parse(message.data['requiredAmount'] ?? '0'),
+                  });
+                },
+                child: Text('Add Funds'),
+              ),
+            ],
+          ),
+        );
         break;
       case 'new_message':
         Get.toNamed('/chat', arguments: message.data['chatId']);
