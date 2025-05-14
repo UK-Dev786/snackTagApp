@@ -243,7 +243,7 @@ class NotificationItem extends StatelessWidget {
                       ),
                       IconButton(
                         icon: Icon(Icons.close, color: Colors.grey[600]),
-                        onPressed: () => Get.back(),
+                        onPressed: () => Navigator.pop(context),
                         padding: EdgeInsets.zero,
                         constraints: BoxConstraints(),
                       ),
@@ -272,23 +272,24 @@ class NotificationItem extends StatelessWidget {
                       SizedBox(height: 20),
                       ElevatedButton(
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.green,
+                          backgroundColor: Colors.red,
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(10),
                           ),
                           minimumSize: Size(double.infinity, 45),
                         ),
                         onPressed: () {
-                          Get.back();
+                          Navigator.pop(context);
+                          // Get.back();
                           // Navigate to wallet with required amount
-                          Get.toNamed('/wallet', arguments: {
-                            'showTopUp': true,
-                            'requiredAmount':
-                                notification.data['requiredAmount'] ?? 0,
-                          });
+                          // Get.toNamed('/wallet', arguments: {
+                          //   'showTopUp': true,
+                          //   'requiredAmount':
+                          //       notification.data['requiredAmount'] ?? 0,
+                          // });
                         },
                         child: Text(
-                          'Add Funds Now',
+                          'Close',
                           style: AppTextStyles.MetropolisBold.copyWith(
                             color: Colors.white,
                           ),
