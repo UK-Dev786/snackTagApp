@@ -14,6 +14,8 @@ module.exports = {
     "no-restricted-globals": ["error", "name", "length"],
     "prefer-arrow-callback": "error",
     "quotes": ["error", "double", {"allowTemplateLiterals": true}],
+    "linebreak-style": "off", // Disable linebreak style checking
+    "max-len": ["error", {code: 100}], // Increase max line length
   },
   overrides: [
     {

@@ -87,10 +87,13 @@ class StaffOrderPreparationService {
         'orderDeliveredTime': DateTime.now().toIso8601String(),
         'startPreparation': false,
         'orderDeliveredBy': deliveredBy,
-        'staffOrderDeliveredId': staffId,  // Store staff ID properly
+        'staffOrderDeliveredId': staffId, // Store staff ID properly
       };
-      
-      await _firestore.collection('orderPreparation').doc(orderId).update(updateData);
+
+      await _firestore
+          .collection('orderPreparation')
+          .doc(orderId)
+          .update(updateData);
       print("✅ Order marked as delivered: $orderId by staff: $staffId");
       return true;
     } catch (e) {
@@ -132,7 +135,7 @@ class StaffOrderPreparationService {
         await _firestore.collection('orderPreparation').doc(orderId).update({
           'paymentDetails.payoutLogs': FieldValue.arrayUnion([
             {
-              'timestamp': FieldValue.serverTimestamp(),
+              'timestamp': DateTime.now().toIso8601String(),
               'status': 'error',
               'message': 'Cafeteria admin user document not found',
             }
@@ -145,6 +148,29 @@ class StaffOrderPreparationService {
       final userData = userDoc.data()!;
       final stripeAccountId = userData['stripeAccountId'];
 
+      // Log user data to check country and other account details
+      print("🏦 Cafeteria user data: ${userData.toString()}");
+      print("🌎 Cafeteria country: ${userData['country'] ?? 'Not specified'}");
+      print("💳 Stripe account ID: $stripeAccountId");
+
+      // Check if Stripe onboarding is complete
+      final bool stripeOnboardingComplete =
+          userData['stripeOnboardingComplete'] ?? false;
+      print("✅ Stripe onboarding complete: $stripeOnboardingComplete");
+
+      // Check when the Stripe account was created
+      final dynamic stripeAccountCreatedAt = userData['stripeAccountCreatedAt'];
+      print("📅 Stripe account created at: $stripeAccountCreatedAt");
+
+      // Check when onboarding was completed
+      final dynamic stripeOnboardingDate = userData['stripeOnboardingDate'];
+      print("📅 Stripe onboarding completed at: $stripeOnboardingDate");
+
+      // Log additional details that might be useful
+      print(
+          "🔍 Cafeteria name: ${userData['cafeteriaName'] ?? 'Not specified'}");
+      print("🏫 School name: ${userData['schoolName'] ?? 'Not specified'}");
+
       if (stripeAccountId == null) {
         print("❌ No Stripe account ID found for cafeteria admin: $cafeteriaId");
 
@@ -152,7 +178,7 @@ class StaffOrderPreparationService {
         await _firestore.collection('orderPreparation').doc(orderId).update({
           'paymentDetails.payoutLogs': FieldValue.arrayUnion([
             {
-              'timestamp': FieldValue.serverTimestamp(),
+              'timestamp': DateTime.now().toIso8601String(),
               'status': 'error',
               'message': 'No Stripe account ID found for cafeteria admin',
             }
@@ -173,7 +199,7 @@ class StaffOrderPreparationService {
       await _firestore.collection('orderPreparation').doc(orderId).update({
         'paymentDetails.payoutLogs': FieldValue.arrayUnion([
           {
-            'timestamp': FieldValue.serverTimestamp(),
+            'timestamp': DateTime.now().toIso8601String(),
             'status': 'processing',
             'message': 'Processing payout',
             'amount': amount,
@@ -185,9 +211,20 @@ class StaffOrderPreparationService {
 
       // Call the payout cloud function
       final cloudFunctionsService = Get.find<CloudFunctionsService>();
+
+      // Check the parameter names to match what the cloud function expects
+      // The cloud function expects 'amount' and 'stripeAccountId' (or 'stripe_account_id')
+      print("🔄 Calling payout function with parameters:");
+      print("💰 Amount in cents: $amountInCents");
+      print("🏦 Stripe account ID: $stripeAccountId");
+
+      // Use the parameter names exactly as expected by the cloud function
+      // Looking at index.js, the function expects 'amount' and 'stripe_account_id' or 'stripeAccountId'
+      // Let's try both formats to ensure compatibility
       final response = await cloudFunctionsService.callFunction('payout', {
         'amount': amountInCents,
         'stripeAccountId': stripeAccountId,
+        'stripe_account_id': stripeAccountId, // Add this as a fallback
       });
 
       if (response != null && response['data'] != null) {
@@ -198,7 +235,7 @@ class StaffOrderPreparationService {
         await _firestore.collection('orderPreparation').doc(orderId).update({
           'paymentDetails.payoutLogs': FieldValue.arrayUnion([
             {
-              'timestamp': FieldValue.serverTimestamp(),
+              'timestamp': DateTime.now().toIso8601String(),
               'status': 'success',
               'message': 'Payout processed successfully',
               'response': response['data'],
@@ -215,7 +252,7 @@ class StaffOrderPreparationService {
         await _firestore.collection('orderPreparation').doc(orderId).update({
           'paymentDetails.payoutLogs': FieldValue.arrayUnion([
             {
-              'timestamp': FieldValue.serverTimestamp(),
+              'timestamp': DateTime.now().toIso8601String(),
               'status': 'failed',
               'message': 'Failed to process payout',
               'response': response,
@@ -232,7 +269,7 @@ class StaffOrderPreparationService {
       await _firestore.collection('orderPreparation').doc(orderId).update({
         'paymentDetails.payoutLogs': FieldValue.arrayUnion([
           {
-            'timestamp': FieldValue.serverTimestamp(),
+            'timestamp': DateTime.now().toIso8601String(),
             'status': 'error',
             'message': 'Error processing payout',
             'error': e.toString(),
@@ -307,7 +344,7 @@ class StaffOrderPreparationService {
 
         await _firestore.collection('parentsChildren').doc(docId).update({
           'monthlyExpenditures': newExpenditures,
-          'lastUpdated': FieldValue.serverTimestamp()
+          'lastUpdated': DateTime.now().toIso8601String()
         });
 
         print(
@@ -326,7 +363,7 @@ class StaffOrderPreparationService {
 
           await childRef.update({
             'monthlyExpenditures': newExpenditures,
-            'lastUpdated': FieldValue.serverTimestamp()
+            'lastUpdated': DateTime.now().toIso8601String()
           });
 
           print(
@@ -354,38 +391,39 @@ class StaffOrderPreparationService {
           .where('delivered', isEqualTo: true)
           .get();
 
-      print("📦 Fetched ${snapshot.docs.length} total delivered orders for cafeteria");
+      print(
+          "📦 Fetched ${snapshot.docs.length} total delivered orders for cafeteria");
 
       // Filter the results in memory instead of in the query
       List<ParentsAddChildren> orders = [];
       for (var doc in snapshot.docs) {
         try {
           Map<String, dynamic> data = doc.data();
-          
+
           // Check status
           if (data['status'] != 'Delivered') {
             continue;
           }
-          
+
           // Check delivery time
           String? deliveryTime = data['orderDeliveredTime'];
           if (deliveryTime == null) {
             continue;
           }
-          
+
           // Check if within date range
-          if (deliveryTime.compareTo(startDateStr) < 0 || 
+          if (deliveryTime.compareTo(startDateStr) < 0 ||
               deliveryTime.compareTo(endDateStr) > 0) {
             continue;
           }
-          
+
           // If we got here, the order matches all our criteria
           orders.add(ParentsAddChildren.fromJson(data));
         } catch (e) {
           print("❌ Error parsing order data: $e");
         }
       }
-      
+
       // Sort the results manually (descending by delivery time)
       orders.sort((a, b) {
         String timeA = a.orderDeliveredTime ?? '';
@@ -393,55 +431,55 @@ class StaffOrderPreparationService {
         return timeB.compareTo(timeA); // Descending order
       });
 
-      print("📦 Filtered to ${orders.length} delivered orders within date range");
+      print(
+          "📦 Filtered to ${orders.length} delivered orders within date range");
       return orders;
     } catch (e) {
       print("❌ Error fetching delivered orders for date range: $e");
-      
+
       // Try an even simpler approach if the first one fails
       try {
         print("🔄 Trying alternative approach to fetch orders");
-        
+
         // Just get all orders for the cafeteria
         QuerySnapshot<Map<String, dynamic>> snapshot = await _firestore
             .collection('orderPreparation')
             .where('cafeteriaName', isEqualTo: cafeteriaName)
             .get();
-        
+
         List<ParentsAddChildren> orders = [];
         for (var doc in snapshot.docs) {
           try {
             Map<String, dynamic> data = doc.data();
-            
+
             // Apply all filters in memory
-            if (data['delivered'] != true || 
-                data['status'] != 'Delivered') {
+            if (data['delivered'] != true || data['status'] != 'Delivered') {
               continue;
             }
-            
+
             String? deliveryTime = data['orderDeliveredTime'];
             if (deliveryTime == null) {
               continue;
             }
-            
-            if (deliveryTime.compareTo(startDateStr) < 0 || 
+
+            if (deliveryTime.compareTo(startDateStr) < 0 ||
                 deliveryTime.compareTo(endDateStr) > 0) {
               continue;
             }
-            
+
             orders.add(ParentsAddChildren.fromJson(data));
           } catch (e) {
             print("❌ Error parsing order data: $e");
           }
         }
-        
+
         // Sort manually
         orders.sort((a, b) {
           String timeA = a.orderDeliveredTime ?? '';
           String timeB = b.orderDeliveredTime ?? '';
           return timeB.compareTo(timeA);
         });
-        
+
         print("📦 Alternative approach found ${orders.length} orders");
         return orders;
       } catch (fallbackError) {

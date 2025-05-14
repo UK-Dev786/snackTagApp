@@ -68,6 +68,14 @@ class CloudFunctionsService {
       _log('Calling function $functionName with data: $data');
       _log('URL: $_baseUrl/$functionName');
 
+      // Add more detailed logging for payout function
+      if (functionName == 'payout') {
+        print('🔍 PAYOUT DETAILS:');
+        print('💰 Amount: ${data['amount']}');
+        print('🏦 Stripe Account ID: ${data['stripeAccountId']}');
+        print('🌎 Base URL: $_baseUrl');
+      }
+
       final response = await http.post(
         Uri.parse('$_baseUrl/$functionName'),
         headers: {'Content-Type': 'application/json'},
@@ -76,6 +84,55 @@ class CloudFunctionsService {
 
       _log('Response status code: ${response.statusCode}');
       _log('Response body: ${response.body}');
+
+      // Add more detailed logging for payout response
+      if (functionName == 'payout') {
+        print('📊 PAYOUT RESPONSE:');
+        print('🔢 Status code: ${response.statusCode}');
+        print('📄 Response body: ${response.body}');
+
+        // Try to parse and log the response details
+        try {
+          final responseData = jsonDecode(response.body);
+          print('📋 Parsed response: $responseData');
+
+          if (responseData['data'] != null) {
+            print('✅ Payout data: ${responseData['data']}');
+          } else if (responseData['error'] != null) {
+            print('❌ Payout error: ${responseData['error']}');
+            print(
+                '❌ Error details: ${responseData['details'] ?? 'No details provided'}');
+
+            // Log additional details if available
+            if (responseData['country'] != null) {
+              print('🌎 Account country: ${responseData['country']}');
+            }
+
+            if (responseData['detailsSubmitted'] != null) {
+              print(
+                  '📝 Account details submitted: ${responseData['detailsSubmitted']}');
+            }
+
+            if (responseData['missingRequirements'] != null) {
+              print('⚠️ Missing requirements:');
+              final requirements = responseData['missingRequirements'];
+              if (requirements is List) {
+                for (var i = 0; i < requirements.length; i++) {
+                  print('  ${i + 1}. ${requirements[i]}');
+                }
+              } else {
+                print('  $requirements');
+              }
+            }
+
+            if (responseData['capabilities'] != null) {
+              print('🔑 Account capabilities: ${responseData['capabilities']}');
+            }
+          }
+        } catch (e) {
+          print('❌ Error parsing payout response: $e');
+        }
+      }
 
       if (response.statusCode != 200) {
         throw Exception('Function call failed: ${response.body}');
@@ -89,6 +146,13 @@ class CloudFunctionsService {
       }
     } catch (e) {
       _log('Error calling function $functionName: $e');
+
+      // Add more detailed error logging for payout
+      if (functionName == 'payout') {
+        print('❌ PAYOUT ERROR: $e');
+        print('📝 Error type: ${e.runtimeType}');
+      }
+
       throw Exception('Failed to call function $functionName: $e');
     }
   }

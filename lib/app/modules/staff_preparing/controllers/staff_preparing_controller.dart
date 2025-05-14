@@ -1,4 +1,4 @@
-import 'dart:ffi';
+import 'dart:convert'; // Import for json
 
 import 'package:get/get.dart';
 import 'package:snacktag/app/modules/staff_history/controllers/staff_history_controller.dart';
@@ -212,8 +212,7 @@ class StaffOrderPreparingController extends GetxController {
                 print("📄 App Settings data: ${appSettingsDoc.data()}");
               }
 
-              var rawCommissionData =
-                  appSettingsDoc.data()! as Map<String, dynamic>;
+              var rawCommissionData = appSettingsDoc.data()!;
               print("📊 Raw commission data: $rawCommissionData");
 
               // Extract the snackTagCommission value
@@ -256,6 +255,8 @@ class StaffOrderPreparingController extends GetxController {
               print("💰 Payout amount: $payoutAmount");
 
               // Make sure paymentDetails is a valid Firestore map
+              // Use ISO string for timestamps instead of FieldValue.serverTimestamp()
+              // as the latter can only be used directly with set() and update()
               Map<String, dynamic> paymentDetails = {
                 'paymentProcessed': true,
                 'paymentDetails': {
@@ -263,7 +264,7 @@ class StaffOrderPreparingController extends GetxController {
                   'commissionPercentage': commissionPercentage,
                   'commissionAmount': commissionAmount,
                   'payoutAmount': payoutAmount,
-                  'processedAt': FieldValue.serverTimestamp(),
+                  'processedAt': DateTime.now().toIso8601String(),
                   'processedBy': staffData.value!.staffName,
                   'status': 'processing'
                 }
@@ -291,7 +292,7 @@ class StaffOrderPreparingController extends GetxController {
                     .update({
                   'paymentDetails.status': 'completed',
                   'paymentDetails.payoutCompletedAt':
-                      FieldValue.serverTimestamp(),
+                      DateTime.now().toIso8601String(),
                   'paymentDetails.payoutResponse': 'success'
                 });
 
@@ -315,7 +316,8 @@ class StaffOrderPreparingController extends GetxController {
                     .doc(orderId)
                     .update({
                   'paymentDetails.status': 'failed',
-                  'paymentDetails.payoutFailedAt': FieldValue.serverTimestamp(),
+                  'paymentDetails.payoutFailedAt':
+                      DateTime.now().toIso8601String(),
                   'paymentDetails.payoutResponse': 'failed'
                 });
 
@@ -336,20 +338,73 @@ class StaffOrderPreparingController extends GetxController {
             } catch (e) {
               print("❌ Error processing commission and payout: $e");
 
-              // Update payment status to error
+              // Try to extract more detailed error information
+              String errorMessage =
+                  'Order delivered but payment processing encountered an error';
+              Map<String, dynamic> errorDetails = {
+                'error': e.toString(),
+                'timestamp': DateTime.now().toIso8601String()
+              };
+
+              // Check if the error contains Stripe account information
+              if (e.toString().contains("Account not enabled for payouts")) {
+                try {
+                  // Try to parse the error message to extract more details
+                  final errorString = e.toString();
+                  final jsonStart = errorString.indexOf('{');
+                  final jsonEnd = errorString.lastIndexOf('}') + 1;
+
+                  if (jsonStart >= 0 && jsonEnd > jsonStart) {
+                    final jsonString =
+                        errorString.substring(jsonStart, jsonEnd);
+                    final errorData = json.decode(jsonString);
+
+                    // Extract detailed information
+                    if (errorData['missingRequirements'] != null) {
+                      final requirements = errorData['missingRequirements'];
+                      if (requirements is List && requirements.isNotEmpty) {
+                        errorMessage =
+                            'Stripe account setup incomplete: ${requirements.join(", ")}';
+                        errorDetails['missingRequirements'] = requirements;
+                      }
+                    }
+
+                    // Add country information if available
+                    if (errorData['country'] != null) {
+                      errorDetails['country'] = errorData['country'];
+                    }
+
+                    // Add capabilities information if available
+                    if (errorData['capabilities'] != null) {
+                      errorDetails['capabilities'] = errorData['capabilities'];
+                    }
+                  }
+                } catch (parseError) {
+                  print(
+                      "❌ Error parsing detailed error information: $parseError");
+                }
+
+                // Update the error message to be more helpful
+                errorMessage =
+                    'Stripe account setup incomplete. Please complete the account setup in the Stripe dashboard and ensure the "transfers" capability is enabled.';
+              }
+
+              // Update payment status to error with detailed information
               await _firestore
                   .collection('orderPreparation')
                   .doc(orderId)
                   .update({
                 'paymentDetails.status': 'error',
                 'paymentDetails.error': e.toString(),
-                'paymentDetails.errorAt': FieldValue.serverTimestamp()
+                'paymentDetails.errorDetails': errorDetails,
+                'paymentDetails.errorAt': DateTime.now().toIso8601String()
               });
 
               Get.snackbar(
                 'Warning',
-                'Order delivered but payment processing encountered an error',
+                errorMessage,
                 snackPosition: SnackPosition.TOP,
+                duration: Duration(seconds: 5),
               );
             }
           } else {
@@ -441,7 +496,7 @@ class StaffOrderPreparingController extends GetxController {
 
       await _notificationService.sendNotification(
         userId: parentId,
-        title: '$childName',
+        title: childName,
         // body:
         //     'received ${getMealTimeFromOrder(orderDetails)} meal from ${cafeteriaName ?? "cafeteria"}',
         body: 'received ${getMealTimeFromOrder(orderDetails)} meal',
