@@ -54,7 +54,7 @@ class ParentsHistorySelectDateView
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   TableCalendar(
-                    firstDay: DateTime.utc(2020, 1, 1),
+                    firstDay: DateTime.now(), // Start from today
                     lastDay: DateTime.utc(2030, 12, 31),
                     focusedDay:
                         parentsHSDCont.selectedDate.value, // Use selected date
@@ -64,6 +64,13 @@ class ParentsHistorySelectDateView
                               day, parentsHSDCont.selectedDate.value);
                     },
                     onDaySelected: parentsHSDCont.onDaySelected,
+                    enabledDayPredicate: (day) {
+                      // Only enable today and future dates
+                      final now = DateTime.now();
+                      final today = DateTime(now.year, now.month, now.day);
+                      final dayDate = DateTime(day.year, day.month, day.day);
+                      return !dayDate.isBefore(today);
+                    },
                     calendarBuilders: CalendarBuilders(
                       defaultBuilder: (context, day, focusedDay) {
                         String hasMealToday =
@@ -114,48 +121,142 @@ class ParentsHistorySelectDateView
                             parentsHSDCont.isSameDay(
                                 day, parentsHSDCont.selectedDate.value);
 
-                        return Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Container(
-                              padding: const EdgeInsets.symmetric(
-                                  vertical: 6.0, horizontal: 10.0),
-                              decoration: BoxDecoration(
-                                gradient: const LinearGradient(
-                                  colors: [
-                                    AppColors.gradientEndColor,
-                                    AppColors.gradientStartColor
-                                  ],
-                                  begin: Alignment.topRight,
-                                  end: Alignment.bottomLeft,
-                                ),
-                                borderRadius: BorderRadius.circular(
-                                    8.0), // Rounded corners
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: Colors.grey.withOpacity(0.2),
-                                    blurRadius: 2,
-                                    spreadRadius: 1,
-                                    offset: const Offset(0, 3),
-                                  ),
-                                ],
-                                border: isSelected
-                                    ? Border.all(
-                                        color: Colors.white,
-                                        width: 2.0,
-                                      )
-                                    : null,
-                              ),
-                              child: Column(
-                                children: [
-                                  Text(
-                                    '${day.day}', // Display the day number
-                                    style: AppTextStyles.RobotoBold.copyWith(
-                                      fontSize: 16,
+                        // If today is selected or another date is selected, use the selected style
+                        if (parentsHSDCont.isDateSelected.value) {
+                          // If today is the selected date, show it with gradient and border
+                          if (isSelected) {
+                            return Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Container(
+                                  padding: const EdgeInsets.symmetric(
+                                      vertical: 6.0, horizontal: 10.0),
+                                  decoration: BoxDecoration(
+                                    gradient: const LinearGradient(
+                                      colors: [
+                                        AppColors.gradientEndColor,
+                                        AppColors.gradientStartColor
+                                      ],
+                                      begin: Alignment.topRight,
+                                      end: Alignment.bottomLeft,
+                                    ),
+                                    borderRadius: BorderRadius.circular(8.0),
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: Colors.grey.withOpacity(0.2),
+                                        blurRadius: 2,
+                                        spreadRadius: 1,
+                                        offset: const Offset(0, 3),
+                                      ),
+                                    ],
+                                    border: Border.all(
                                       color: Colors.white,
+                                      width: 2.0,
                                     ),
                                   ),
-                                  Text(
+                                  child: Column(
+                                    children: [
+                                      Text(
+                                        '${day.day}',
+                                        style:
+                                            AppTextStyles.RobotoBold.copyWith(
+                                          fontSize: 16,
+                                          color: Colors.white,
+                                        ),
+                                      ),
+                                      Text(
+                                        [
+                                          'SUN',
+                                          'MON',
+                                          'TUE',
+                                          'WED',
+                                          'THU',
+                                          'FRI',
+                                          'SAT'
+                                        ][day.weekday % 7],
+                                        style:
+                                            AppTextStyles.RobotoLight.copyWith(
+                                          fontSize: 12,
+                                          color: Colors.white,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            );
+                          } else {
+                            // Today is not selected, but another date is selected
+                            // Show today without gradient, just as a regular day
+                            String hasMealToday =
+                                parentsHSDCont.checkIfDateHasMeal(day);
+                            return Center(
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(
+                                        vertical: 4.0, horizontal: 6.0),
+                                    child: Text(
+                                      '${day.day}',
+                                      style:
+                                          AppTextStyles.RobotoRegular.copyWith(
+                                        fontSize: 13,
+                                        color: const Color(0xFF2E2E2E),
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ),
+                                  if (hasMealToday.isNotEmpty)
+                                    Container(
+                                      width: 5,
+                                      height: 5,
+                                      decoration: const BoxDecoration(
+                                        color: AppColors.gradientEndColor,
+                                        shape: BoxShape.circle,
+                                      ),
+                                    ),
+                                ],
+                              ),
+                            );
+                          }
+                        } else {
+                          // No date is selected, show today with gradient
+                          return Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Container(
+                                padding: const EdgeInsets.symmetric(
+                                    vertical: 6.0, horizontal: 10.0),
+                                decoration: BoxDecoration(
+                                  gradient: const LinearGradient(
+                                    colors: [
+                                      AppColors.gradientEndColor,
+                                      AppColors.gradientStartColor
+                                    ],
+                                    begin: Alignment.topRight,
+                                    end: Alignment.bottomLeft,
+                                  ),
+                                  borderRadius: BorderRadius.circular(8.0),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: Colors.grey.withOpacity(0.2),
+                                      blurRadius: 2,
+                                      spreadRadius: 1,
+                                      offset: const Offset(0, 3),
+                                    ),
+                                  ],
+                                ),
+                                child: Column(
+                                  children: [
+                                    Text(
+                                      '${day.day}',
+                                      style: AppTextStyles.RobotoBold.copyWith(
+                                        fontSize: 16,
+                                        color: Colors.white,
+                                      ),
+                                    ),
+                                    Text(
                                       [
                                         'SUN',
                                         'MON',
@@ -164,16 +265,18 @@ class ParentsHistorySelectDateView
                                         'THU',
                                         'FRI',
                                         'SAT'
-                                      ][day.weekday % 7], // Display weekday
+                                      ][day.weekday % 7],
                                       style: AppTextStyles.RobotoLight.copyWith(
                                         fontSize: 12,
                                         color: Colors.white,
-                                      )),
-                                ],
+                                      ),
+                                    ),
+                                  ],
+                                ),
                               ),
-                            ),
-                          ],
-                        );
+                            ],
+                          );
+                        }
                       },
                     ),
                     calendarStyle: CalendarStyle(
@@ -296,7 +399,7 @@ class ParentsHistorySelectDateView
                                 'Show all upcoming orders',
                                 style: AppTextStyles.PoppinsMedium.copyWith(
                                   fontSize: 14,
-                                  color: AppColors.gradientEndColor,
+                                  color: AppColors.blackColor,
                                 ),
                               ),
                             ),

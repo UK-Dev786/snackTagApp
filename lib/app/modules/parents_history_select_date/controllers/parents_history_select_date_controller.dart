@@ -89,7 +89,17 @@ class ParentsHistorySelectDateController extends GetxController {
   }
 
   String checkIfDateHasMeal(DateTime day) {
+    // Normalize today's date for comparison
     DateTime today = DateTime.now();
+    DateTime normalizedToday = DateTime(today.year, today.month, today.day);
+
+    // Normalize the day parameter for comparison
+    DateTime normalizedDay = DateTime(day.year, day.month, day.day);
+
+    // Only check for meals on today or future dates
+    if (normalizedDay.isBefore(normalizedToday)) {
+      return ""; // No meal indicator for past dates
+    }
 
     for (var child in childrenList) {
       if (child.selectedMealMenuData == null ||
@@ -106,8 +116,6 @@ class ParentsHistorySelectDateController extends GetxController {
         continue;
       }
 
-      day = DateTime(day.year, day.month, day.day);
-
       for (var mealData in child.selectedMealMenuData!) {
         var schedule = mealData.schedule;
 
@@ -119,35 +127,35 @@ class ParentsHistorySelectDateController extends GetxController {
           continue;
         }
 
-        String currentDayName = DateFormat('EEEE').format(day);
+        String currentDayName = DateFormat('EEEE').format(normalizedDay);
         List<String> scheduledDays =
             schedule.repeatOn!.map((d) => d.trim()).toList();
 
         bool isDayScheduled = scheduledDays.contains(currentDayName);
 
-        if (isDayScheduled && day.compareTo(orderDate) >= 0) {
+        if (isDayScheduled && normalizedDay.compareTo(orderDate) >= 0) {
           int repeatCount = int.tryParse(schedule.repeatCount!) ?? 1;
 
           if (schedule.repeatEvery == 'week') {
-            int daysSinceStart = day.difference(orderDate).inDays;
+            int daysSinceStart = normalizedDay.difference(orderDate).inDays;
             int weekNumber = daysSinceStart ~/ 7;
             if (weekNumber < repeatCount) {
-              if (day.isAfter(DateTime.now())) {
+              // Show indicator for today and future dates
+              if (normalizedDay.isAtSameMomentAs(normalizedToday) ||
+                  normalizedDay.isAfter(normalizedToday)) {
                 return "✔️ Meal Available •"; // Dot after the current date
               }
             }
-            // if (weekNumber < repeatCount) {
-            //   return day.isAfter(DateTime.now()) ? "✔️ Meal Available •" : "✔️ Meal Available";
-            // }
           } else if (schedule.repeatEvery == 'month') {
             // Calculate months since start, including the initial month
-            int monthsSinceStart = (day.year - orderDate.year) * 12 +
-                (day.month - orderDate.month);
+            int monthsSinceStart = (normalizedDay.year - orderDate.year) * 12 +
+                (normalizedDay.month - orderDate.month);
 
             // Specific check for exact day match and within repeat count
             if (monthsSinceStart >= 0 && monthsSinceStart < repeatCount) {
-              // Ensure the exact day matches the original order date
-              if (day.isAfter(DateTime.now())) {
+              // Show indicator for today and future dates
+              if (normalizedDay.isAtSameMomentAs(normalizedToday) ||
+                  normalizedDay.isAfter(normalizedToday)) {
                 return "✔️ Meal Available •"; // Dot after the current date
               }
             }
@@ -207,6 +215,8 @@ class ParentsHistorySelectDateController extends GetxController {
 
     Map<String, Map<String, dynamic>> mealData = {};
     DateTime today = DateTime.now();
+    // Normalize today to compare only year, month, and day
+    DateTime normalizedToday = DateTime(today.year, today.month, today.day);
     List<DateTime> futureOrderDates = [];
 
     print("🔍 Starting getUpcomingOrders() method");
@@ -241,6 +251,9 @@ class ParentsHistorySelectDateController extends GetxController {
         print("  - Repeat Count: ${schedule.repeatCount}");
         print("  - Repeat On: ${schedule.repeatOn}");
 
+        // Clear futureOrderDates for each meal
+        futureOrderDates = [];
+
         for (int i = 0; i < (int.tryParse(schedule.repeatCount!) ?? 0); i++) {
           DateTime futureDate;
 
@@ -248,6 +261,9 @@ class ParentsHistorySelectDateController extends GetxController {
             // Check all upcoming days in the current week
             for (int j = 0; j < 7; j++) {
               futureDate = orderDate.add(Duration(days: j));
+              // Normalize future date to compare only year, month, and day
+              DateTime normalizedFutureDate =
+                  DateTime(futureDate.year, futureDate.month, futureDate.day);
 
               String futureDayName =
                   DateFormat('EEEE').format(futureDate).toLowerCase();
@@ -259,7 +275,9 @@ class ParentsHistorySelectDateController extends GetxController {
               print("  - Future Day Name: $futureDayName");
               print("  - Scheduled Days: $scheduledDays");
 
-              if (futureDate.isAfter(today) &&
+              // Check if the date is today or in the future
+              if ((normalizedFutureDate.isAtSameMomentAs(normalizedToday) ||
+                      normalizedFutureDate.isAfter(normalizedToday)) &&
                   scheduledDays.contains(futureDayName)) {
                 print("✅ Scheduled Meal Found on $futureDate");
                 futureOrderDates.add(futureDate);
@@ -271,25 +289,30 @@ class ParentsHistorySelectDateController extends GetxController {
               try {
                 futureDate = DateTime(
                     orderDate.year, orderDate.month, orderDate.day + j);
+                // Normalize future date to compare only year, month, and day
+                DateTime normalizedFutureDate =
+                    DateTime(futureDate.year, futureDate.month, futureDate.day);
+
+                String futureDayName =
+                    DateFormat('EEEE').format(futureDate).toLowerCase();
+                List<dynamic> scheduledDays = (schedule.repeatOn ?? [])
+                    .map((d) => d.toString().toLowerCase().trim())
+                    .toList();
+
+                print("\n🕰️ Checking Future Monthday: $futureDate");
+                print("  - Future Day Name: $futureDayName");
+                print("  - Scheduled Days: $scheduledDays");
+
+                // Check if the date is today or in the future
+                if ((normalizedFutureDate.isAtSameMomentAs(normalizedToday) ||
+                        normalizedFutureDate.isAfter(normalizedToday)) &&
+                    scheduledDays.contains(futureDayName)) {
+                  print("✅ Scheduled Meal Found on $futureDate");
+                  futureOrderDates.add(futureDate);
+                  break; // Stop checking once we find a valid date
+                }
               } catch (e) {
                 continue; // Skip invalid dates
-              }
-
-              String futureDayName =
-                  DateFormat('EEEE').format(futureDate).toLowerCase();
-              List<dynamic> scheduledDays = (schedule.repeatOn ?? [])
-                  .map((d) => d.toString().toLowerCase().trim())
-                  .toList();
-
-              print("\n🕰️ Checking Future Monthday: $futureDate");
-              print("  - Future Day Name: $futureDayName");
-              print("  - Scheduled Days: $scheduledDays");
-
-              if (futureDate.isAfter(today) &&
-                  scheduledDays.contains(futureDayName)) {
-                print("✅ Scheduled Meal Found on $futureDate");
-                futureOrderDates.add(futureDate);
-                break; // Stop checking once we find a valid date
               }
             }
           }
@@ -304,7 +327,9 @@ class ParentsHistorySelectDateController extends GetxController {
               'count': 0,
               'image': meal.imageUrl,
               'itemPrice': meal.mealPrice ?? "",
-              'studentIds': <dynamic>[] // Initialize as dynamic list
+              'studentIds': <dynamic>[], // Initialize as dynamic list
+              'orderDate':
+                  futureOrderDates.first // Store the earliest order date
             };
           }
 
@@ -331,6 +356,7 @@ class ParentsHistorySelectDateController extends GetxController {
       int studentCount = entry.value['count'];
       String? mealImage = entry.value['image'];
       String? mealPrice = entry.value['itemPrice'];
+      DateTime orderDate = entry.value['orderDate'] ?? DateTime.now();
 
       // Safe casting of studentIds
       List<String> studentIds = [];
@@ -344,7 +370,8 @@ class ParentsHistorySelectDateController extends GetxController {
         UpcomingMealOrder(
           image: mealImage,
           itemName: mealName,
-          weekday: DateFormat('EEEE').format(DateTime.now()),
+          weekday:
+              DateFormat('EEEE').format(orderDate), // Use the actual order date
           itemPrice: mealPrice,
           expectedStudent: studentCount,
           studentIds: studentIds,
@@ -364,26 +391,33 @@ class ParentsHistorySelectDateController extends GetxController {
   }
 
   void onDaySelected(DateTime selectedDay, DateTime focusedDay) {
-    selectedDate.value = selectedDay;
-    isDateSelected.value = true;
-    filterOrdersByDate(selectedDay);
+    // If the same date is selected again, toggle selection off
+    if (isDateSelected.value && isSameDay(selectedDay, selectedDate.value)) {
+      isDateSelected.value = false;
+      filteredUpComingMealOrderList.clear();
+    } else {
+      // Otherwise, select the new date
+      selectedDate.value = selectedDay;
+      isDateSelected.value = true;
+      filterOrdersByDate(selectedDay);
+    }
     update(['parentsHistorySelectDataId']);
   }
 
   void filterOrdersByDate(DateTime date) {
-    // Reset to show all orders if the same date is selected again
-    if (isDateSelected.value &&
-        isSameDay(date, selectedDate.value) &&
-        filteredUpComingMealOrderList.isNotEmpty) {
-      isDateSelected.value = false;
-      filteredUpComingMealOrderList.clear();
-      return;
-    }
-
     filteredUpComingMealOrderList.clear();
 
     // Normalize the date to compare only year, month, and day
     DateTime normalizedDate = DateTime(date.year, date.month, date.day);
+
+    // Get today's date normalized for comparison
+    DateTime today = DateTime.now();
+    DateTime normalizedToday = DateTime(today.year, today.month, today.day);
+
+    // Only proceed if the selected date is today or in the future
+    if (normalizedDate.isBefore(normalizedToday)) {
+      return;
+    }
 
     for (var child in childrenList) {
       if (child.selectedMealMenuData == null ||
