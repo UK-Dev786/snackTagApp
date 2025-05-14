@@ -149,8 +149,17 @@ class NotificationService {
             },
           );
         } else {
-          // This is a parent, navigate to the regular order history
-          Get.toNamed('/order-history', arguments: message.data['orderId']);
+          // This is a parent, navigate to the parent order delivery details
+          print(
+              "🔄 Parent notification - navigating to parent order delivery details");
+          Get.toNamed(
+            '/parent-order-delivery-details',
+            arguments: {
+              'orderId': message.data['orderId'],
+              'staffName': message.data['deliveredBy'] ?? 'Staff',
+              'childName': message.data['childName'] ?? 'Student',
+            },
+          );
         }
         break;
       case 'low_balance':
@@ -518,8 +527,17 @@ class NotificationService {
               },
             );
           } else {
-            // This is a parent, navigate to the regular order history
-            Get.toNamed('/order-history', arguments: data['orderId']);
+            // This is a parent, navigate to the parent order delivery details
+            print(
+                "🔄 Parent notification - navigating to parent order delivery details");
+            Get.toNamed(
+              '/parent-order-delivery-details',
+              arguments: {
+                'orderId': data['orderId'],
+                'staffName': data['deliveredBy'] ?? 'Staff',
+                'childName': data['childName'] ?? 'Student',
+              },
+            );
           }
         }
       }

@@ -161,4 +161,5 @@ abstract class _Paths {
   static const PARENTS_ORDERS_HISTORY = '/parents-orders-history';
   static const CAFE_OWNER_ORDER_DELIVERY_DETAILS =
       '/cafe-owner-order-delivery-details';
+  static const PARENT_ORDER_DELIVERY_DETAILS = '/parent-order-delivery-details';
 }

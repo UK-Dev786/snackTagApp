@@ -365,9 +365,17 @@ class NotificationsController extends GetxController {
               },
             );
           } else {
-            // This is a parent, navigate to the regular order history
-            Get.toNamed('/order-history',
-                arguments: notification.data['orderId']);
+            // This is a parent, navigate to the parent order delivery details
+            print(
+                "🔄 Parent notification - navigating to parent order delivery details");
+            Get.toNamed(
+              '/parent-order-delivery-details',
+              arguments: {
+                'orderId': notification.data['orderId'],
+                'staffName': notification.data['deliveredBy'] ?? 'Staff',
+                'childName': notification.data['childName'] ?? 'Student',
+              },
+            );
           }
           break;
         case 'new_order':
