@@ -25,6 +25,8 @@ class CafeteriaHistorySelectDateController extends GetxController {
   var childrenList = <ParentsAddChildren>[].obs;
   var meals = <MealModel>[].obs;
   var upComingMealOrderList = <UpcomingMealOrder>[].obs;
+  var filteredUpComingMealOrderList = <UpcomingMealOrder>[].obs;
+  var isDateSelected = false.obs;
 
   // Selected date for filtering upcoming orders
   Rx<DateTime> selectedDate = DateTime.now().obs;
@@ -150,7 +152,17 @@ class CafeteriaHistorySelectDateController extends GetxController {
   //   return "";
   // }
   String checkIfDateHasMeal(DateTime day) {
+    // Normalize today's date for comparison
     DateTime today = DateTime.now();
+    DateTime normalizedToday = DateTime(today.year, today.month, today.day);
+
+    // Normalize the day parameter for comparison
+    DateTime normalizedDay = DateTime(day.year, day.month, day.day);
+
+    // Only check for meals on today or future dates
+    if (normalizedDay.isBefore(normalizedToday)) {
+      return ""; // No meal indicator for past dates
+    }
 
     for (var child in childrenList) {
       if (child.selectedMealMenuData == null ||
@@ -259,8 +271,18 @@ class CafeteriaHistorySelectDateController extends GetxController {
 
   // Method to update the selected date and filter upcoming orders
   void updateSelectedDate(DateTime date) {
-    selectedDate.value = date;
-    getUpcomingOrders(); // Refresh the upcoming orders list with the new date
+    // If the same date is selected again, toggle selection off
+    if (isDateSelected.value && isSameDay(date, selectedDate.value)) {
+      isDateSelected.value = false;
+      selectedDate.value = DateTime.now(); // Reset to today
+    } else {
+      // Otherwise, select the new date
+      selectedDate.value = date;
+      isDateSelected.value = true;
+    }
+
+    // Refresh the upcoming orders list with the new date
+    getUpcomingOrders();
     update(['cafateriaHistorySelectDataId']);
   }
 
@@ -352,6 +374,8 @@ class CafeteriaHistorySelectDateController extends GetxController {
 
     Map<String, Map<String, dynamic>> mealData = {};
     DateTime today = DateTime.now();
+    // Normalize today for comparison
+    DateTime normalizedToday = DateTime(today.year, today.month, today.day);
 
     print("🔍 Starting getUpcomingOrders() method");
     print("Current Date: $today");
@@ -405,10 +429,19 @@ class CafeteriaHistorySelectDateController extends GetxController {
               print("  - Future Day Name: $futureDayName");
               print("  - Scheduled Days: $scheduledDays");
 
-              // Check if the date matches the selected date or is after today if no date is selected
-              bool dateMatches = isSameDay(futureDate, selectedDate.value);
+              // Normalize future date for comparison
+              DateTime normalizedFutureDate =
+                  DateTime(futureDate.year, futureDate.month, futureDate.day);
 
-              if (dateMatches && scheduledDays.contains(futureDayName)) {
+              // Check if the date matches the selected date and is today or in the future
+              bool dateMatches = isSameDay(futureDate, selectedDate.value);
+              bool isCurrentOrFuture =
+                  normalizedFutureDate.isAtSameMomentAs(normalizedToday) ||
+                      normalizedFutureDate.isAfter(normalizedToday);
+
+              if (dateMatches &&
+                  scheduledDays.contains(futureDayName) &&
+                  isCurrentOrFuture) {
                 print(
                     "✅ Scheduled Meal Found on $futureDate (matches selected date)");
                 futureOrderDates.add(futureDate);
@@ -434,10 +467,19 @@ class CafeteriaHistorySelectDateController extends GetxController {
               print("  - Future Day Name: $futureDayName");
               print("  - Scheduled Days: $scheduledDays");
 
-              // Check if the date matches the selected date
-              bool dateMatches = isSameDay(futureDate, selectedDate.value);
+              // Normalize future date for comparison
+              DateTime normalizedFutureDate =
+                  DateTime(futureDate.year, futureDate.month, futureDate.day);
 
-              if (dateMatches && scheduledDays.contains(futureDayName)) {
+              // Check if the date matches the selected date and is today or in the future
+              bool dateMatches = isSameDay(futureDate, selectedDate.value);
+              bool isCurrentOrFuture =
+                  normalizedFutureDate.isAtSameMomentAs(normalizedToday) ||
+                      normalizedFutureDate.isAfter(normalizedToday);
+
+              if (dateMatches &&
+                  scheduledDays.contains(futureDayName) &&
+                  isCurrentOrFuture) {
                 print(
                     "✅ Scheduled Meal Found on $futureDate (matches selected date)");
                 futureOrderDates.add(futureDate);
