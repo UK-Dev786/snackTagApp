@@ -122,15 +122,68 @@ class CafeteriaHomeSettingsView extends GetView<CafeteriaSettingsController> {
                                 .get();
 
                             if (userDoc.exists && userDoc.data() != null) {
+                              final userData = userDoc.data()!;
                               existingStripeAccountId =
-                                  userDoc.data()!['stripeAccountId'];
+                                  userData['stripeAccountId'];
+
+                              // Check if there are existing Stripe configurations to delete
+                              Map<String, dynamic> fieldsToDelete = {};
+
+                              // Log the fields we're about to delete
                               developer.log(
-                                  '⚠️⚠️⚠️⚠️⚠️⚠️⚠️Found existing Stripe account ID: $existingStripeAccountId',
+                                  'Found existing Stripe account ID: $existingStripeAccountId',
                                   name: 'CafeteriaHomeSettings');
+
+                              // Delete all Stripe-related fields by setting them to FieldValue.delete()
+                              if (userData.containsKey('stripeAccountId')) {
+                                fieldsToDelete['stripeAccountId'] =
+                                    FieldValue.delete();
+                              }
+                              if (userData
+                                  .containsKey('stripeAccountCreatedAt')) {
+                                fieldsToDelete['stripeAccountCreatedAt'] =
+                                    FieldValue.delete();
+                              }
+                              if (userData
+                                  .containsKey('stripeOnboardingComplete')) {
+                                fieldsToDelete['stripeOnboardingComplete'] =
+                                    FieldValue.delete();
+                              }
+                              if (userData
+                                  .containsKey('stripeOnboardingDate')) {
+                                fieldsToDelete['stripeOnboardingDate'] =
+                                    FieldValue.delete();
+                              }
+                              if (userData
+                                  .containsKey('stripeOnboardingStarted')) {
+                                fieldsToDelete['stripeOnboardingStarted'] =
+                                    FieldValue.delete();
+                              }
+                              if (userData
+                                  .containsKey('stripeOnboardingTimestamp')) {
+                                fieldsToDelete['stripeOnboardingTimestamp'] =
+                                    FieldValue.delete();
+                              }
+
+                              // Delete the fields if there are any to delete
+                              if (fieldsToDelete.isNotEmpty) {
+                                developer.log(
+                                    'Deleting existing Stripe configuration fields',
+                                    name: 'CafeteriaHomeSettings');
+
+                                await FirebaseFirestore.instance
+                                    .collection('users')
+                                    .doc(user.uid)
+                                    .update(fieldsToDelete);
+
+                                developer.log(
+                                    'Successfully deleted existing Stripe configuration fields',
+                                    name: 'CafeteriaHomeSettings');
+                              }
                             }
                           } catch (e) {
                             developer.log(
-                                'Error checking for existing Stripe account: $e',
+                                'Error checking or deleting existing Stripe account: $e',
                                 name: 'CafeteriaHomeSettings');
                           }
 
@@ -155,7 +208,7 @@ class CafeteriaHomeSettingsView extends GetView<CafeteriaSettingsController> {
                                 existingStripeAccountId.isNotEmpty) {
                               stripeAccountId = existingStripeAccountId;
                               developer.log(
-                                  '😉😉😉😉Using existing Stripe account ID: $stripeAccountId',
+                                  'Using existing Stripe account ID: $stripeAccountId',
                                   name: 'CafeteriaHomeSettings');
                             }
                             // Otherwise, use the new account ID from the response
@@ -163,7 +216,7 @@ class CafeteriaHomeSettingsView extends GetView<CafeteriaSettingsController> {
                               stripeAccountId = response['account']['id'];
                               isNewAccount = true;
                               developer.log(
-                                  '❓❓❓❓Using new Stripe account ID: $stripeAccountId',
+                                  'Using new Stripe account ID: $stripeAccountId',
                                   name: 'CafeteriaHomeSettings');
                             }
 

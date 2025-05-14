@@ -44,29 +44,34 @@ class _StripeOnboardingViewState extends State<StripeOnboardingView> {
         if (userDoc.exists && userDoc.data() != null) {
           final userData = userDoc.data()!;
 
-          // Create update data map
+          // Create update data map with only the essential fields
+          // We're not preserving any old configuration as per the requirement
           final Map<String, dynamic> updateData = {
             'stripeOnboardingComplete': true,
             'stripeOnboardingDate': FieldValue.serverTimestamp(),
+            'stripeOnboardingStarted': true,
+            'stripeOnboardingTimestamp': FieldValue.serverTimestamp(),
           };
 
           // First priority: Use the stripeAccountId passed to the widget if available
           if (widget.stripeAccountId != null &&
               widget.stripeAccountId!.isNotEmpty) {
             updateData['stripeAccountId'] = widget.stripeAccountId;
+            updateData['stripeAccountCreatedAt'] = FieldValue.serverTimestamp();
             developer.log(
                 'Using Stripe account ID from parameter: ${widget.stripeAccountId}',
                 name: 'StripeWebView');
           }
           // Second priority: If we don't have a stripeAccountId but have an account_id in the URL, use that
-          else if (userData['stripeAccountId'] == null &&
-              currentUrl.contains('account_id=')) {
+          else if (currentUrl.contains('account_id=')) {
             final accountIdRegex = RegExp(r'account_id=([^&]+)');
             final match = accountIdRegex.firstMatch(currentUrl);
             if (match != null && match.groupCount >= 1) {
               final accountId = match.group(1);
               if (accountId != null && accountId.isNotEmpty) {
                 updateData['stripeAccountId'] = accountId;
+                updateData['stripeAccountCreatedAt'] =
+                    FieldValue.serverTimestamp();
                 developer.log(
                     'Extracted Stripe account ID from URL: $accountId',
                     name: 'StripeWebView');
@@ -88,10 +93,12 @@ class _StripeOnboardingViewState extends State<StripeOnboardingView> {
               'Stripe onboarding status updated successfully with data: $updateData',
               name: 'StripeWebView');
         } else {
-          // If document doesn't exist, create it
+          // If document doesn't exist, create it with only essential fields
           final Map<String, dynamic> newUserData = {
             'stripeOnboardingComplete': true,
             'stripeOnboardingDate': FieldValue.serverTimestamp(),
+            'stripeOnboardingStarted': true,
+            'stripeOnboardingTimestamp': FieldValue.serverTimestamp(),
             'userId': userId, // Include user ID for reference
           };
 
@@ -99,6 +106,8 @@ class _StripeOnboardingViewState extends State<StripeOnboardingView> {
           if (widget.stripeAccountId != null &&
               widget.stripeAccountId!.isNotEmpty) {
             newUserData['stripeAccountId'] = widget.stripeAccountId;
+            newUserData['stripeAccountCreatedAt'] =
+                FieldValue.serverTimestamp();
             developer.log(
                 'Adding Stripe account ID to new user document: ${widget.stripeAccountId}',
                 name: 'StripeWebView');
@@ -111,6 +120,8 @@ class _StripeOnboardingViewState extends State<StripeOnboardingView> {
                 final accountId = match.group(1);
                 if (accountId != null && accountId.isNotEmpty) {
                   newUserData['stripeAccountId'] = accountId;
+                  newUserData['stripeAccountCreatedAt'] =
+                      FieldValue.serverTimestamp();
                   developer.log(
                       'Extracted Stripe account ID from URL for new user: $accountId',
                       name: 'StripeWebView');
@@ -298,7 +309,7 @@ class _StripeOnboardingViewState extends State<StripeOnboardingView> {
               // Handle success immediately
               Future.microtask(() async {
                 try {
-                  // If we extracted an account ID and don't have one from the widget, use it
+                  // If we have an extracted account ID, update it
                   if (extractedAccountId != null &&
                       extractedAccountId.isNotEmpty &&
                       (widget.stripeAccountId == null ||
@@ -395,6 +406,7 @@ class _StripeOnboardingViewState extends State<StripeOnboardingView> {
 
               try {
                 // Update Firestore to mark onboarding as complete
+                // This will create new Stripe configuration
                 await _updateStripeOnboardingStatus();
 
                 // Use our navigation helper to safely navigate to meal details
@@ -469,7 +481,7 @@ class _StripeOnboardingViewState extends State<StripeOnboardingView> {
               // Handle success immediately
               Future.microtask(() async {
                 try {
-                  // If we extracted an account ID and don't have one from the widget, use it
+                  // If we have an extracted account ID, update it
                   if (extractedAccountId != null &&
                       extractedAccountId.isNotEmpty &&
                       (widget.stripeAccountId == null ||
@@ -540,6 +552,7 @@ class _StripeOnboardingViewState extends State<StripeOnboardingView> {
             // Handle the success case
             try {
               // Update Firestore and navigate
+              // This will create new Stripe configuration
               _updateStripeOnboardingStatus().then((_) {
                 _navigateToMealDetails();
               }).catchError((e) {
