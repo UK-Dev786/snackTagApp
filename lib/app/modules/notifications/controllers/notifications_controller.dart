@@ -419,9 +419,14 @@ class NotificationsController extends GetxController {
           break;
         case 'new_order':
           print(
-              "🔄 Navigating to order details with ID: ${notification.data['orderId']}");
-          Get.toNamed('/order-details',
-              arguments: notification.data['orderId']);
+              "🔄 Navigating to new order details with ID: ${notification.data['orderId']}");
+
+          // Navigate to our new order details view with all the necessary data
+          Get.toNamed('/new-order-details', arguments: {
+            'orderId': notification.data['orderId'],
+            'parentId': notification.data['parentId'],
+            'childName': notification.data['childName'] ?? 'Student',
+          });
           break;
         case 'low_balance':
           print(

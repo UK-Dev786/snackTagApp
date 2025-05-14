@@ -87,6 +87,7 @@ abstract class Routes {
       _Paths.PARENT_ORDER_DELIVERY_DETAILS;
   static const PARENT_ORDER_PREPARATION_DETAILS =
       _Paths.PARENT_ORDER_PREPARATION_DETAILS;
+  static const NEW_ORDER_DETAILS = _Paths.NEW_ORDER_DETAILS;
 }
 
 abstract class _Paths {
@@ -168,4 +169,5 @@ abstract class _Paths {
   static const PARENT_ORDER_DELIVERY_DETAILS = '/parent-order-delivery-details';
   static const PARENT_ORDER_PREPARATION_DETAILS =
       '/parent-order-preparation-details';
+  static const NEW_ORDER_DETAILS = '/new-order-details';
 }

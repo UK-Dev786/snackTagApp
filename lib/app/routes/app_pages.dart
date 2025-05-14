@@ -144,6 +144,8 @@ import '../modules/parent_order_delivery_details/bindings/parent_order_delivery_
 import '../modules/parent_order_delivery_details/views/parent_order_delivery_details_view.dart';
 import '../modules/parent_order_preparation_details/bindings/parent_order_preparation_details_binding.dart';
 import '../modules/parent_order_preparation_details/views/parent_order_preparation_details_view.dart';
+import '../modules/new_order_details/bindings/new_order_details_binding.dart';
+import '../modules/new_order_details/views/new_order_details_view.dart';
 
 part 'app_routes.dart';
 
@@ -541,6 +543,12 @@ class AppPages {
       name: _Paths.PARENT_ORDER_PREPARATION_DETAILS,
       page: () => const ParentOrderPreparationDetailsView(),
       binding: ParentOrderPreparationDetailsBinding(),
+      transition: Transition.fadeIn,
+    ),
+    GetPage(
+      name: _Paths.NEW_ORDER_DETAILS,
+      page: () => const NewOrderDetailsView(),
+      binding: NewOrderDetailsBinding(),
       transition: Transition.fadeIn,
     ),
   ];

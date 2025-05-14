@@ -244,11 +244,14 @@ class AddChildrenService extends BaseService {
         // Create a new document
         DocumentReference childRef =
             firestore.collection('parentsChildren').doc(childData.childId);
-        // childData.id = childRef.id; // Assign Firestore-generated ID
-        // childId = childRef.id;
+
+        // Set the childId for notification purposes
+        childId = childData.childId ?? childRef.id;
 
         print(
             "[UpdatingChildrenMealData] Service: New document ID: ${childRef.id}");
+        print(
+            "[UpdatingChildrenMealData] Service: Using childId for notifications: $childId");
 
         // If an image is provided, upload it
         if (imgUrl != null && imgUrl.isNotEmpty) {
@@ -332,6 +335,7 @@ class AddChildrenService extends BaseService {
     try {
       print(
           "🔔 Sending notifications to cafeteria owner and staff for cafeteria: $cafeteriaName");
+      print("🔔 Using orderId for notification: $orderId");
 
       // Make sure we're not sending notifications to the parent
       String? currentUserId = FirebaseAuth.instance.currentUser?.uid;

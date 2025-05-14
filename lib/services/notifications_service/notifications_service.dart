@@ -162,6 +162,17 @@ class NotificationService {
           );
         }
         break;
+      case 'new_order':
+        print(
+            "🔄 Navigating to new order details with ID: ${message.data['orderId']}");
+
+        // Navigate to our new order details view with all the necessary data
+        Get.toNamed('/new-order-details', arguments: {
+          'orderId': message.data['orderId'],
+          'parentId': message.data['parentId'],
+          'childName': message.data['childName'] ?? 'Student',
+        });
+        break;
       case 'low_balance':
         Get.toNamed('/wallet', arguments: {
           'showTopUp': true,
@@ -533,6 +544,15 @@ class NotificationService {
           // Fallback to regular order details
           Get.toNamed('/order-details', arguments: data['orderId']);
         }
+      } else if (data['type'] == 'new_order') {
+        print("🔄 Navigating to new order details with ID: ${data['orderId']}");
+
+        // Navigate to our new order details view with all the necessary data
+        Get.toNamed('/new-order-details', arguments: {
+          'orderId': data['orderId'],
+          'parentId': data['parentId'],
+          'childName': data['childName'] ?? 'Student',
+        });
       } else if (data['type'] == 'order_delivered') {
         // Check if this is a cafe owner notification
         final userId = data['userId'] ?? FirebaseAuth.instance.currentUser?.uid;
