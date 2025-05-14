@@ -127,7 +127,31 @@ class NotificationService {
         Get.toNamed('/order-details', arguments: message.data['orderId']);
         break;
       case 'order_delivered':
-        Get.toNamed('/order-history', arguments: message.data['orderId']);
+        // Check if this is a cafe owner notification
+        final userDoc = await FirebaseFirestore.instance
+            .collection('users')
+            .doc(message.data['userId'])
+            .get();
+
+        if (userDoc.exists &&
+            userDoc.data() != null &&
+            userDoc.data()!['role'] == 'cafeteriaAdmin') {
+          // This is a cafe owner, navigate to the cafe owner order delivery details
+          print(
+              "🔄 Cafe owner notification - navigating to cafe owner order delivery details");
+          Get.toNamed(
+            '/cafe-owner-order-delivery-details',
+            arguments: {
+              'orderId': message.data['orderId'],
+              'staffName': message.data['deliveredBy'] ?? 'Staff',
+              'childName': message.data['childName'] ?? 'Student',
+              'amount': message.data['amount'] ?? '0.00',
+            },
+          );
+        } else {
+          // This is a parent, navigate to the regular order history
+          Get.toNamed('/order-history', arguments: message.data['orderId']);
+        }
         break;
       case 'low_balance':
         Get.toNamed('/wallet', arguments: {
@@ -466,8 +490,38 @@ class NotificationService {
 
     if (payload != null) {
       final data = jsonDecode(payload);
+
       if (data['type'] == 'order_prepared') {
         Get.toNamed('/order-details', arguments: data['orderId']);
+      } else if (data['type'] == 'order_delivered') {
+        // Check if this is a cafe owner notification
+        final userId = data['userId'] ?? FirebaseAuth.instance.currentUser?.uid;
+        if (userId != null) {
+          final userDoc = await FirebaseFirestore.instance
+              .collection('users')
+              .doc(userId)
+              .get();
+
+          if (userDoc.exists &&
+              userDoc.data() != null &&
+              userDoc.data()!['role'] == 'cafeteriaAdmin') {
+            // This is a cafe owner, navigate to the cafe owner order delivery details
+            print(
+                "🔄 Cafe owner notification - navigating to cafe owner order delivery details");
+            Get.toNamed(
+              '/cafe-owner-order-delivery-details',
+              arguments: {
+                'orderId': data['orderId'],
+                'staffName': data['deliveredBy'] ?? 'Staff',
+                'childName': data['childName'] ?? 'Student',
+                'amount': data['amount'] ?? '0.00',
+              },
+            );
+          } else {
+            // This is a parent, navigate to the regular order history
+            Get.toNamed('/order-history', arguments: data['orderId']);
+          }
+        }
       }
     }
   }

@@ -81,6 +81,8 @@ abstract class Routes {
   static const STAFF_ORDER_HISTORY = _Paths.STAFF_ORDER_HISTORY;
   static const STAFF_ORDER_DETAILS = _Paths.STAFF_ORDER_DETAILS;
   static const PARENTS_ORDERS_HISTORY = _Paths.PARENTS_ORDERS_HISTORY;
+  static const CAFE_OWNER_ORDER_DELIVERY_DETAILS =
+      _Paths.CAFE_OWNER_ORDER_DELIVERY_DETAILS;
 }
 
 abstract class _Paths {
@@ -157,4 +159,6 @@ abstract class _Paths {
   static const STAFF_ORDER_HISTORY = '/staff-order-history';
   static const STAFF_ORDER_DETAILS = '/staff-order-details';
   static const PARENTS_ORDERS_HISTORY = '/parents-orders-history';
+  static const CAFE_OWNER_ORDER_DELIVERY_DETAILS =
+      '/cafe-owner-order-delivery-details';
 }

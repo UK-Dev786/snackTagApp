@@ -223,6 +223,11 @@ class NotificationItem extends StatelessWidget {
     return Column(
       children: [
         InkWell(
+          onTap: () {
+            // Call the controller's handleNotificationTap method
+            Get.find<NotificationsController>()
+                .handleNotificationTap(notification);
+          },
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16),
             child: Container(

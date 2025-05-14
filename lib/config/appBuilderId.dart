@@ -5,6 +5,9 @@ const String staffHistorySelectDataId = 'staffHistorySelectDataId';
 const String staffOrderPreparingId = 'staffOrderPreparingId';
 
 const String staffOrderDeliveredId = 'staffOrderDeliveredId';
+// CAFE OWNER ID's
+const String cafeOwnerOrderDeliveryDetailsId =
+    'cafeOwnerOrderDeliveryDetailsId';
 // PARENTS ID's
 
 const String parentsHistorySelectDataId = 'parentsHistorySelectDataId';

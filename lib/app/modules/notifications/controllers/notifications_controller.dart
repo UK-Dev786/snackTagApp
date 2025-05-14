@@ -10,6 +10,7 @@ import 'package:snacktag/services/notifications_service/notifications_service.da
 class NotificationsController extends GetxController {
   final NotificationService _notificationService = NotificationService();
   final UserPreferences _userPreferences = UserPreferences();
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final RxList<NotificationModel> notifications = <NotificationModel>[].obs;
   final RxBool isLoading = false.obs;
   final RxString errorMessage = ''.obs;
@@ -328,8 +329,46 @@ class NotificationsController extends GetxController {
         case 'order_delivered':
           print(
               "🔄 Navigating to order history with ID: ${notification.data['orderId']}");
-          Get.toNamed('/order-history',
-              arguments: notification.data['orderId']);
+
+          // Check if this is a cafe owner notification by checking the user type
+          final firebaseUser = FirebaseAuth.instance.currentUser;
+          String userType = '';
+
+          if (firebaseUser != null) {
+            try {
+              // Get user document from Firestore
+              DocumentSnapshot<Map<String, dynamic>> userDoc = await _firestore
+                  .collection('users')
+                  .doc(firebaseUser.uid)
+                  .get();
+
+              if (userDoc.exists && userDoc.data() != null) {
+                userType = userDoc.data()?['role'] ?? '';
+                print("User role for notification handling: $userType");
+              }
+            } catch (e) {
+              print("Error getting user role: $e");
+            }
+          }
+
+          if (userType == 'cafeteriaAdmin') {
+            // This is a cafe owner, navigate to the cafe owner order delivery details
+            print(
+                "🔄 Cafe owner notification - navigating to cafe owner order delivery details");
+            Get.toNamed(
+              '/cafe-owner-order-delivery-details',
+              arguments: {
+                'orderId': notification.data['orderId'],
+                'staffName': notification.data['deliveredBy'] ?? 'Staff',
+                'childName': notification.data['childName'] ?? 'Student',
+                'amount': notification.data['amount'] ?? '0.00',
+              },
+            );
+          } else {
+            // This is a parent, navigate to the regular order history
+            Get.toNamed('/order-history',
+                arguments: notification.data['orderId']);
+          }
           break;
         case 'new_order':
           print(

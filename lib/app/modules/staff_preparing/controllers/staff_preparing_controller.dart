@@ -192,9 +192,23 @@ class StaffOrderPreparingController extends GetxController {
                 orderId: orderId,
               );
             } catch (e) {
-              print("Error sending delivery notification: $e");
+              print("Error sending delivery notification to parent: $e");
               // Log the error but don't rethrow to avoid disrupting the main flow
             }
+          }
+
+          // Send notification to cafe owner about order delivery
+          try {
+            await sendOrderDeliveredNotificationToCafeOwner(
+              cafeteriaName: orderDetails.cafeteriaName ?? '',
+              childName: orderDetails.childName ?? 'a child',
+              staffName: staffData.value!.staffName ?? 'staff',
+              orderId: orderId,
+              totalAmount: totalAmount,
+            );
+          } catch (e) {
+            print("Error sending delivery notification to cafe owner: $e");
+            // Log the error but don't rethrow to avoid disrupting the main flow
           }
 
           // Process payout to cafeteria admin if we have the necessary data
@@ -530,6 +544,72 @@ class StaffOrderPreparingController extends GetxController {
       return orderDetails.selectedMealMenuData![0].schedule!.availableAt![0];
     }
     return "scheduled";
+  }
+
+  // Method to send notification to cafe owner when order is delivered
+  Future<void> sendOrderDeliveredNotificationToCafeOwner({
+    required String cafeteriaName,
+    required String childName,
+    required String staffName,
+    required String orderId,
+    required double totalAmount,
+  }) async {
+    try {
+      if (cafeteriaName.isEmpty) {
+        print("CafeOwner: Cannot send notification - cafeteria name is empty");
+        return;
+      }
+
+      // Find the cafeteria owner (user with cafeteriaName matching)
+      QuerySnapshot ownerSnapshot = await _firestore
+          .collection('users')
+          .where('cafeteriaName', isEqualTo: cafeteriaName)
+          .limit(1)
+          .get();
+
+      if (ownerSnapshot.docs.isEmpty) {
+        print(
+            "CafeOwner: No cafeteria owner found for cafeteria: $cafeteriaName");
+        return;
+      }
+
+      // Get the cafeteria owner's ID
+      String cafeteriaOwnerId = ownerSnapshot.docs.first.id;
+      print("CafeOwner: Found cafeteria owner with ID: $cafeteriaOwnerId");
+
+      // Get order details for additional information
+      ParentsAddChildren? orderDetails =
+          await _preparationService.getOrderDetails(orderId);
+      String? childImageUrl = orderDetails?.childImageUrl;
+      String? schoolName = orderDetails?.schoolName;
+
+      // Format amount for display
+      String formattedAmount = totalAmount.toStringAsFixed(2);
+
+      // Send notification to cafe owner
+      await _notificationService.sendNotification(
+        userId: cafeteriaOwnerId,
+        title: 'Order Delivered',
+        body: '$staffName delivered $childName\'s order - $formattedAmount MXN',
+        type: 'order_delivered',
+        data: {
+          'orderId': orderId,
+          'deliveredBy': staffName,
+          'notificationType': 'order_delivered',
+          'childName': childName,
+          'childImageUrl': childImageUrl,
+          'schoolName': schoolName,
+          'cafeteriaName': cafeteriaName,
+          'amount': formattedAmount,
+        },
+      );
+
+      print(
+          "CafeOwner: Order delivery notification sent to cafe owner: $cafeteriaOwnerId");
+    } catch (e) {
+      print("CafeOwner: Error sending order delivery notification: $e");
+      // Don't rethrow to prevent disrupting the main flow
+    }
   }
 
   @override
