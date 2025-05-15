@@ -457,7 +457,7 @@ class ChildVerificationUploadInfoController extends GetxController {
 
                     // Only update status if the order is for today
                     if (formattedOrderDate == formattedToday) {
-                      if (data['status'] == 'Delivered') {
+                      if (data['delivered'] == true) {
                         print("Setting status to Delivered");
                         mealStatuses[mealKey]?.value = 'Delivered';
                       } else if (data['startPreparation'] == true) {
