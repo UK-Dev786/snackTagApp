@@ -267,12 +267,6 @@ app.post("/refund", async (req, res) => {
   }
 });
 
-// Duplicate payout endpoint - main implementation is at the bottom of the file
-app.post("/payout-old", async (req, res) => {
-  // Redirect to the main payout endpoint
-  console.log("Received request to /payout-old, redirecting to main payout endpoint");
-  return res.redirect(307, "/payout");
-});
 
 // Create Stripe Account for SnackTag
 app.post("/createSnackTagStripeAccount", async (req, res) => {
