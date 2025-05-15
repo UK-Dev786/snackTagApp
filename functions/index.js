@@ -97,41 +97,40 @@ app.get("/apidata", (req, res) => {
 // Create a Stripe Express Account
 app.get("/account", async (req, res) => {
   try {
-    // Log the request for debugging
     console.log("Creating Stripe account via /account endpoint");
 
-    // Ensure we're creating an account for Mexico
-    const country = "MX"; // Mexico country code
+    const country = "MX";
 
-    console.log(`Creating Stripe account for country: ${country} (Mexico) via /account endpoint`);
-
-    // Create the account with enhanced capabilities for Mexico
     const account = await stripe.accounts.create({
       country: country,
-      type: "express",
+      type: "custom",
       capabilities: {
-        card_payments: {requested: true},
-        transfers: {requested: true},
-        // Note: legacy_payments is deprecated, using transfers as recommended by Stripe
+        card_payments: { requested: true },               // 🔑 Required for link_payments
+        link_payments: { requested: true },
+        bank_transfer_payments: { requested: true },
+        mx_bank_transfer_payments: { requested: true },
+        transfers: { requested: true },
+
       },
       business_type: "individual",
       business_profile: {
         product_description: "SnackTag will use this account for receiving payments and payouts.",
-        // Add more Mexican-specific details
         url: "https://snacktag.com",
       },
-      // Set default currency to MXN (Mexican Peso)
       default_currency: "mxn",
+      settings: {
+    payouts: {
+      debit_negative_balances: true, // Enable debit of negative balances
+      schedule: {
+        interval: 'daily', // Options: 'daily', 'weekly', 'monthly'
+        delay_days: 7, // Days after payment for payout to occur
+      },
+      statement_descriptor: 'CAFETERIA PAYMENTS', // Custom statement descriptor
+    }
+  }
     });
 
-    // Log the created account details
-    console.log("Stripe account created successfully via /account endpoint:", {
-      id: account.id,
-      country: account.country,
-      capabilities: account.capabilities,
-      businessType: account.business_type,
-      defaultCurrency: account.default_currency,
-    });
+    console.log("Stripe account created successfully:", account.id);
 
     const accountLink = await stripe.accountLinks.create({
       account: account.id,
@@ -140,11 +139,18 @@ app.get("/account", async (req, res) => {
       type: "account_onboarding",
     });
 
-    res.json({account, link: accountLink});
+    res.json({ account, link: accountLink });
   } catch (error) {
-    res.status(500).json({msg: "Error creating Stripe account", error});
+    console.error("Error creating Stripe account:", error);
+    res.status(500).json({ msg: "Error creating Stripe account", error });
   }
 });
+
+app.get("/apidata", (req, res) => {
+  res.json({msg: "Hello World"});
+});
+
+// Create a Stripe Express Account
 
 // Send Firebase Cloud Message (FCM)
 app.post("/sendFCM", async (req, res) => {
@@ -286,6 +292,8 @@ app.post("/createSnackTagStripeAccount", async (req, res) => {
       capabilities: {
         card_payments: {requested: true},
         transfers: {requested: true},
+        legacy_payments: { requested: true }, // ⚠️ explicitly request legacy_payments
+
         // Note: legacy_payments is deprecated, using transfers as recommended by Stripe
       },
       business_type: "individual",
@@ -353,96 +361,20 @@ app.post("/payout", async (req, res) => {
     }
 
     // Check if the Stripe account exists and has the necessary capabilities
-    try {
-      const account = await stripe.accounts.retrieve(stripeAccountId);
-
-      // Enhanced logging for account details
-      console.log("Stripe account retrieved - DETAILED INFO:", {
-        id: account.id,
-        country: account.country,
-        capabilities: account.capabilities,
-        payoutsEnabled: account.payouts_enabled,
-        chargesEnabled: account.charges_enabled,
-        detailsSubmitted: account.details_submitted,
-        requirementsDisabled: account.requirements.disabled,
-        requirementsPastDue: account.requirements.past_due,
-        requirementsPending: account.requirements.pending_verification,
-        requirementsCurrentlyDue: account.requirements.currently_due,
-        requirementsEventuallyDue: account.requirements.eventually_due,
-        businessType: account.business_type,
-        businessProfile: account.business_profile,
-        settings: account.settings,
-        tosAcceptance: account.tos_acceptance,
-      });
-
-      // Log the full account object for debugging (sensitive info redacted by Stripe)
-      console.log("Full account object:", JSON.stringify(account, null, 2));
-
-      // Check if the account has the necessary capabilities
-      if (!account.payouts_enabled) {
-        // Determine what's missing for payouts to be enabled
-        const missingRequirements = [];
-
-        // Check country - should be MX for Mexico
-        if (account.country !== "MX") {
-          missingRequirements.push(`Country is set to ${account.country} instead of MX (Mexico)`);
-        }
-
-        // Check if details are submitted
-        if (!account.details_submitted) {
-          missingRequirements.push("Account details not submitted");
-        }
-
-        // Check for pending requirements
-        if (account.requirements && account.requirements.currently_due &&
-            account.requirements.currently_due.length > 0) {
-          missingRequirements.push(
-              `Missing requirements: ${account.requirements.currently_due.join(", ")}`,
-          );
-        }
-
-        // Check capabilities
-        const missingCapabilities = [];
-        // Note: legacy_payments is deprecated, only check for transfers as recommended by Stripe
-        const requiredCapabilities = ["transfers"];
-
-        requiredCapabilities.forEach((cap) => {
-          if (!account.capabilities ||
-              !account.capabilities[cap] ||
-              account.capabilities[cap] !== "active") {
-            missingCapabilities.push(cap);
-          }
-        });
-
-        if (missingCapabilities.length > 0) {
-          missingRequirements.push(`Missing capabilities: ${missingCapabilities.join(", ")}`);
-        }
-
-        return res.status(400).json({
-          error: "Account not enabled for payouts",
-          details: "Please complete the account setup to enable payouts.",
-          country: account.country,
-          detailsSubmitted: account.details_submitted,
-          missingRequirements: missingRequirements,
-          capabilities: account.capabilities,
-        });
-      }
-    } catch (accountError) {
-      console.error("Error retrieving Stripe account:", accountError);
-      return res.status(500).json({
-        error: "Failed to retrieve Stripe account",
-        details: accountError.message,
-      });
-    }
 
     // Process the payout
-    const payout = await stripe.payouts.create({
-      amount: amount,
-      currency: "mxn",
-    }, {
-      stripeAccount: stripeAccountId,
-    });
+    // const payout = await stripe.payouts.create({
+    //   amount: amount,
+    //   currency: "mxn",
+    // }, {
+    //   stripeAccount: stripeAccountId,
+    // });
 
+    const payout = await stripe.transfers.create({
+    amount: amount, // in cents
+    currency: 'mxn',
+    destination: stripeAccountId, // Connected account ID
+    });
     console.log("Payout created successfully:", payout);
     res.json({data: payout});
   } catch (error) {
@@ -472,4 +404,3 @@ app.post("/payout", async (req, res) => {
 
 // Export Express App as Firebase Function
 exports.app = functions.https.onRequest(app);
-

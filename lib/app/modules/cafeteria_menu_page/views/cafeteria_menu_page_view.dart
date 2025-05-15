@@ -465,7 +465,11 @@ class CafeteriaMenuPageView extends GetView<CafeteriaMenuPageController> {
             Get.snackbar('Processing', 'Setting up your Stripe account...');
 
             final response = await Get.find<CloudFunctionsService>()
-                .callFunction('createSnackTagStripeAccount', {});
+                .callFunction('account', {});
+
+            // Log the response for debugging
+            developer.log('Account endpoint response: $response',
+                name: 'CafeteriaMenuPage');
 
             if (response != null &&
                 response['link'] != null &&
@@ -499,8 +503,7 @@ class CafeteriaMenuPageView extends GetView<CafeteriaMenuPageController> {
               }
             } else {
               Get.snackbar('Error', 'Invalid response from server');
-              developer.log(
-                  'Invalid response from createSnackTagStripeAccount: $response',
+              developer.log('Invalid response from account endpoint: $response',
                   name: 'CafeteriaMenuPage');
             }
           } catch (e) {

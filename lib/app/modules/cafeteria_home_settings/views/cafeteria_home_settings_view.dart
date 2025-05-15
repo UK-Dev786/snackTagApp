@@ -191,7 +191,11 @@ class CafeteriaHomeSettingsView extends GetView<CafeteriaSettingsController> {
                           final cloudFunctionsService =
                               Get.find<CloudFunctionsService>();
                           final response = await cloudFunctionsService
-                              .callFunction('createSnackTagStripeAccount', {});
+                              .callFunction('account', {});
+
+                          // Log the response for debugging
+                          developer.log('Account endpoint response: $response',
+                              name: 'CafeteriaHomeSettings');
 
                           // Close the loading dialog
                           if (Get.isDialogOpen == true) {
@@ -277,7 +281,7 @@ class CafeteriaHomeSettingsView extends GetView<CafeteriaSettingsController> {
                               colorText: Colors.red[800],
                             );
                             developer.log(
-                                'Invalid response from createSnackTagStripeAccount: $response',
+                                'Invalid response from account endpoint: $response',
                                 name: 'CafeteriaHomeSettings');
                           }
                         } catch (e) {

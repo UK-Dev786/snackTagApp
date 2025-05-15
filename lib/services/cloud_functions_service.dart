@@ -76,6 +76,29 @@ class CloudFunctionsService {
         print('🌎 Base URL: $_baseUrl');
       }
 
+      // Special handling for 'account' endpoint which is a GET request
+      if (functionName == 'account') {
+        _log('Using GET request for account endpoint');
+        final response = await http.get(
+          Uri.parse('$_baseUrl/$functionName'),
+          headers: {'Content-Type': 'application/json'},
+        );
+        _log('Response status code: ${response.statusCode}');
+        _log('Response body: ${response.body}');
+
+        if (response.statusCode != 200) {
+          throw Exception('Function call failed: ${response.body}');
+        }
+
+        try {
+          return jsonDecode(response.body);
+        } catch (e) {
+          _log('Error decoding JSON: $e');
+          throw Exception('Invalid response format: ${response.body}');
+        }
+      }
+
+      // For all other endpoints, use POST request
       final response = await http.post(
         Uri.parse('$_baseUrl/$functionName'),
         headers: {'Content-Type': 'application/json'},
