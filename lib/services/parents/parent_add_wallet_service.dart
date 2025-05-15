@@ -63,7 +63,8 @@ class ParentAddWalletService extends BaseService {
   }
 
   // Deduct payment from parent wallet
-  Future<bool> deductPaymentFromWallet(String parentId, double amount) async {
+  Future<bool> deductPaymentFromWallet(String parentId, double amount,
+      {bool updateMonthlyExpenditures = true}) async {
     try {
       // Reference to the user's wallet document
       DocumentReference userWalletRef = FirebaseFirestore.instance
@@ -94,11 +95,16 @@ class ParentAddWalletService extends BaseService {
         return false;
       }
 
-      // Calculate new amount and update monthly expenditures
+      // Calculate new amount
       double newAmount = currentAmount - amount;
-      double newMonthlyExpenditures = currentMonthlyExpenditures + amount;
 
-      // Update wallet with deducted amount and increased expenditures
+      // Calculate new monthly expenditures if needed
+      double newMonthlyExpenditures = currentMonthlyExpenditures;
+      if (updateMonthlyExpenditures) {
+        newMonthlyExpenditures = currentMonthlyExpenditures + amount;
+      }
+
+      // Update wallet with deducted amount and optionally increased expenditures
       await userWalletRef.update({
         'amount': newAmount,
         'monthlyExpenditures': newMonthlyExpenditures,

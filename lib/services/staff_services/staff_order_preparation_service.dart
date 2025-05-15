@@ -282,7 +282,7 @@ class StaffOrderPreparationService {
     }
   }
 
-  // Method to deduct payment from parent wallet
+  // Method to deduct payment from parent wallet without updating monthly expenditures
   Future<bool> deductPaymentFromParentWallet(
       String parentId, double amount, String childId) async {
     try {
@@ -297,18 +297,14 @@ class StaffOrderPreparationService {
         return false;
       }
 
-      // Deduct payment from parent wallet
-      bool success =
-          await _walletService.deductPaymentFromWallet(parentId, amount);
+      // Deduct payment from parent wallet without updating monthly expenditures
+      bool success = await _walletService.deductPaymentFromWallet(
+          parentId, amount,
+          updateMonthlyExpenditures: false);
 
-      if (success && childId.isNotEmpty) {
-        // Update child's monthly expenditures only if childId is valid
-        await updateChildMonthlyExpenditures(childId, amount);
+      if (success) {
         print(
             "✅ Payment of $amount successfully deducted from parent wallet: $parentId");
-      } else if (success) {
-        print(
-            "✅ Payment of $amount successfully deducted from parent wallet: $parentId (no child ID provided)");
       } else {
         print("❌ Failed to deduct payment from parent wallet: $parentId");
       }
@@ -316,6 +312,57 @@ class StaffOrderPreparationService {
       return success;
     } catch (e) {
       print("❌ Error deducting payment from parent wallet: $e");
+      return false;
+    }
+  }
+
+  // Method to update parent and child monthly expenditures after successful delivery
+  Future<bool> updateMonthlyExpenditures(
+      String parentId, String childId, double amount) async {
+    try {
+      // Validate inputs
+      if (parentId.isEmpty) {
+        print("❌ Invalid parent ID provided for updating expenditures");
+        return false;
+      }
+
+      if (amount <= 0) {
+        print("❌ Invalid amount: $amount. Amount must be greater than 0");
+        return false;
+      }
+
+      // Update parent's monthly expenditures
+      DocumentReference userWalletRef = FirebaseFirestore.instance
+          .collection("users")
+          .doc(parentId)
+          .collection("ParentWalletAmount")
+          .doc(parentId);
+
+      DocumentSnapshot walletSnapshot = await userWalletRef.get();
+
+      if (walletSnapshot.exists) {
+        double currentMonthlyExpenditures = (walletSnapshot.data()
+                as Map<String, dynamic>)['monthlyExpenditures'] ??
+            0.0;
+        double newMonthlyExpenditures = currentMonthlyExpenditures + amount;
+
+        await userWalletRef.update({
+          'monthlyExpenditures': newMonthlyExpenditures,
+          'updatedAt': FieldValue.serverTimestamp(),
+        });
+
+        print(
+            "✅ Parent monthly expenditures updated: $parentId, New value: $newMonthlyExpenditures");
+      }
+
+      // Update child's monthly expenditures if childId is valid
+      if (childId.isNotEmpty) {
+        await updateChildMonthlyExpenditures(childId, amount);
+      }
+
+      return true;
+    } catch (e) {
+      print("❌ Error updating monthly expenditures: $e");
       return false;
     }
   }
@@ -336,11 +383,32 @@ class StaffOrderPreparationService {
         return false;
       }
 
-      // Create a wallet model to add the refunded amount
+      // First, get the current wallet data to preserve monthly expenditures
+      DocumentReference userWalletRef = FirebaseFirestore.instance
+          .collection("users")
+          .doc(parentId)
+          .collection("ParentWalletAmount")
+          .doc(parentId);
+
+      DocumentSnapshot walletSnapshot = await userWalletRef.get();
+
+      // Get current monthly expenditures
+      double currentMonthlyExpenditures = 0.0;
+      bool enableMonthlyReload = false;
+
+      if (walletSnapshot.exists) {
+        var walletData = walletSnapshot.data() as Map<String, dynamic>;
+        currentMonthlyExpenditures = walletData['monthlyExpenditures'] ?? 0.0;
+        enableMonthlyReload = walletData['enableMonthlyReload'] ?? false;
+      }
+
+      // Create a wallet model to add the refunded amount while preserving monthly expenditures
       ParentAddWalletModel refundModel = ParentAddWalletModel(
         parrentId: parentId,
         amount: amount,
-        enableMonthlyReload: false,
+        enableMonthlyReload: enableMonthlyReload,
+        monthlyExpenditures:
+            currentMonthlyExpenditures, // Preserve current monthly expenditures
       );
 
       // Add the refunded amount to the parent's wallet

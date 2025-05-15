@@ -290,6 +290,18 @@ class StaffOrderPreparingController extends GetxController {
                       ''); // Pass staff ID if available
 
               if (success) {
+                // Now that delivery is successful, update monthly expenditures
+                if (orderDetails.parentId != null &&
+                    orderDetails.parentId!.isNotEmpty &&
+                    totalAmount > 0 &&
+                    paymentDeducted) {
+                  // Update monthly expenditures for parent and child
+                  await _preparationService.updateMonthlyExpenditures(
+                      orderDetails.parentId!,
+                      orderDetails.childId ?? '',
+                      totalAmount);
+                }
+
                 // Send notification to parent about order delivery
                 if (orderDetails.parentId != null &&
                     orderDetails.parentId!.isNotEmpty) {
@@ -460,6 +472,18 @@ class StaffOrderPreparingController extends GetxController {
               staffData.value!.staffPhone ?? ''); // Pass staff ID if available
 
           if (success) {
+            // Now that delivery is successful, update monthly expenditures
+            if (orderDetails.parentId != null &&
+                orderDetails.parentId!.isNotEmpty &&
+                totalAmount > 0 &&
+                paymentDeducted) {
+              // Update monthly expenditures for parent and child
+              await _preparationService.updateMonthlyExpenditures(
+                  orderDetails.parentId!,
+                  orderDetails.childId ?? '',
+                  totalAmount);
+            }
+
             // Send notification to parent about order delivery
             if (orderDetails.parentId != null &&
                 orderDetails.parentId!.isNotEmpty) {
