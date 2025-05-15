@@ -583,14 +583,25 @@ class StaffOrderPreparingController extends GetxController {
       String? childImageUrl = orderDetails?.childImageUrl;
       String? schoolName = orderDetails?.schoolName;
 
-      // Format amount for display
-      String formattedAmount = totalAmount.toStringAsFixed(2);
+      // Apply the 10.5% commission to get the net amount for cafe owner
+      double commissionPercentage = 10.5;
+      double commissionAmount = (totalAmount * commissionPercentage / 100);
+      double netAmount = totalAmount - commissionAmount;
 
-      // Send notification to cafe owner
+      // Format amounts for display
+      String formattedTotalAmount = totalAmount.toStringAsFixed(2);
+      String formattedNetAmount = netAmount.toStringAsFixed(2);
+
+      print("CafeOwner: Total amount: $formattedTotalAmount MXN");
+      print("CafeOwner: Commission (10.5%): $commissionAmount MXN");
+      print("CafeOwner: Net amount after commission: $formattedNetAmount MXN");
+
+      // Send notification to cafe owner with the net amount after commission
       await _notificationService.sendNotification(
         userId: cafeteriaOwnerId,
         title: 'Order Delivered',
-        body: '$staffName delivered $childName\'s order - $formattedAmount MXN',
+        body:
+            '$staffName delivered $childName\'s order - $formattedNetAmount MXN',
         type: 'order_delivered',
         data: {
           'orderId': orderId,
@@ -600,7 +611,9 @@ class StaffOrderPreparingController extends GetxController {
           'childImageUrl': childImageUrl,
           'schoolName': schoolName,
           'cafeteriaName': cafeteriaName,
-          'amount': formattedAmount,
+          'amount': formattedNetAmount,
+          'totalAmount': formattedTotalAmount,
+          'commissionPercentage': commissionPercentage.toString(),
         },
       );
 

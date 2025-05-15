@@ -401,6 +401,11 @@ class NotificationsController extends GetxController {
                 'staffName': notification.data['deliveredBy'] ?? 'Staff',
                 'childName': notification.data['childName'] ?? 'Student',
                 'amount': notification.data['amount'] ?? '0.00',
+                'totalAmount': notification.data['totalAmount'] ??
+                    notification.data['amount'] ??
+                    '0.00',
+                'commissionPercentage':
+                    notification.data['commissionPercentage'] ?? '10.5',
               },
             );
           } else {

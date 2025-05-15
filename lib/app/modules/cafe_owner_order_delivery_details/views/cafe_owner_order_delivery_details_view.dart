@@ -376,8 +376,7 @@ class CafeOwnerOrderDeliveryDetailsView extends StatelessWidget {
                                                     BorderRadius.circular(20),
                                               ),
                                               child: Text(
-                                                "MX\$${controller.deliveredOrderData.value!.selectedMealMenuData![0].mealPrice}" ??
-                                                    '\$0.00',
+                                                "MX\$${controller.netAmount.value}",
                                                 style: AppTextStyles
                                                     .MetropolisBold.copyWith(
                                                   fontSize: 16,
@@ -386,6 +385,95 @@ class CafeOwnerOrderDeliveryDetailsView extends StatelessWidget {
                                                 ),
                                               ),
                                             ),
+                                          ],
+                                        ),
+                                        const SizedBox(height: 8),
+                                        // Display commission information
+                                        Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            if (controller.totalAmount.value !=
+                                                controller.netAmount.value)
+                                              Row(
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment
+                                                        .spaceBetween,
+                                                children: [
+                                                  Text(
+                                                    'Original Amount:',
+                                                    style: AppTextStyles
+                                                            .MetropolisRegular
+                                                        .copyWith(
+                                                      fontSize: 14,
+                                                      color: Colors.grey[700],
+                                                    ),
+                                                  ),
+                                                  Text(
+                                                    'MX\$${controller.totalAmount.value}',
+                                                    style: AppTextStyles
+                                                            .MetropolisRegular
+                                                        .copyWith(
+                                                      fontSize: 14,
+                                                      color: Colors.grey[700],
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                            if (controller.totalAmount.value !=
+                                                controller.netAmount.value)
+                                              Row(
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment
+                                                        .spaceBetween,
+                                                children: [
+                                                  Text(
+                                                    'Commission (${controller.commissionPercentage.value}%):',
+                                                    style: AppTextStyles
+                                                            .MetropolisRegular
+                                                        .copyWith(
+                                                      fontSize: 14,
+                                                      color: Colors.grey[700],
+                                                    ),
+                                                  ),
+                                                  Text(
+                                                    'MX\$${(double.parse(controller.totalAmount.value) - double.parse(controller.netAmount.value)).toStringAsFixed(2)}',
+                                                    style: AppTextStyles
+                                                            .MetropolisRegular
+                                                        .copyWith(
+                                                      fontSize: 14,
+                                                      color: Colors.grey[700],
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                            if (controller.totalAmount.value !=
+                                                controller.netAmount.value)
+                                              Row(
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment
+                                                        .spaceBetween,
+                                                children: [
+                                                  Text(
+                                                    'Net Amount:',
+                                                    style: AppTextStyles
+                                                            .MetropolisBold
+                                                        .copyWith(
+                                                      fontSize: 14,
+                                                      color: Colors.black87,
+                                                    ),
+                                                  ),
+                                                  Text(
+                                                    'MX\$${controller.netAmount.value}',
+                                                    style: AppTextStyles
+                                                            .MetropolisBold
+                                                        .copyWith(
+                                                      fontSize: 14,
+                                                      color: Colors.black87,
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
                                           ],
                                         ),
                                         const SizedBox(height: 8),

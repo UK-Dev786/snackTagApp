@@ -147,6 +147,11 @@ class NotificationService {
               'staffName': message.data['deliveredBy'] ?? 'Staff',
               'childName': message.data['childName'] ?? 'Student',
               'amount': message.data['amount'] ?? '0.00',
+              'totalAmount': message.data['totalAmount'] ??
+                  message.data['amount'] ??
+                  '0.00',
+              'commissionPercentage':
+                  message.data['commissionPercentage'] ?? '10.5',
             },
           );
         } else {
@@ -609,6 +614,8 @@ class NotificationService {
                 'staffName': data['deliveredBy'] ?? 'Staff',
                 'childName': data['childName'] ?? 'Student',
                 'amount': data['amount'] ?? '0.00',
+                'totalAmount': data['totalAmount'] ?? data['amount'] ?? '0.00',
+                'commissionPercentage': data['commissionPercentage'] ?? '10.5',
               },
             );
           } else {
