@@ -108,9 +108,24 @@ class StaffHistoryCalenderView extends StatelessWidget {
                 ),
 
                 TableCalendar(
-                  firstDay: DateTime.utc(2020, 1, 1),
+                  firstDay: DateTime.now(), // Start from today
                   lastDay: DateTime.utc(2030, 12, 31),
-                  focusedDay: DateTime.now(), // Current visible month
+                  focusedDay: staffHistoryController
+                      .selectedDate.value, // Use selected date
+                  selectedDayPredicate: (day) {
+                    // Use isSameDay to check if a day is selected
+                    return staffHistoryController.isDateSelected.value &&
+                        staffHistoryController.isSameDay(
+                            day, staffHistoryController.selectedDate.value);
+                  },
+                  onDaySelected: staffHistoryController.onDaySelected,
+                  enabledDayPredicate: (day) {
+                    // Only enable today and future dates
+                    final now = DateTime.now();
+                    final today = DateTime(now.year, now.month, now.day);
+                    final dayDate = DateTime(day.year, day.month, day.day);
+                    return !dayDate.isBefore(today);
+                  },
                   calendarBuilders: CalendarBuilders(
                     defaultBuilder: (context, day, focusedDay) {
                       String hasMealToday = staffHistoryController
@@ -141,42 +156,145 @@ class StaffHistoryCalenderView extends StatelessWidget {
                       );
                     },
                     todayBuilder: (context, day, focusedDay) {
-                      return Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Container(
-                            padding: const EdgeInsets.symmetric(
-                                vertical: 6.0, horizontal: 10.0),
-                            decoration: BoxDecoration(
-                              gradient: const LinearGradient(
-                                colors: [
-                                  AppColors.gradientEndColor,
-                                  AppColors.gradientStartColor
-                                ],
-                                begin: Alignment.topRight,
-                                end: Alignment.bottomLeft,
-                              ),
-                              borderRadius:
-                                  BorderRadius.circular(8.0), // Rounded corners
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Colors.grey.withOpacity(0.2),
-                                  blurRadius: 2,
-                                  spreadRadius: 1,
-                                  offset: const Offset(0, 3),
-                                ),
-                              ],
-                            ),
-                            child: Column(
-                              children: [
-                                Text(
-                                  '${day.day}', // Display the day number
-                                  style: AppTextStyles.RobotoBold.copyWith(
-                                    fontSize: 16,
+                      // Check if today is selected
+                      bool isSelected = staffHistoryController
+                              .isDateSelected.value &&
+                          staffHistoryController.isSameDay(
+                              day, staffHistoryController.selectedDate.value);
+
+                      // If today is selected or another date is selected, use the selected style
+                      if (staffHistoryController.isDateSelected.value) {
+                        // If today is the selected date, show it with gradient and a white border
+                        if (isSelected) {
+                          return Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Container(
+                                padding: const EdgeInsets.symmetric(
+                                    vertical: 6.0, horizontal: 10.0),
+                                decoration: BoxDecoration(
+                                  gradient: const LinearGradient(
+                                    colors: [
+                                      AppColors.gradientEndColor,
+                                      AppColors.gradientStartColor
+                                    ],
+                                    begin: Alignment.topRight,
+                                    end: Alignment.bottomLeft,
+                                  ),
+                                  borderRadius: BorderRadius.circular(8.0),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: Colors.grey.withOpacity(0.2),
+                                      blurRadius: 2,
+                                      spreadRadius: 1,
+                                      offset: const Offset(0, 3),
+                                    ),
+                                  ],
+                                  border: Border.all(
                                     color: Colors.white,
+                                    width: 2.0,
                                   ),
                                 ),
-                                Text(
+                                child: Column(
+                                  children: [
+                                    Text(
+                                      '${day.day}',
+                                      style: AppTextStyles.RobotoBold.copyWith(
+                                        fontSize: 16,
+                                        color: Colors.white,
+                                      ),
+                                    ),
+                                    Text(
+                                      [
+                                        'SUN',
+                                        'MON',
+                                        'TUE',
+                                        'WED',
+                                        'THU',
+                                        'FRI',
+                                        'SAT'
+                                      ][day.weekday % 7],
+                                      style: AppTextStyles.RobotoLight.copyWith(
+                                        fontSize: 12,
+                                        color: Colors.white,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          );
+                        } else {
+                          // Today is not selected, but another date is selected
+                          // Show today without gradient, just as a regular day
+                          String hasMealToday =
+                              staffHistoryController.checkIfDateHasMeal(day);
+                          return Center(
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Container(
+                                  padding: const EdgeInsets.symmetric(
+                                      vertical: 4.0, horizontal: 6.0),
+                                  child: Text(
+                                    '${day.day}',
+                                    style: AppTextStyles.RobotoRegular.copyWith(
+                                      fontSize: 13,
+                                      color: const Color(0xFF2E2E2E),
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ),
+                                if (hasMealToday.isNotEmpty)
+                                  Container(
+                                    width: 5,
+                                    height: 5,
+                                    decoration: const BoxDecoration(
+                                      color: AppColors.gradientEndColor,
+                                      shape: BoxShape.circle,
+                                    ),
+                                  ),
+                              ],
+                            ),
+                          );
+                        }
+                      } else {
+                        // No date is selected, show today with gradient
+                        return Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                  vertical: 6.0, horizontal: 10.0),
+                              decoration: BoxDecoration(
+                                gradient: const LinearGradient(
+                                  colors: [
+                                    AppColors.gradientEndColor,
+                                    AppColors.gradientStartColor
+                                  ],
+                                  begin: Alignment.topRight,
+                                  end: Alignment.bottomLeft,
+                                ),
+                                borderRadius: BorderRadius.circular(8.0),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.grey.withOpacity(0.2),
+                                    blurRadius: 2,
+                                    spreadRadius: 1,
+                                    offset: const Offset(0, 3),
+                                  ),
+                                ],
+                              ),
+                              child: Column(
+                                children: [
+                                  Text(
+                                    '${day.day}',
+                                    style: AppTextStyles.RobotoBold.copyWith(
+                                      fontSize: 16,
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                                  Text(
                                     [
                                       'SUN',
                                       'MON',
@@ -185,16 +303,18 @@ class StaffHistoryCalenderView extends StatelessWidget {
                                       'THU',
                                       'FRI',
                                       'SAT'
-                                    ][day.weekday % 7], // Display weekday
+                                    ][day.weekday % 7],
                                     style: AppTextStyles.RobotoLight.copyWith(
                                       fontSize: 12,
                                       color: Colors.white,
-                                    )),
-                              ],
+                                    ),
+                                  ),
+                                ],
+                              ),
                             ),
-                          ),
-                        ],
-                      );
+                          ],
+                        );
+                      }
                     },
                   ),
                   calendarStyle: CalendarStyle(
@@ -296,19 +416,48 @@ class StaffHistoryCalenderView extends StatelessWidget {
 
                 // Upcoming Orders Section
                 Expanded(
-                    child: ListView.builder(
-                  itemCount: staffHistoryController.upComingMealOrderList
-                      .length, // Hardcoded number of items
-                  padding: const EdgeInsets.only(top: 0),
-                  itemBuilder: (context, index) {
-                    return _buildOrderCard(
-                        context,
-                        // historyController,
-                        staffHistoryController,
-                        staffHistoryController.upComingMealOrderList[
-                            index]); // Call the method to build each order card
-                  },
-                )),
+                  child: Obx(() {
+                    // Show filtered list if a date is selected, otherwise show all upcoming orders
+                    final displayList = staffHistoryController
+                            .isDateSelected.value
+                        ? staffHistoryController.filteredUpComingMealOrderList
+                        : staffHistoryController.upComingMealOrderList;
+
+                    if (displayList.isEmpty) {
+                      return Center(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            const Icon(
+                              Icons.calendar_today_outlined,
+                              size: 48,
+                              color: Colors.grey,
+                            ),
+                            const SizedBox(height: 16),
+                            Text(
+                              staffHistoryController.isDateSelected.value
+                                  ? 'No Orders for Selected Date'
+                                  : 'No Upcoming Orders',
+                              style: AppTextStyles.PoppinsMedium.copyWith(
+                                fontSize: 16,
+                                color: Colors.grey,
+                              ),
+                            ),
+                          ],
+                        ),
+                      );
+                    }
+
+                    return ListView.builder(
+                      itemCount: displayList.length,
+                      padding: const EdgeInsets.only(top: 0),
+                      itemBuilder: (context, index) {
+                        return _buildOrderCard(context, staffHistoryController,
+                            displayList[index]);
+                      },
+                    );
+                  }),
+                ),
               ],
             );
           }),

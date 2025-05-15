@@ -29,6 +29,12 @@ class StaffHistoryCalenderController extends GetxController {
   var childrenList = <ParentsAddChildren>[].obs;
   var meals = <MealModel>[].obs;
   var upComingMealOrderList = <UpcomingMealOrder>[].obs;
+  var filteredUpComingMealOrderList = <UpcomingMealOrder>[].obs;
+  var isDateSelected = false.obs;
+
+  // Selected date for filtering upcoming orders
+  Rx<DateTime> selectedDate = DateTime.now().obs;
+
   // Add Rx variable to store user data
   final Rx<Map<String, dynamic>> userData = Rx<Map<String, dynamic>>({});
   @override
@@ -138,7 +144,17 @@ class StaffHistoryCalenderController extends GetxController {
   }
 
   String checkIfDateHasMeal(DateTime day) {
+    // Normalize today's date for comparison
     DateTime today = DateTime.now();
+    DateTime normalizedToday = DateTime(today.year, today.month, today.day);
+
+    // Normalize the day parameter for comparison
+    DateTime normalizedDay = DateTime(day.year, day.month, day.day);
+
+    // Only check for meals on today or future dates
+    if (normalizedDay.isBefore(normalizedToday)) {
+      return ""; // No meal indicator for past dates
+    }
 
     for (var child in childrenList) {
       if (child.selectedMealMenuData == null ||
@@ -518,4 +534,133 @@ class StaffHistoryCalenderController extends GetxController {
   }
 
   void increment() => count.value++;
+
+  // Method to handle day selection in the calendar
+  void onDaySelected(DateTime selectedDay, DateTime focusedDay) {
+    // If the same date is selected again, toggle selection off
+    if (isDateSelected.value && isSameDay(selectedDay, selectedDate.value)) {
+      isDateSelected.value = false;
+      filteredUpComingMealOrderList.clear();
+    } else {
+      // Otherwise, select the new date
+      selectedDate.value = selectedDay;
+      isDateSelected.value = true;
+      filterOrdersByDate(selectedDay);
+    }
+    update(['staffHistorySelectDataId']);
+  }
+
+  // Method to filter orders by selected date
+  void filterOrdersByDate(DateTime date) {
+    filteredUpComingMealOrderList.clear();
+
+    // Normalize the date to compare only year, month, and day
+    DateTime normalizedDate = DateTime(date.year, date.month, date.day);
+
+    // Get today's date normalized for comparison
+    DateTime today = DateTime.now();
+    DateTime normalizedToday = DateTime(today.year, today.month, today.day);
+
+    // Only proceed if the selected date is today or in the future
+    if (normalizedDate.isBefore(normalizedToday)) {
+      return;
+    }
+
+    for (var child in childrenList) {
+      if (child.selectedMealMenuData == null ||
+          child.selectedMealMenuData!.isEmpty) {
+        continue;
+      }
+
+      DateTime orderDate;
+      try {
+        orderDate = DateTime.parse(child.date!);
+        orderDate = DateTime(orderDate.year, orderDate.month, orderDate.day);
+      } catch (e) {
+        print("Error parsing date: ${child.date}");
+        continue;
+      }
+
+      for (var mealData in child.selectedMealMenuData!) {
+        var schedule = mealData.schedule;
+
+        if (schedule == null ||
+            schedule.repeatOn == null ||
+            (schedule.repeatEvery != 'week' &&
+                schedule.repeatEvery != 'month') ||
+            schedule.repeatCount == null) {
+          continue;
+        }
+
+        String currentDayName = DateFormat('EEEE').format(normalizedDate);
+        List<String> scheduledDays =
+            schedule.repeatOn!.map((d) => d.trim()).toList();
+
+        bool isDayScheduled = scheduledDays.contains(currentDayName);
+
+        if (isDayScheduled && normalizedDate.compareTo(orderDate) >= 0) {
+          int repeatCount = int.tryParse(schedule.repeatCount!) ?? 1;
+
+          bool isValidOrder = false;
+
+          if (schedule.repeatEvery == 'week') {
+            int daysSinceStart = normalizedDate.difference(orderDate).inDays;
+            int weekNumber = daysSinceStart ~/ 7;
+            if (weekNumber < repeatCount) {
+              isValidOrder = true;
+            }
+          } else if (schedule.repeatEvery == 'month') {
+            int monthsSinceStart = (normalizedDate.year - orderDate.year) * 12 +
+                (normalizedDate.month - orderDate.month);
+            if (monthsSinceStart >= 0 && monthsSinceStart < repeatCount) {
+              isValidOrder = true;
+            }
+          }
+
+          if (isValidOrder) {
+            // Check if this meal is already in the filtered list
+            int existingIndex = filteredUpComingMealOrderList
+                .indexWhere((order) => order.itemName == mealData.mealName);
+
+            if (existingIndex != -1) {
+              // Update existing entry
+              UpcomingMealOrder existingOrder =
+                  filteredUpComingMealOrderList[existingIndex];
+              List<String> updatedStudentIds =
+                  List<String>.from(existingOrder.studentIds ?? []);
+
+              if (!updatedStudentIds.contains(child.id?.toString() ?? '')) {
+                updatedStudentIds.add(child.id?.toString() ?? '');
+              }
+
+              filteredUpComingMealOrderList[existingIndex] = UpcomingMealOrder(
+                image: existingOrder.image,
+                itemName: existingOrder.itemName,
+                weekday: DateFormat('EEEE').format(normalizedDate),
+                itemPrice: existingOrder.itemPrice,
+                expectedStudent: (existingOrder.expectedStudent ?? 0) + 1,
+                studentIds: updatedStudentIds,
+              );
+            } else {
+              // Add new entry
+              filteredUpComingMealOrderList.add(
+                UpcomingMealOrder(
+                  image: mealData.imageUrl,
+                  itemName: mealData.mealName,
+                  weekday: DateFormat('EEEE').format(normalizedDate),
+                  itemPrice: mealData.mealPrice,
+                  expectedStudent: 1,
+                  studentIds: [child.id?.toString() ?? ''],
+                ),
+              );
+            }
+          }
+        }
+      }
+    }
+
+    // Sort the filtered list
+    filteredUpComingMealOrderList.sort(
+        (a, b) => (b.expectedStudent ?? 0).compareTo(a.expectedStudent ?? 0));
+  }
 }
