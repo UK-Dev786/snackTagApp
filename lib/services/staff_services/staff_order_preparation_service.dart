@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:get/get.dart';
 import 'package:snacktag/models/parents_models/add_children.dart';
+import 'package:snacktag/models/parents_models/parent_add_wallet_model.dart';
 import 'package:snacktag/models/user_model.dart';
 import 'package:snacktag/services/cloud_functions_service.dart';
 import 'package:snacktag/services/parents/parent_add_wallet_service.dart';
@@ -316,6 +317,111 @@ class StaffOrderPreparationService {
     } catch (e) {
       print("❌ Error deducting payment from parent wallet: $e");
       return false;
+    }
+  }
+
+  // Method to refund payment to parent wallet
+  Future<bool> refundPaymentToParentWallet(
+      String parentId, double amount, String childId) async {
+    try {
+      // Validate inputs
+      if (parentId.isEmpty) {
+        print("❌ Invalid parent ID provided for refund");
+        return false;
+      }
+
+      if (amount <= 0) {
+        print(
+            "❌ Invalid refund amount: $amount. Amount must be greater than 0");
+        return false;
+      }
+
+      // Create a wallet model to add the refunded amount
+      ParentAddWalletModel refundModel = ParentAddWalletModel(
+        parrentId: parentId,
+        amount: amount,
+        enableMonthlyReload: false,
+      );
+
+      // Add the refunded amount to the parent's wallet
+      await _walletService.addOrUpdateWalletAmount(refundModel);
+
+      // If we have a valid childId, update the child's monthly expenditures
+      if (childId.isNotEmpty) {
+        // Reduce the monthly expenditures for the child
+        await reduceChildMonthlyExpenditures(childId, amount);
+      }
+
+      print(
+          "✅ Payment of $amount successfully refunded to parent wallet: $parentId");
+      return true;
+    } catch (e) {
+      print("❌ Error refunding payment to parent wallet: $e");
+      return false;
+    }
+  }
+
+  // Update child's monthly expenditures by reducing the amount
+  Future<void> reduceChildMonthlyExpenditures(
+      String childId, double amount) async {
+    try {
+      // First, check if we're using the document ID or the childId field
+      print(
+          "🔍 Attempting to reduce monthly expenditures for child: $childId with amount: $amount");
+
+      // Try to find the document by querying for the childId field
+      QuerySnapshot querySnapshot = await _firestore
+          .collection('parentsChildren')
+          .where('childId', isEqualTo: childId)
+          .limit(1)
+          .get();
+
+      if (querySnapshot.docs.isNotEmpty) {
+        // Use the first matching document
+        String docId = querySnapshot.docs.first.id;
+        double currentExpenditures = (querySnapshot.docs.first.data()
+                as Map<String, dynamic>)['monthlyExpenditures'] ??
+            0.0;
+        // Ensure we don't go below zero
+        double newExpenditures = (currentExpenditures - amount) < 0
+            ? 0
+            : (currentExpenditures - amount);
+
+        await _firestore.collection('parentsChildren').doc(docId).update({
+          'monthlyExpenditures': newExpenditures,
+          'lastUpdated': DateTime.now().toIso8601String()
+        });
+
+        print(
+            "✅ Child document with childId=$childId updated. Doc ID: $docId, New expenditures after refund: $newExpenditures");
+      } else {
+        // Try direct document reference as fallback
+        DocumentReference childRef =
+            _firestore.collection('parentsChildren').doc(childId);
+        DocumentSnapshot childDoc = await childRef.get();
+
+        if (childDoc.exists) {
+          double currentExpenditures = (childDoc.data()
+                  as Map<String, dynamic>)['monthlyExpenditures'] ??
+              0.0;
+          // Ensure we don't go below zero
+          double newExpenditures = (currentExpenditures - amount) < 0
+              ? 0
+              : (currentExpenditures - amount);
+
+          await childRef.update({
+            'monthlyExpenditures': newExpenditures,
+            'lastUpdated': DateTime.now().toIso8601String()
+          });
+
+          print(
+              "✅ Child document with ID=$childId updated. New expenditures after refund: $newExpenditures");
+        } else {
+          print("❌ Child document not found with ID or childId: $childId");
+        }
+      }
+    } catch (e) {
+      print("❌ Error reducing child monthly expenditures: $e");
     }
   }
 

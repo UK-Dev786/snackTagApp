@@ -169,147 +169,163 @@ class StaffOrderPreparingController extends GetxController {
           if (!paymentDeducted) {
             print(
                 "⚠️ Failed to deduct payment from parent wallet: ${orderDetails.parentId}");
-            // We'll continue with the delivery process even if payment deduction fails
-            // This is to ensure the child still gets their meal
+            // Show snackbar to staff and don't deliver the order
+            Get.snackbar(
+              'Payment Failed',
+              'Cannot deliver order. Insufficient funds in parent wallet.',
+              snackPosition: SnackPosition.TOP,
+              duration: Duration(seconds: 5),
+            );
+            return; // Exit the function early without delivering the order
           }
         }
 
-        // Mark the order as delivered - pass staff ID if available
-        bool success = await _preparationService.markOrderAsDelivered(
-            orderId,
-            staffData.value!.staffName!,
-            staffData.value!.staffPhone ?? ''); // Pass staff ID if available
+        // Process payout to cafeteria admin if we have the necessary data
+        bool payoutSuccess = false;
+        double commissionPercentage = 0;
+        double payoutAmount = 0;
 
-        if (success) {
-          // Send notification to parent about order delivery
-          if (orderDetails.parentId != null &&
-              orderDetails.parentId!.isNotEmpty) {
-            try {
-              await sendOrderDeliveredNotification(
-                parentId: orderDetails.parentId!,
-                childName: orderDetails.childName ?? 'your child',
-                staffName: staffData.value!.staffName ?? 'staff',
-                orderId: orderId,
-              );
-            } catch (e) {
-              print("Error sending delivery notification to parent: $e");
-              // Log the error but don't rethrow to avoid disrupting the main flow
-            }
-          }
-
-          // Send notification to cafe owner about order delivery
+        if (orderDetails.cafeteriaId != null && totalAmount > 0) {
+          // Fetch commission percentage from AppSettings collection
           try {
-            await sendOrderDeliveredNotificationToCafeOwner(
-              cafeteriaName: orderDetails.cafeteriaName ?? '',
-              childName: orderDetails.childName ?? 'a child',
-              staffName: staffData.value!.staffName ?? 'staff',
-              orderId: orderId,
-              totalAmount: totalAmount,
-            );
-          } catch (e) {
-            print("Error sending delivery notification to cafe owner: $e");
-            // Log the error but don't rethrow to avoid disrupting the main flow
-          }
+            final appSettingsDoc = await FirebaseFirestore.instance
+                .collection('AppSettings')
+                .doc('paymentSettings')
+                .get();
 
-          // Process payout to cafeteria admin if we have the necessary data
-          if (orderDetails.cafeteriaId != null && totalAmount > 0) {
-            // Fetch commission percentage from AppSettings collection
-            try {
-              final appSettingsDoc = await FirebaseFirestore.instance
-                  .collection('AppSettings')
-                  .doc('paymentSettings')
-                  .get();
+            print("📄 App Settings document exists: ${appSettingsDoc.exists}");
+            if (appSettingsDoc.exists) {
+              print("📄 App Settings data: ${appSettingsDoc.data()}");
+            }
 
-              print(
-                  "📄 App Settings document exists: ${appSettingsDoc.exists}");
-              if (appSettingsDoc.exists) {
-                print("📄 App Settings data: ${appSettingsDoc.data()}");
+            var rawCommissionData = appSettingsDoc.data()!;
+            print("📊 Raw commission data: $rawCommissionData");
+
+            // Extract the snackTagCommission value
+            // var rawCommission = rawCommissionData['snackTagComission'];
+            // print(
+            // "📊 Raw commission value: $rawCommission (${rawCommission.runtimeType})");
+
+            // Handle different data types
+            commissionPercentage = 0;
+            // if (rawCommission is int) {
+            //   commissionPercentage = rawCommission.toDouble();
+            // } else if (rawCommission is double) {
+            //   commissionPercentage = rawCommission;
+            // } else if (rawCommission is String) {
+            // commissionPercentage = double.tryParse(rawCommission) ?? 0;
+            // } else {
+            //   // Try to handle any other unexpected format
+            //   try {
+            commissionPercentage =
+                double.parse(rawCommissionData['snackTagComission'].toString());
+            //   } catch (e) {
+            //     print("❌ Error parsing commission value: $e");
+            //     commissionPercentage = 0;
+            //   }
+            // }
+
+            print(
+                "📊 SnackTag commission percentage (parsed): $commissionPercentage%");
+
+            // Calculate commission amount
+            double commissionAmount =
+                (totalAmount * commissionPercentage / 100);
+
+            // Calculate payout amount after deducting commission
+            payoutAmount = totalAmount - commissionAmount;
+
+            print("💰 Total amount: $totalAmount");
+            print("💰 Commission percentage: $commissionPercentage%");
+            print("💰 Commission amount: $commissionAmount");
+            print("💰 Payout amount: $payoutAmount");
+
+            // Make sure paymentDetails is a valid Firestore map
+            // Use ISO string for timestamps instead of FieldValue.serverTimestamp()
+            // as the latter can only be used directly with set() and update()
+            Map<String, dynamic> paymentDetails = {
+              'paymentProcessed': true,
+              'paymentDetails': {
+                'totalAmount': totalAmount,
+                'commissionPercentage': commissionPercentage,
+                'commissionAmount': commissionAmount,
+                'payoutAmount': payoutAmount,
+                'processedAt': DateTime.now().toIso8601String(),
+                'processedBy': staffData.value!.staffName,
+                'status': 'processing'
               }
+            };
 
-              var rawCommissionData = appSettingsDoc.data()!;
-              print("📊 Raw commission data: $rawCommissionData");
+            // Then update the document
+            await _firestore
+                .collection('orderPreparation')
+                .doc(orderId)
+                .update(paymentDetails);
 
-              // Extract the snackTagCommission value
-              // var rawCommission = rawCommissionData['snackTagComission'];
-              // print(
-              // "📊 Raw commission value: $rawCommission (${rawCommission.runtimeType})");
+            // Process payout with the new amount
+            payoutSuccess =
+                await _preparationService.processCafeteriaAdminPayout(
+                    orderDetails.cafeteriaId!,
+                    payoutAmount,
+                    orderId); // Pass orderId instead of transaction ID
 
-              // Handle different data types
-              double commissionPercentage = 0;
-              // if (rawCommission is int) {
-              //   commissionPercentage = rawCommission.toDouble();
-              // } else if (rawCommission is double) {
-              //   commissionPercentage = rawCommission;
-              // } else if (rawCommission is String) {
-              // commissionPercentage = double.tryParse(rawCommission) ?? 0;
-              // } else {
-              //   // Try to handle any other unexpected format
-              //   try {
-              commissionPercentage = double.parse(
-                  rawCommissionData['snackTagComission'].toString());
-              //   } catch (e) {
-              //     print("❌ Error parsing commission value: $e");
-              //     commissionPercentage = 0;
-              //   }
-              // }
-
-              print(
-                  "📊 SnackTag commission percentage (parsed): $commissionPercentage%");
-
-              // Calculate commission amount
-              double commissionAmount =
-                  (totalAmount * commissionPercentage / 100);
-
-              // Calculate payout amount after deducting commission
-              double payoutAmount = totalAmount - commissionAmount;
-
-              print("💰 Total amount: $totalAmount");
-              print("💰 Commission percentage: $commissionPercentage%");
-              print("💰 Commission amount: $commissionAmount");
-              print("💰 Payout amount: $payoutAmount");
-
-              // Make sure paymentDetails is a valid Firestore map
-              // Use ISO string for timestamps instead of FieldValue.serverTimestamp()
-              // as the latter can only be used directly with set() and update()
-              Map<String, dynamic> paymentDetails = {
-                'paymentProcessed': true,
-                'paymentDetails': {
-                  'totalAmount': totalAmount,
-                  'commissionPercentage': commissionPercentage,
-                  'commissionAmount': commissionAmount,
-                  'payoutAmount': payoutAmount,
-                  'processedAt': DateTime.now().toIso8601String(),
-                  'processedBy': staffData.value!.staffName,
-                  'status': 'processing'
-                }
-              };
-
-              // Then update the document
+            // Update payment status based on payout result
+            if (payoutSuccess) {
+              // Update payment status to completed
               await _firestore
                   .collection('orderPreparation')
                   .doc(orderId)
-                  .update(paymentDetails);
+                  .update({
+                'paymentDetails.status': 'completed',
+                'paymentDetails.payoutCompletedAt':
+                    DateTime.now().toIso8601String(),
+                'paymentDetails.payoutResponse': 'success'
+              });
 
-              // Process payout with the new amount
-              bool payoutSuccess =
-                  await _preparationService.processCafeteriaAdminPayout(
-                      orderDetails.cafeteriaId!,
-                      payoutAmount,
-                      orderId); // Pass orderId instead of transaction ID
+              // Now that payout is successful, mark the order as delivered
+              bool success = await _preparationService.markOrderAsDelivered(
+                  orderId,
+                  staffData.value!.staffName!,
+                  staffData.value!.staffPhone ??
+                      ''); // Pass staff ID if available
 
-              // Update payment status based on payout result
-              if (payoutSuccess) {
-                // Update payment status to completed
-                await _firestore
-                    .collection('orderPreparation')
-                    .doc(orderId)
-                    .update({
-                  'paymentDetails.status': 'completed',
-                  'paymentDetails.payoutCompletedAt':
-                      DateTime.now().toIso8601String(),
-                  'paymentDetails.payoutResponse': 'success'
-                });
+              if (success) {
+                // Send notification to parent about order delivery
+                if (orderDetails.parentId != null &&
+                    orderDetails.parentId!.isNotEmpty) {
+                  try {
+                    await sendOrderDeliveredNotification(
+                      parentId: orderDetails.parentId!,
+                      childName: orderDetails.childName ?? 'your child',
+                      staffName: staffData.value!.staffName ?? 'staff',
+                      orderId: orderId,
+                    );
+                  } catch (e) {
+                    print("Error sending delivery notification to parent: $e");
+                    // Log the error but don't rethrow to avoid disrupting the main flow
+                  }
+                }
 
+                // Send notification to cafe owner about order delivery
+                try {
+                  await sendOrderDeliveredNotificationToCafeOwner(
+                    cafeteriaName: orderDetails.cafeteriaName ?? '',
+                    childName: orderDetails.childName ?? 'a child',
+                    staffName: staffData.value!.staffName ?? 'staff',
+                    orderId: orderId,
+                    totalAmount: totalAmount,
+                  );
+                } catch (e) {
+                  print(
+                      "Error sending delivery notification to cafe owner: $e");
+                  // Log the error but don't rethrow to avoid disrupting the main flow
+                }
+
+                // Update history view
+                final historyController = Get.find<StaffHistoryController>();
+                historyController.updateSelectedIndex(1);
+
+                // Show success message
                 if (paymentDeducted) {
                   Get.snackbar(
                     'Success',
@@ -323,105 +339,162 @@ class StaffOrderPreparingController extends GetxController {
                     snackPosition: SnackPosition.TOP,
                   );
                 }
-              } else {
-                // Update payment status to failed
-                await _firestore
-                    .collection('orderPreparation')
-                    .doc(orderId)
-                    .update({
-                  'paymentDetails.status': 'failed',
-                  'paymentDetails.payoutFailedAt':
-                      DateTime.now().toIso8601String(),
-                  'paymentDetails.payoutResponse': 'failed'
-                });
-
-                if (paymentDeducted) {
-                  Get.snackbar(
-                    'Warning',
-                    'Order delivered and payment deducted, but payout to cafeteria failed',
-                    snackPosition: SnackPosition.TOP,
-                  );
-                } else {
-                  Get.snackbar(
-                    'Warning',
-                    'Order delivered but payment processing failed',
-                    snackPosition: SnackPosition.TOP,
-                  );
-                }
               }
-            } catch (e) {
-              print("❌ Error processing commission and payout: $e");
-
-              // Try to extract more detailed error information
-              String errorMessage =
-                  'Order delivered but payment processing encountered an error';
-              Map<String, dynamic> errorDetails = {
-                'error': e.toString(),
-                'timestamp': DateTime.now().toIso8601String()
-              };
-
-              // Check if the error contains Stripe account information
-              if (e.toString().contains("Account not enabled for payouts")) {
-                try {
-                  // Try to parse the error message to extract more details
-                  final errorString = e.toString();
-                  final jsonStart = errorString.indexOf('{');
-                  final jsonEnd = errorString.lastIndexOf('}') + 1;
-
-                  if (jsonStart >= 0 && jsonEnd > jsonStart) {
-                    final jsonString =
-                        errorString.substring(jsonStart, jsonEnd);
-                    final errorData = json.decode(jsonString);
-
-                    // Extract detailed information
-                    if (errorData['missingRequirements'] != null) {
-                      final requirements = errorData['missingRequirements'];
-                      if (requirements is List && requirements.isNotEmpty) {
-                        errorMessage =
-                            'Stripe account setup incomplete: ${requirements.join(", ")}';
-                        errorDetails['missingRequirements'] = requirements;
-                      }
-                    }
-
-                    // Add country information if available
-                    if (errorData['country'] != null) {
-                      errorDetails['country'] = errorData['country'];
-                    }
-
-                    // Add capabilities information if available
-                    if (errorData['capabilities'] != null) {
-                      errorDetails['capabilities'] = errorData['capabilities'];
-                    }
-                  }
-                } catch (parseError) {
-                  print(
-                      "❌ Error parsing detailed error information: $parseError");
-                }
-
-                // Update the error message to be more helpful
-                errorMessage =
-                    'Stripe account setup incomplete. Please complete the account setup in the Stripe dashboard and ensure the "transfers" capability is enabled.';
-              }
-
-              // Update payment status to error with detailed information
+            } else {
+              // Update payment status to failed
               await _firestore
                   .collection('orderPreparation')
                   .doc(orderId)
                   .update({
-                'paymentDetails.status': 'error',
-                'paymentDetails.error': e.toString(),
-                'paymentDetails.errorDetails': errorDetails,
-                'paymentDetails.errorAt': DateTime.now().toIso8601String()
+                'paymentDetails.status': 'failed',
+                'paymentDetails.payoutFailedAt':
+                    DateTime.now().toIso8601String(),
+                'paymentDetails.payoutResponse': 'failed'
               });
 
+              // Show snackbar to staff and don't deliver the order
               Get.snackbar(
-                'Warning',
-                errorMessage,
+                'Payout Failed',
+                'Please contect to your support to add bank details then try again later.',
                 snackPosition: SnackPosition.TOP,
                 duration: Duration(seconds: 5),
               );
+
+              // If payment was deducted, refund it to the parent's wallet
+              if (paymentDeducted && orderDetails.parentId != null) {
+                await _preparationService.refundPaymentToParentWallet(
+                    orderDetails.parentId!,
+                    totalAmount,
+                    orderDetails.childId ?? '');
+              }
+
+              return; // Exit the function early without delivering the order
             }
-          } else {
+          } catch (e) {
+            print("❌ Error processing commission and payout: $e");
+
+            String errorMessage =
+                'Order delivered but payment processing encountered an error';
+            Map<String, dynamic> errorDetails = {
+              'error': e.toString(),
+              'timestamp': DateTime.now().toIso8601String()
+            };
+
+            // Check if the error contains Stripe account information
+            if (e.toString().contains("Account not enabled for payouts")) {
+              try {
+                // Try to parse the error message to extract more details
+                final errorString = e.toString();
+                final jsonStart = errorString.indexOf('{');
+                final jsonEnd = errorString.lastIndexOf('}') + 1;
+
+                if (jsonStart >= 0 && jsonEnd > jsonStart) {
+                  final jsonString = errorString.substring(jsonStart, jsonEnd);
+                  final errorData = json.decode(jsonString);
+
+                  // Extract detailed information
+                  if (errorData['missingRequirements'] != null) {
+                    final requirements = errorData['missingRequirements'];
+                    if (requirements is List && requirements.isNotEmpty) {
+                      errorMessage =
+                          'Stripe account setup incomplete: ${requirements.join(", ")}';
+                      errorDetails['missingRequirements'] = requirements;
+                    }
+                  }
+
+                  // Add country information if available
+                  if (errorData['country'] != null) {
+                    errorDetails['country'] = errorData['country'];
+                  }
+
+                  // Add capabilities information if available
+                  if (errorData['capabilities'] != null) {
+                    errorDetails['capabilities'] = errorData['capabilities'];
+                  }
+                }
+              } catch (parseError) {
+                print(
+                    "❌ Error parsing detailed error information: $parseError");
+              }
+
+              // Update the error message to be more helpful
+              errorMessage =
+                  'Stripe account setup incomplete. Please complete the account setup in the Stripe dashboard and ensure the "transfers" capability is enabled.';
+            }
+
+            // Update payment status to error with detailed information
+            await _firestore
+                .collection('orderPreparation')
+                .doc(orderId)
+                .update({
+              'paymentDetails.status': 'error',
+              'paymentDetails.error': e.toString(),
+              'paymentDetails.errorDetails': errorDetails,
+              'paymentDetails.errorAt': DateTime.now().toIso8601String()
+            });
+
+            // Show snackbar to staff and don't deliver the order
+            Get.snackbar(
+              'Payout Error',
+              'Cannot deliver order. Error processing payout to cafeteria.',
+              snackPosition: SnackPosition.TOP,
+              duration: Duration(seconds: 5),
+            );
+
+            // If payment was deducted, refund it to the parent's wallet
+            if (paymentDeducted && orderDetails.parentId != null) {
+              await _preparationService.refundPaymentToParentWallet(
+                  orderDetails.parentId!,
+                  totalAmount,
+                  orderDetails.childId ?? '');
+            }
+
+            return; // Exit the function early without delivering the order
+          }
+        } else {
+          // No cafeteria ID or total amount is zero, so we can proceed with delivery
+          // Mark the order as delivered - pass staff ID if available
+          bool success = await _preparationService.markOrderAsDelivered(
+              orderId,
+              staffData.value!.staffName!,
+              staffData.value!.staffPhone ?? ''); // Pass staff ID if available
+
+          if (success) {
+            // Send notification to parent about order delivery
+            if (orderDetails.parentId != null &&
+                orderDetails.parentId!.isNotEmpty) {
+              try {
+                await sendOrderDeliveredNotification(
+                  parentId: orderDetails.parentId!,
+                  childName: orderDetails.childName ?? 'your child',
+                  staffName: staffData.value!.staffName ?? 'staff',
+                  orderId: orderId,
+                );
+              } catch (e) {
+                print("Error sending delivery notification to parent: $e");
+                // Log the error but don't rethrow to avoid disrupting the main flow
+              }
+            }
+
+            // Send notification to cafe owner about order delivery
+            try {
+              await sendOrderDeliveredNotificationToCafeOwner(
+                cafeteriaName: orderDetails.cafeteriaName ?? '',
+                childName: orderDetails.childName ?? 'a child',
+                staffName: staffData.value!.staffName ?? 'staff',
+                orderId: orderId,
+                totalAmount: totalAmount,
+              );
+            } catch (e) {
+              print("Error sending delivery notification to cafe owner: $e");
+              // Log the error but don't rethrow to avoid disrupting the main flow
+            }
+
+            // Update history view
+            final historyController = Get.find<StaffHistoryController>();
+            historyController.updateSelectedIndex(1);
+
+            // Show success message
             if (paymentDeducted) {
               Get.snackbar(
                 'Success',
@@ -436,10 +509,6 @@ class StaffOrderPreparingController extends GetxController {
               );
             }
           }
-
-          // Update history view
-          final historyController = Get.find<StaffHistoryController>();
-          historyController.updateSelectedIndex(1);
         }
       } else {
         Get.snackbar(
