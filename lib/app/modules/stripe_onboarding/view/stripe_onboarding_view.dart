@@ -53,7 +53,8 @@ class _StripeOnboardingViewState extends State<StripeOnboardingView> {
             'stripeOnboardingTimestamp': FieldValue.serverTimestamp(),
           };
 
-          // First priority: Use the stripeAccountId passed to the widget if available
+          // ALWAYS use the stripeAccountId passed to the widget if available
+          // This is the account ID from the initial API response
           if (widget.stripeAccountId != null &&
               widget.stripeAccountId!.isNotEmpty) {
             updateData['stripeAccountId'] = widget.stripeAccountId;
@@ -61,8 +62,22 @@ class _StripeOnboardingViewState extends State<StripeOnboardingView> {
             developer.log(
                 'Using Stripe account ID from parameter: ${widget.stripeAccountId}',
                 name: 'StripeWebView');
+
+            // Log any account ID in the URL for debugging
+            if (currentUrl.contains('account_id=')) {
+              final accountIdRegex = RegExp(r'account_id=([^&]+)');
+              final match = accountIdRegex.firstMatch(currentUrl);
+              if (match != null && match.groupCount >= 1) {
+                final urlAccountId = match.group(1);
+                if (urlAccountId != null && urlAccountId.isNotEmpty) {
+                  developer.log(
+                      'Found account_id in URL: $urlAccountId but IGNORING it in favor of original account ID: ${widget.stripeAccountId}',
+                      name: 'StripeWebView');
+                }
+              }
+            }
           }
-          // Second priority: If we don't have a stripeAccountId but have an account_id in the URL, use that
+          // Only use URL account ID if we don't have one passed as parameter
           else if (currentUrl.contains('account_id=')) {
             final accountIdRegex = RegExp(r'account_id=([^&]+)');
             final match = accountIdRegex.firstMatch(currentUrl);
@@ -73,7 +88,7 @@ class _StripeOnboardingViewState extends State<StripeOnboardingView> {
                 updateData['stripeAccountCreatedAt'] =
                     FieldValue.serverTimestamp();
                 developer.log(
-                    'Extracted Stripe account ID from URL: $accountId',
+                    'No account ID parameter provided. Extracted Stripe account ID from URL: $accountId',
                     name: 'StripeWebView');
               }
             }
@@ -102,7 +117,8 @@ class _StripeOnboardingViewState extends State<StripeOnboardingView> {
             'userId': userId, // Include user ID for reference
           };
 
-          // Add Stripe account ID if available
+          // ALWAYS use the stripeAccountId passed to the widget if available
+          // This is the account ID from the initial API response
           if (widget.stripeAccountId != null &&
               widget.stripeAccountId!.isNotEmpty) {
             newUserData['stripeAccountId'] = widget.stripeAccountId;
@@ -111,8 +127,22 @@ class _StripeOnboardingViewState extends State<StripeOnboardingView> {
             developer.log(
                 'Adding Stripe account ID to new user document: ${widget.stripeAccountId}',
                 name: 'StripeWebView');
+
+            // Log any account ID in the URL for debugging
+            if (currentUrl.contains('account_id=')) {
+              final accountIdRegex = RegExp(r'account_id=([^&]+)');
+              final match = accountIdRegex.firstMatch(currentUrl);
+              if (match != null && match.groupCount >= 1) {
+                final urlAccountId = match.group(1);
+                if (urlAccountId != null && urlAccountId.isNotEmpty) {
+                  developer.log(
+                      'Found account_id in URL: $urlAccountId but IGNORING it in favor of original account ID: ${widget.stripeAccountId}',
+                      name: 'StripeWebView');
+                }
+              }
+            }
           } else {
-            // Try to extract from URL if available
+            // Only try to extract from URL if we don't have an account ID parameter
             if (currentUrl.contains('account_id=')) {
               final accountIdRegex = RegExp(r'account_id=([^&]+)');
               final match = accountIdRegex.firstMatch(currentUrl);
@@ -123,7 +153,7 @@ class _StripeOnboardingViewState extends State<StripeOnboardingView> {
                   newUserData['stripeAccountCreatedAt'] =
                       FieldValue.serverTimestamp();
                   developer.log(
-                      'Extracted Stripe account ID from URL for new user: $accountId',
+                      'No account ID parameter provided. Extracted Stripe account ID from URL for new user: $accountId',
                       name: 'StripeWebView');
                 }
               }
@@ -309,20 +339,40 @@ class _StripeOnboardingViewState extends State<StripeOnboardingView> {
               // Handle success immediately
               Future.microtask(() async {
                 try {
-                  // If we have an extracted account ID, update it
+                  // If we have an extracted account ID, handle it based on priority
                   if (extractedAccountId != null &&
-                      extractedAccountId.isNotEmpty &&
-                      (widget.stripeAccountId == null ||
-                          widget.stripeAccountId!.isEmpty)) {
-                    // Update user document with the extracted account ID
+                      extractedAccountId.isNotEmpty) {
                     final userId = _auth.currentUser?.uid;
                     if (userId != null) {
-                      await _firestore.collection('users').doc(userId).update({
-                        'stripeAccountId': extractedAccountId,
-                      });
-                      developer.log(
-                          'Updated user document with extracted account ID: $extractedAccountId',
-                          name: 'StripeWebView');
+                      // ONLY use the extracted account ID if we don't have one from the parameter
+                      if (widget.stripeAccountId == null ||
+                          widget.stripeAccountId!.isEmpty) {
+                        await _firestore
+                            .collection('users')
+                            .doc(userId)
+                            .update({
+                          'stripeAccountId': extractedAccountId,
+                        });
+                        developer.log(
+                            'No account ID parameter provided. Updated user document with extracted account ID: $extractedAccountId',
+                            name: 'StripeWebView');
+                      } else {
+                        // Log that we're ignoring the extracted account ID
+                        developer.log(
+                            'Found account_id in URL: $extractedAccountId but IGNORING it in favor of original account ID: ${widget.stripeAccountId}',
+                            name: 'StripeWebView');
+
+                        // Make sure the original account ID is still in the database
+                        await _firestore
+                            .collection('users')
+                            .doc(userId)
+                            .update({
+                          'stripeAccountId': widget.stripeAccountId,
+                        });
+                        developer.log(
+                            'Reinforced original account ID in database: ${widget.stripeAccountId}',
+                            name: 'StripeWebView');
+                      }
                     }
                   }
 
@@ -481,20 +531,40 @@ class _StripeOnboardingViewState extends State<StripeOnboardingView> {
               // Handle success immediately
               Future.microtask(() async {
                 try {
-                  // If we have an extracted account ID, update it
+                  // If we have an extracted account ID, handle it based on priority
                   if (extractedAccountId != null &&
-                      extractedAccountId.isNotEmpty &&
-                      (widget.stripeAccountId == null ||
-                          widget.stripeAccountId!.isEmpty)) {
-                    // Update user document with the extracted account ID
+                      extractedAccountId.isNotEmpty) {
                     final userId = _auth.currentUser?.uid;
                     if (userId != null) {
-                      await _firestore.collection('users').doc(userId).update({
-                        'stripeAccountId': extractedAccountId,
-                      });
-                      developer.log(
-                          'Updated user document with extracted account ID from URL change: $extractedAccountId',
-                          name: 'StripeWebView');
+                      // ONLY use the extracted account ID if we don't have one from the parameter
+                      if (widget.stripeAccountId == null ||
+                          widget.stripeAccountId!.isEmpty) {
+                        await _firestore
+                            .collection('users')
+                            .doc(userId)
+                            .update({
+                          'stripeAccountId': extractedAccountId,
+                        });
+                        developer.log(
+                            'No account ID parameter provided. Updated user document with extracted account ID from URL change: $extractedAccountId',
+                            name: 'StripeWebView');
+                      } else {
+                        // Log that we're ignoring the extracted account ID
+                        developer.log(
+                            'Found account_id in URL change: $extractedAccountId but IGNORING it in favor of original account ID: ${widget.stripeAccountId}',
+                            name: 'StripeWebView');
+
+                        // Make sure the original account ID is still in the database
+                        await _firestore
+                            .collection('users')
+                            .doc(userId)
+                            .update({
+                          'stripeAccountId': widget.stripeAccountId,
+                        });
+                        developer.log(
+                            'Reinforced original account ID in database from URL change: ${widget.stripeAccountId}',
+                            name: 'StripeWebView');
+                      }
                     }
                   }
 

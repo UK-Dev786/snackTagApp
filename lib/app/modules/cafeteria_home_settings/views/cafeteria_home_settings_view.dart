@@ -193,32 +193,17 @@ class CafeteriaHomeSettingsView extends GetView<CafeteriaSettingsController> {
                           final response = await cloudFunctionsService
                               .callFunction('account', {});
 
-                          // Log the response for debugging
-                          developer.log('Account endpoint response: $response',
-                              name: 'CafeteriaHomeSettings');
-
                           // Close the loading dialog
                           if (Get.isDialogOpen == true) {
                             Get.back();
                           }
 
                           if (response != null && response['link'] != null) {
-                            // Determine which Stripe account ID to use
+                            // Always use the new account ID from the response
                             String? stripeAccountId;
-                            bool isNewAccount = false;
 
-                            // If we have an existing account ID, use that
-                            if (existingStripeAccountId != null &&
-                                existingStripeAccountId.isNotEmpty) {
-                              stripeAccountId = existingStripeAccountId;
-                              developer.log(
-                                  'Using existing Stripe account ID: $stripeAccountId',
-                                  name: 'CafeteriaHomeSettings');
-                            }
-                            // Otherwise, use the new account ID from the response
-                            else if (response['account'] != null) {
+                            if (response['account'] != null) {
                               stripeAccountId = response['account']['id'];
-                              isNewAccount = true;
                               developer.log(
                                   'Using new Stripe account ID: $stripeAccountId',
                                   name: 'CafeteriaHomeSettings');
@@ -228,22 +213,20 @@ class CafeteriaHomeSettingsView extends GetView<CafeteriaSettingsController> {
                             if (stripeAccountId != null &&
                                 stripeAccountId.isNotEmpty) {
                               try {
-                                // Only update Firestore if this is a new account
-                                if (isNewAccount) {
-                                  developer.log(
-                                      'Storing new Stripe account ID in Firestore: $stripeAccountId',
-                                      name: 'CafeteriaHomeSettings');
+                                // Always update Firestore with the new account ID
+                                developer.log(
+                                    'Storing new Stripe account ID in Firestore: $stripeAccountId',
+                                    name: 'CafeteriaHomeSettings');
 
-                                  // Update the user document with the Stripe account ID
-                                  await FirebaseFirestore.instance
-                                      .collection('users')
-                                      .doc(user.uid)
-                                      .update({
-                                    'stripeAccountId': stripeAccountId,
-                                    'stripeAccountCreatedAt':
-                                        FieldValue.serverTimestamp(),
-                                  });
-                                }
+                                // Update the user document with the Stripe account ID
+                                await FirebaseFirestore.instance
+                                    .collection('users')
+                                    .doc(user.uid)
+                                    .update({
+                                  'stripeAccountId': stripeAccountId,
+                                  'stripeAccountCreatedAt':
+                                      FieldValue.serverTimestamp(),
+                                });
 
                                 // Open Stripe onboarding in WebView
                                 Get.to(() => StripeOnboardingView(
@@ -281,7 +264,7 @@ class CafeteriaHomeSettingsView extends GetView<CafeteriaSettingsController> {
                               colorText: Colors.red[800],
                             );
                             developer.log(
-                                'Invalid response from account endpoint: $response',
+                                'Invalid response from createSnackTagStripeAccount: $response',
                                 name: 'CafeteriaHomeSettings');
                           }
                         } catch (e) {

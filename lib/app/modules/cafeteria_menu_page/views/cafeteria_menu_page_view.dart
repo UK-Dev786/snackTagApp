@@ -382,11 +382,11 @@ class CafeteriaMenuPageView extends GetView<CafeteriaMenuPageController> {
             developer.log('User document data: ${userDoc.data()}',
                 name: 'CafeteriaMenuPage');
 
-            // Check if user has a Stripe account - MUST have stripeAccountId
-            // We need the actual account ID for payouts, so just having onboarding complete is not enough
+            // Check if user has a Stripe account - MUST have both stripeAccountId AND stripeOnboardingComplete
             final hasStripeAccount = userDoc.exists &&
                 userDoc.data() != null &&
-                userDoc.data()!['stripeAccountId'] != null;
+                userDoc.data()!['stripeAccountId'] != null &&
+                userDoc.data()!['stripeOnboardingComplete'] == true;
 
             // Log the check results for debugging
             developer.log(
@@ -395,62 +395,8 @@ class CafeteriaMenuPageView extends GetView<CafeteriaMenuPageController> {
                 'stripeOnboardingComplete=${userDoc.data()?['stripeOnboardingComplete']}',
                 name: 'CafeteriaMenuPage');
 
-            // Handle different Stripe account states
-            if (userDoc.exists && userDoc.data() != null) {
-              // Case 1: User has stripeAccountId but stripeOnboardingComplete is not set
-              // Update it to ensure future checks work correctly
-              if (userDoc.data()!['stripeAccountId'] != null &&
-                  userDoc.data()!['stripeOnboardingComplete'] != true) {
-                developer.log(
-                    'Updating Stripe onboarding status for existing account',
-                    name: 'CafeteriaMenuPage');
-
-                try {
-                  await FirebaseFirestore.instance
-                      .collection('users')
-                      .doc(user.uid)
-                      .update({
-                    'stripeOnboardingComplete': true,
-                    'stripeOnboardingDate': FieldValue.serverTimestamp(),
-                  });
-                } catch (e) {
-                  developer.log('Error updating Stripe status: $e',
-                      name: 'CafeteriaMenuPage');
-                }
-              }
-              // Case 2: User has stripeOnboardingComplete but no stripeAccountId
-              // This is an invalid state - we need to reset and have them go through onboarding again
-              else if (userDoc.data()!['stripeOnboardingComplete'] == true &&
-                  userDoc.data()!['stripeAccountId'] == null) {
-                developer.log(
-                    'Invalid state: onboarding complete but no account ID. Resetting onboarding status.',
-                    name: 'CafeteriaMenuPage');
-
-                try {
-                  await FirebaseFirestore.instance
-                      .collection('users')
-                      .doc(user.uid)
-                      .update({
-                    'stripeOnboardingComplete': false,
-                  });
-
-                  // Show a message to the user
-                  Get.snackbar(
-                    'Account Setup Required',
-                    'Your Stripe account setup is incomplete. Please complete the setup to continue.',
-                    duration: const Duration(seconds: 5),
-                    backgroundColor: Colors.orange[100],
-                    colorText: Colors.orange[800],
-                  );
-                } catch (e) {
-                  developer.log('Error resetting Stripe status: $e',
-                      name: 'CafeteriaMenuPage');
-                }
-              }
-            }
-
             if (hasStripeAccount) {
-              // User already has a Stripe account, go directly to meal details
+              // User already has a Stripe account with completed onboarding, go directly to meal details
               Get.snackbar(
                 'Account Already Set Up',
                 'You already have a Stripe account configured.',
@@ -461,7 +407,7 @@ class CafeteriaMenuPageView extends GetView<CafeteriaMenuPageController> {
               return;
             }
 
-            // If no account exists, create one
+            // If no account exists or onboarding is not complete, create one
             Get.snackbar('Processing', 'Setting up your Stripe account...');
 
             final response = await Get.find<CloudFunctionsService>()
