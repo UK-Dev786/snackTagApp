@@ -450,7 +450,7 @@ class ChildrenDetailsController extends GetxController {
     }
 
     print(
-        "[CalculateScheduledDates] Generated ${scheduledDates.length} scheduled dates length");
+        "[CalculateScheduledDates] Generated ${scheduledDates.length} scheduled dates");
     return scheduledDates;
   }
 }
